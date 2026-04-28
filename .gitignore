@@ -1,0 +1,40 @@
+
+.env
+*.env.local
+#php
+vendor/
+
+# Sistem de operare
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE 
+
+.vscode/
+.idea/
+*.suo
+*.user
+*.swp
+*.swo
+*~
+
+# Fișiere temporare / log-uri
+
+*.log
+/logs/
+/tmp/
+/cache/
+=
+# Upload-uri utilizatori (nu se versionează)
+
+/backend/uploads/*
+!/backend/uploads/.gitkeep
+/frontend/uploads/*
+!/frontend/uploads/.gitkeep
+
+
+# Baza de date locală
+
+*.sqlite
+*.db
