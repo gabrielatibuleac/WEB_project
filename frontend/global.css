@@ -1,0 +1,49 @@
+/* global colors for the entire site */
+:root {
+    --color-1: #F08080; 
+    --color-2: #F4978E; 
+    --color-3: #F8AD9D; 
+    --color-4: #FBC4AB; 
+    --color-5: #FFDAB9; 
+    --text-dark: #1f1f1f;
+    --text-gray: #4a4a4a;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    padding: 20px; 
+    min-height: 100vh;
+}
+
+.mainBox {
+    background-color: var(--color-5);
+    border-radius: 40px;
+    padding: 20px 40px 60px 40px;
+    min-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-primary {
+    background-color: var(--color-1);
+    color: white !important;
+    padding: 12px 24px;
+    border-radius: 100px;
+    gap: 8px;
+    text-decoration: none;
+    display: inline-flex;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: #e56a6a;
+    transform: scale(1.02);
+    opacity: 1 !important;
+}
