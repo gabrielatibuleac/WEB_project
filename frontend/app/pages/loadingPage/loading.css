@@ -1,0 +1,132 @@
+.navBar {
+    background-color: #ffffff;
+    border-bottom-left-radius: 24px;
+    border-bottom-right-radius: 24px;
+    padding: 15px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 85%;
+    max-width: 1100px;
+    margin: -20px auto 40px auto;
+}
+
+.nav, .logo, .signIn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.nav {
+    justify-content: flex-start;
+    gap: 24px;
+}
+
+.logo {
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    gap: 10px;
+}
+
+.signIn{
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.navBar a {
+    text-decoration: none;
+    color: var(--text-dark);
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: opacity 0.2s;
+}
+
+.navBar a:hover {
+    opacity: 0.7;
+}
+
+.hero {
+    text-align: center;
+    margin: 40px auto 80px auto;
+    max-width: 800px;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    color: var(--text-dark);
+    margin-bottom: 24px;
+    letter-spacing: -0.03em;
+}
+
+.hero p {
+    font-size: 1.25rem;
+    color: var(--text-gray);
+    line-height: 1.5;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.cards-container {
+    display: flex;
+    gap: 20px;
+    height: 450px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.card {
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    flex: 1; 
+    transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s ease;
+}
+
+.card-wide {
+    flex: 2;
+}
+
+.card:hover {
+    flex: 1.8;
+    transform: translateY(-10px);
+}
+
+.card-wide:hover {
+    flex: 2.8;
+    transform: translateY(-10px);
+}
+
+.img {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-top: auto;
+}
+#card1 { 
+    background-image: url('../../../assets/img01.png'); 
+    background-size: cover;
+    background-position: center;
+}
+#card2 { 
+    background-image: url('../../../assets/img02.png');
+    background-size: cover;
+    background-position: center;
+}
+#card3 { 
+    background-image: url('../../../assets/img03.png');
+    background-size: cover;
+    background-position: center;
+}
+#card4 { 
+    background-image: url('../../../assets/img04.png');
+    background-size: cover;
+    background-position: center;
+}
