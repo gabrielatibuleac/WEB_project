@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - BaIn</title>
+    <link rel="stylesheet" href="../../../global.css">
+    <link rel="stylesheet" href="auth.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="avatar-circle">👶</div>
+                <h2>Welcome back</h2>
+                <p id="authSubtitle">Sign in to continue to LittleSteps</p>
+            </div>
+            <div class="auth-tabs">
+                <button id="tabLogin" class="active">Sign in</button>
+                <button id="tabRegister">Register</button>
+            </div>
+            <form id="authForm">
+                <div id="registerFields" style="display: none;">
+                    <div class="input-group">
+                        <label for="name">Full name</label>
+                        <input type="text" id="name" placeholder="Your name">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email address</label>
+                    <input type="email" id="email" required placeholder="you@example.com">
+                </div>
+                
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                    <div class="form-footer">
+                       <a href="forgotpassword.html" class="forgot-pass">Forgot password?</a>
+                    </div>
+                </div>
+                <button type="submit" class="btn-submit">Proceed →</button>
+            </form>
+            
+            <p class="terms">By signing in you agree to our Terms of Service and Privacy Policy.</p>
+        </div>
+    </div>
+    <script src="auth.js"></script>
+</body>
+</html>
