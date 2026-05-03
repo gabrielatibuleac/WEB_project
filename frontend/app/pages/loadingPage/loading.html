@@ -6,41 +6,119 @@
     <title>Loading Page</title>
     <link rel="stylesheet" href="../../../global.css">
     <link rel="stylesheet" href="loading.css">
-
 </head>
 <body>
-    <div class="mainBox">
-        <div class="navBar">
+    <div class="navBar">
             <div class="nav">
-            <a href="features"> Features</a>
-            <a href="howItWork">How it works</a>
+                <a href="#featuresBox"> Features</a>
+                <a href="#howItWorkBox">How it works</a>
+            </div>
+            <div class="logo">
+                <a href="loading.html">Baby Info on Web</a>
+                
+            </div>
+            <div class="signIn">
+                <a href="loginin">Sign in</a>
+            </div>
         </div>
-        <div class="logo">
-            <span class="logoHome"></span>
-            Baby Info on Web
+    <div class="mainBox">
+        <section class="hero">
+            <h1>BABY INFO <br> ON <br> WEB</h1>
+            <p>something..</p>
+        </section>
+        <section class="cards-container">
+            <div class="card" id="card1">
+                <img class="card-bg" src="../../../assets/img01.png" alt="Imagine 1">
+                <div class="img">01</div>
+            </div>
+             <div class="card" id="card2">
+                <img class="card-bg" src="../../../assets/img02.png" alt="Imagine 2">
+                <div class="img">02</div>
+            </div>
+             <div class="card" id="card3">
+                <img class="card-bg" src="../../../assets/img03.png" alt="Imagine 3">
+                <div class="img">03</div>
+            </div>
+             <div class="card" id="card4">
+                <img class="card-bg" src="../../../assets/img04.png" alt="Imagine 4">
+                <div class="img">04</div>
+            </div>
+        </section>
+    </div>
+   <section id="featuresBox">
+    <div class="features-header">
+        <p>MESAJJJ</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="icon-box color-1">🍴</div>
+            <h3>Feeding Schedule</h3>
+            <p>Track breast / bottle feeding, solids introduction, and daily intake patterns with precise timestamps.</p>
         </div>
-        <div class="signIn">
-           <a href="../auth/login.html">Sign in</a>
+
+        <div class="feature-card">
+            <div class="icon-box color-2">🌙</div>
+            <h3>Sleep Tracker</h3>
+            <p>Log naps and night sleep, visualise sleep quality trends, and get personalised insights.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box color-3">📷</div>
+            <h3>Multimedia Gallery</h3>
+            <p>Organise photos, videos, and audio recordings by date or milestone.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box color-4">➕</div>
+            <h3>Medical History</h3>
+            <p>Store vaccinations, doctor visits, medications, and growth measurements securely.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="icon-box color-5">👥</div>
+            <h3>Relationships</h3>
+            <p>Map connections with cousins, kindergarten friends, and classmates.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon-box color-1">📢</div>
+            <h3>Social Sharing</h3>
+            <p>Share precious moments directly to social platforms or publish an RSS news feed.</p>
         </div>
     </div>
-    <section class="hero">
-        <h1>BABY INFO <br> ON <br> WEB</h1>
-        <p>something..</p>
     </section>
-    <section class="cards-container">
-        <div class="card" id="card1">
-            <div class="img">01</div>
+      <section id="howItWorkBox">
+    <div class="hiw-inner">
+        <span class="hiw-subtitle">SIMPLE SETUP</span>
+        <h2 class="hiw-title">Up and running in minutes</h2>
+
+        <div class="steps-container">
+            <div class="step-item">
+                <div class="step-circle">01</div>
+                <div class="step-info">
+                    <h3>Create your family account</h3>
+                    <p>Register once — invite your partner or family members to collaborate on the same child profile.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle">02</div>
+                <div class="step-info">
+                    <h3>Add your child's profile</h3>
+                    <p>Enter your child's name, birth date, and photo. Add multiple children and switch between them instantly.</p>
+                </div>
+            </div>
+
+            <div class="step-item">
+                <div class="step-circle">03</div>
+                <div class="step-info">
+                    <h3>Start tracking</h3>
+                    <p>Log feedings, sleep, health visits, and milestones. Upload photos and videos directly from your phone.</p>
+                </div>
+            </div>
         </div>
-         <div class="card" id="card2">
-            <div class="img">02</div>
-        </div>
-         <div class="card" id="card3">
-            <div class="img">03</div>
-        </div>
-         <div class="card" id="card4">
-            <div class="img">04</div>
-        </div>
+    </div>
+
     </section>
-     </div>
 </body>
 </html>

@@ -1,7 +1,14 @@
 .navBar {
+    position: fixed;
+    top: 27px;
+    left: 0;
+    right: 0;
+    z-index: 1000;
     background-color: #ffffff;
     border-bottom-left-radius: 24px;
     border-bottom-right-radius: 24px;
+    border-top-left-radius: 24px;
+    border-top-right-radius: 24px;
     padding: 15px 40px;
     display: flex;
     justify-content: space-between;
@@ -23,10 +30,12 @@
 }
 
 .logo {
+    text-decoration: none; 
+    cursor: pointer;
     justify-content: center;
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-dark);
+    color: var(--text-dark, #333);
     gap: 10px;
 }
 
@@ -36,15 +45,31 @@
 }
 
 .navBar a {
+   
     text-decoration: none;
     color: var(--text-dark);
-    font-weight: 500;
+    font-weight: 600; 
     font-size: 0.95rem;
-    transition: opacity 0.2s;
+    padding: 8px 24px; 
+    border-radius: 40px; 
+    transition: all 0.3s ease; 
 }
 
 .navBar a:hover {
-    opacity: 0.7;
+    background-color: var(--color-3); 
+    color: #ffffff; 
+    transform: translateY(-2px); 
+}
+
+.signIn a {
+    background-color: var(--color-1); 
+    color: #ffffff;
+}
+
+.signIn a:hover {
+    background-color: var(--color-2); 
+    box-shadow: 0 4px 12px rgba(240, 128, 128, 0.4);
+    transform: translateY(-2px);
 }
 
 .hero {
@@ -56,14 +81,14 @@
 .hero h1 {
     font-size: 4rem;
     line-height: 1.1;
-    color: var(--text-dark);
+    color: var(--text-dark, #333);
     margin-bottom: 24px;
     letter-spacing: -0.03em;
 }
 
 .hero p {
     font-size: 1.25rem;
-    color: var(--text-gray);
+    color: var(--text-gray, #666);
     line-height: 1.5;
     max-width: 600px;
     margin: 0 auto;
@@ -79,6 +104,8 @@
 }
 
 .card {
+    position: relative; 
+    overflow: hidden;  
     border-radius: 24px;
     padding: 24px;
     display: flex;
@@ -88,6 +115,17 @@
     box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     flex: 1; 
     transition: flex 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.3s ease;
+}
+
+.card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    z-index: 0;
+    pointer-events: none;
 }
 
 .card-wide {
@@ -105,28 +143,164 @@
 }
 
 .img {
+    position: relative; 
+    z-index: 1; 
     font-size: 1.5rem;
     font-weight: 700;
     color: white;
     margin-top: auto;
 }
-#card1 { 
-    background-image: url('../../../assets/img01.png'); 
-    background-size: cover;
-    background-position: center;
+#featuresBox {
+    background-color: var(--color-4);
+        min-height: 100vh; 
+    padding: 100px 20px;
+    text-align: center;
+    background-color: var(--color-4);
+    border-radius: 40px; 
+    margin-top: 20px;
+    min-height: 100vh;
+    padding: 120px 10% 80px 10%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 40px;
+    margin-top: 20px;
 }
-#card2 { 
-    background-image: url('../../../assets/img02.png');
-    background-size: cover;
-    background-position: center;
+
+.features-header {
+    padding: 20px 60px;
+    border-radius: 0px; 
+    margin-bottom: 60px;
+    max-width: 600px;
+    text-decoration: none; 
+    cursor: pointer;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-dark, #333);
+    gap: 10px;
 }
-#card3 { 
-    background-image: url('../../../assets/img03.png');
-    background-size: cover;
-    background-position: center;
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 30px; 
+    width: 100%;
+    max-width: 1100px;
 }
-#card4 { 
-    background-image: url('../../../assets/img04.png');
-    background-size: cover;
-    background-position: center;
+
+.feature-card {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 24px;
+    text-align: left; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.03); 
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.icon-box {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    opacity: 0.8;
+}
+
+.color-1 { background-color:#F5F5F5 }
+.color-2 { background-color: #FFF8E7; }
+.color-3 { background-color: #E5E4E2; }
+.color-4 { background-color: #E6E6FA; }
+.color-5 { background-color: #C8A2C8; }
+
+.feature-card h3 {
+    font-size: 1.2rem;
+    color: var(--text-dark);
+    margin-bottom: 12px;
+}
+
+.feature-card p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    line-height: 1.5;
+}
+#howItWorkBox {
+    min-height: 100vh; 
+    padding: 100px 20px; 
+    text-align: center;
+    background-color: var(--color-3);
+    border-radius: 40px;
+    margin-top: 20px;
+    justify-content: center;
+    min-height: 100vh;      
+    width: 100%;            
+    display: flex;          
+    justify-content: center;
+    align-items: center; 
+   margin-top: 20px;     
+}
+.hiw-inner {
+    background-color: var(--color-5); 
+    padding: 60px 80px;           
+    border-radius: 50px;             
+    width: 85%;                    
+    max-width: 1100px;              
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05); 
+    text-align: center;           
+    margin: 0; 
+}
+.hiw-subtitle
+{
+   color: var(--color-1);
+}
+
+.hiw-title {
+    font-size: 2.5rem;
+    color: var(--text-dark);
+    margin: 20px 0 60px 0;
+    font-weight: 800;
+}
+.steps-container {
+    display: flex;              
+    justify-content: space-between;
+    gap: 40px;
+    text-align: left;           
+    margin-top: 50px;
+}
+
+.step-item {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+}
+
+.step-circle {
+    background-color: var(--color-1); 
+    color: white;
+    min-width: 45px;
+    height: 45px;
+    border-radius: 50%;        
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.step-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: var(--text-dark);
+}
+
+.step-info p {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    line-height: 1.5;
 }
