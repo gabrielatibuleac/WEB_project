@@ -1,0 +1,143 @@
+:root {
+    --primary-coral: #e67e5f;
+    --bg-warm: #F8E7D1;    
+    --text-gray: #757575;
+    --white: #ffffff;
+}
+
+body {
+    background-color: var(--bg-warm);
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.auth-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.avatar-circle {
+    font-size: 2rem;
+    background: #fff0eb;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 50%;
+    margin: 0 auto 15px;
+}
+
+.auth-header h2 {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    margin: 0 0 8px 0;
+}
+
+.auth-header p {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+}
+
+.auth-tabs {
+    display: flex;
+    background: #f0f0f0;
+    padding: 5px;
+    border-radius: 14px;
+    margin-bottom: 25px;
+}
+
+.auth-tabs button {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    background: transparent;
+    font-weight: 600;
+    color: var(--text-gray);
+    transition: all 0.2s ease;
+}
+
+.auth-tabs button.active {
+    background: var(--white);
+    color: var(--text-dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 15px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text-dark);
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1.5px solid #eee;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--primary-coral);
+}
+
+.form-footer {
+    text-align: right;
+    margin-top: 5px;
+}
+
+.forgot-pass {
+    font-size: 0.8rem;
+    color: var(--primary-coral);
+    text-decoration: none;
+}
+
+.btn-submit {
+    background-color: var(--primary-coral);
+    color: var(--white);
+    border: none;
+    padding: 16px;
+    width: 100%;
+    border-radius: 14px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
+.btn-submit:active {
+    transform: scale(0.98);
+}
+
+.terms {
+    font-size: 0.75rem;
+    color: var(--text-gray);
+    margin-top: 20px;
+    line-height: 1.4;
+}
