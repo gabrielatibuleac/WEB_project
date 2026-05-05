@@ -8,7 +8,16 @@
     <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-    <div class="main-container">
+    <nav class="navBar">
+        <a href="../loadingPage/loading.html" class="logo" style="text-decoration: none; color: var(--text-dark); font-weight: 700; font-size: 1.5rem;">
+            <span>👶</span> LittleSteps
+        </a>
+        <div class="signIn">
+            <a href="../loadingPage/loading.html" style="text-decoration: none; color: var(--white); background: var(--color-1); padding: 8px 20px; border-radius: 50px; font-weight: 600;">Back</a>
+        </div>
+    </nav>
+
+    <div class="main-container" style="display: flex; justify-content: center; align-items: center; width: 100%;">
         <div class="auth-card">
             <div class="auth-header">
                 <div class="avatar-circle">👶</div>
@@ -35,13 +44,12 @@
                 <div class="input-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" required placeholder="••••••••">
-                    <div class="form-footer">
+                    <div class="form-footer" style="text-align: right; margin-top: 5px;">
                        <a href="forgotpassword.html" class="forgot-pass">Forgot password?</a>
                     </div>
                 </div>
                 <button type="submit" class="btn-submit">Proceed →</button>
             </form>
-            
             <p class="terms">By signing in you agree to our Terms of Service and Privacy Policy.</p>
         </div>
     </div>

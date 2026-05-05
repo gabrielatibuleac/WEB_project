@@ -47,14 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(endpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json' 
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             });
 
             if (!response.ok) throw new Error('Network response was not ok');
-
             const result = await response.json();
 
             if (result.status === 'success') {
