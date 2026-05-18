@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acasa - BaIn</title>
+    <link rel="stylesheet" href="../../../global.css?v=2">
+    <link rel="stylesheet" href="dashboard.css?v=1">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">👶</div>
+                <div>
+                    <h1>BaIn</h1>
+                    <p>Baby Info on Web</p>
+                </div>
+            </div>
+
+           <nav class="side-nav">
+    <a href="index.html" class="active">⌂ Acasa</a>
+    <a href="../childProfile/childProfile.html">♙ Profil copil</a>
+    <a href="../feeding/feeding.html">🍼 Hranire</a>
+    <a href="../sleep/sleep.html">☾ Somn</a>
+    <a href="../timeline/timeline.html">◷ Timeline</a>
+    <a href="../gallery/gallery.html">▧ Galerie</a>
+    <a href="../medical/medical.html">✚ Medical</a>
+    <a href="../relations/relations.html">♧ Relatii</a>
+    <a href="../sharing/sharing.html">⌯ Partajare</a>
+    <a href="../account/account.html" class="account-link">👤 Contul meu</a>
+</nav>
+
+            <div class="sidebar-illustration">
+                <span>🧸</span>
+                <p>Fiecare zi conteaza.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div></div>
+
+                <div class="top-actions">
+                    <button class="icon-btn">🔔</button>
+                    <button class="icon-btn">?</button>
+
+                    <div class="user-menu">
+                        <div class="avatar">A</div>
+                        <span id="topUserName">User</span>
+                        <button id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <section class="welcome-section">
+                <div>
+                    <h2>Bun venit, <span id="welcomeName">User</span> 👋</h2>
+                    <p>Iata ce se intampla astazi in lumea copilului tau.</p>
+                </div>
+
+                <div class="child-selector">
+                    <div class="child-avatar">👧</div>
+                    <div>
+                        <h3>Mara, 3 ani</h3>
+                        <p>Nascuta pe 12 mai 2021</p>
+                    </div>
+                    <span>⌄</span>
+                </div>
+
+               <button class="add-child-btn" data-route="../childProfile/childProfile.html?action=add">+ Adauga copil</button>
+            </section>
+
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon orange">🍼</span>
+                        <h3>Hranire azi</h3>
+                        <a href="../feeding/feeding.html">Vezi tot</a>
+                    </div>
+                    <strong>3</strong>
+                    <p>mese</p>
+                    <small>Ultima masa la 12:30<br>Supa de legume</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon purple">☾</span>
+                        <h3>Somn azi</h3>
+                        <a href="../sleep/sleep.html">Vezi tot</a>
+                    </div>
+                    <strong>11h 20m</strong>
+                    <p>Noaptea trecuta</p>
+                    <small>20:30 - 07:50</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon yellow">☆</span>
+                        <h3>Amintiri noi</h3>
+                      <a href="../timeline/timeline.html">Vezi tot</a>
+                    </div>
+                    <strong>2</strong>
+                    <p>momente adaugate azi</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon red">✚</span>
+                        <h3>Medical</h3>
+                      <a href="../medical/medical.html">Vezi tot</a>
+                    </div>
+                    <strong>1</strong>
+                    <p>memento pentru azi</p>
+                    <small>Vitamina D - 10:00</small>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon green">♧</span>
+                        <h3>Relatii</h3>
+                       <a href="../relations/relations.html">Vezi tot</a>
+                    </div>
+                    <strong>5</strong>
+                    <p>membri conectati</p>
+                    <small>cu Mara</small>
+                </article>
+            </section>
+
+            <section class="content-grid">
+                <article class="panel schedule-panel">
+                    <div class="panel-header">
+                        <h3>Program pentru azi</h3>
+                        <a href="../timeline/timeline.html">Vezi calendarul</a>
+                    </div>
+
+                    <div class="schedule-list">
+                        <div class="schedule-item">
+                            <span>08:00</span>
+                            <div>
+                                <strong>Mic dejun</strong>
+                                <p>Terci de ovaz cu fructe</p>
+                            </div>
+                            <b>✓</b>
+                        </div>
+
+                        <div class="schedule-item">
+                            <span>10:00</span>
+                            <div>
+                                <strong>Vitamina D</strong>
+                                <p>Picaturi</p>
+                            </div>
+                            <b>✓</b>
+                        </div>
+
+                        <div class="schedule-item">
+                            <span>12:30</span>
+                            <div>
+                                <strong>Pranz</strong>
+                                <p>Supa de legume</p>
+                            </div>
+                            <b>✓</b>
+                        </div>
+
+                        <div class="schedule-item">
+                            <span>15:30</span>
+                            <div>
+                                <strong>Somn de dupa-amiaza</strong>
+                                <p>1h 30m</p>
+                            </div>
+                            <b>•</b>
+                        </div>
+
+                        <div class="schedule-item">
+                            <span>19:00</span>
+                            <div>
+                                <strong>Cina</strong>
+                                <p>Piure de cartofi cu pui</p>
+                            </div>
+                            <b>•</b>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="panel moments-panel">
+                    <div class="panel-header">
+                        <h3>Momente recente</h3>
+                        <a href="../timeline/timeline.html">Vezi timeline</a>
+                    </div>
+
+                    <div class="moment-item">
+                        <img src="../../../assets/img01.png" alt="Moment">
+                        <div>
+                            <strong>Primul desen colorat!</strong>
+                            <p>Mara a terminat singura un desen</p>
+                            <small>acum 1 ora</small>
+                        </div>
+                        <span>♥ 12</span>
+                    </div>
+
+                    <div class="moment-item">
+                        <img src="../../../assets/img03.png" alt="Moment">
+                        <div>
+                            <strong>Plimbare in parc</strong>
+                            <p>Soare si voie buna</p>
+                            <small>ieri, 17:30</small>
+                        </div>
+                        <span>♥ 11</span>
+                    </div>
+
+                    <div class="moment-item">
+                        <img src="../../../assets/img02.png" alt="Moment">
+                        <div>
+                            <strong>Video call cu familia</strong>
+                            <p>Un moment frumos impreuna</p>
+                            <small>ieri, 20:15</small>
+                        </div>
+                        <span>♥ 8</span>
+                    </div>
+                </article>
+
+                <article class="panel quick-panel">
+                    <div class="panel-header">
+                        <h3>Actiuni rapide</h3>
+                    </div>
+
+            <div class="quick-grid">
+        <button type="button" data-route="../feeding/feeding.html?action=add">🍼<span>Adauga masa</span></button>
+        <button type="button" data-route="../sleep/sleep.html?action=add">☾<span>Inregistreaza somn</span></button>
+        <button type="button" data-route="../timeline/timeline.html?action=add">📷<span>Adauga moment</span></button>
+        <button type="button" data-route="../medical/medical.html?action=add">✚<span>Adauga nota medicala</span></button>
+        <button type="button" data-route="../gallery/gallery.html?action=upload">▧<span>Incarca in galerie</span></button>
+        <button type="button" data-route="../timeline/timeline.html">◷<span>Vezi timeline</span></button>
+</div>
+
+<button class="share-btn" type="button" data-route="../sharing/sharing.html">✈ Distribuie o actualizare</button>
+                </article>
+            </section>
+
+            <section class="bottom-banner">
+                <div>
+                    <strong>Fiecare zi este o noua aventura!</strong>
+                    <p>Esti alaturi de copilul tau in cele mai frumoase momente.</p>
+                </div>
+                <span>👶</span>
+            </section>
+        </main>
+    </div>
+
+    <script src="dashboard.js?v=1"></script>
+</body>
+</html>
