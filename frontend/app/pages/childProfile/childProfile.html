@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil copil - BaIn</title>
+    <link rel="stylesheet" href="../../../global.css?v=2">
+    <link rel="stylesheet" href="childProfile.css?v=1">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">👶</div>
+                <div>
+                    <h1>BaIn</h1>
+                    <p>Baby Info on Web</p>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <a href="../dashboard/index.html">⌂ Acasa</a>
+                <a href="childProfile.html" class="active">♙ Profil copil</a>
+                <a href="../feeding/feeding.html">🍼 Hranire</a>
+                <a href="../sleep/sleep.html">☾ Somn</a>
+                <a href="../timeline/timeline.html">◷ Timeline</a>
+                <a href="../gallery/gallery.html">▧ Galerie</a>
+                <a href="../medical/medical.html">✚ Medical</a>
+                <a href="../relations/relations.html">♧ Relatii</a>
+                <a href="../sharing/sharing.html">⌯ Partajare</a>
+                <a href="../account/account.html" class="account-link">👤 Contul meu</a>
+            </nav>
+
+            <div class="sidebar-illustration">
+                <span>🧸</span>
+                <p>Fiecare zi conteaza.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div></div>
+
+                <div class="top-actions">
+                    <button class="icon-btn">🔔</button>
+                    <button class="icon-btn">?</button>
+
+                    <div class="user-menu">
+                        <div class="avatar" id="userInitial">A</div>
+                        <span id="topUserName">User</span>
+                        <button id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <section class="page-header">
+                <div>
+                    <h2>Profil copil</h2>
+                    <p>Informatii esentiale despre copil si dezvoltarea lui.</p>
+                </div>
+
+                <div class="child-selector">
+                    <div class="child-avatar">👶</div>
+                    <select id="childSelect"></select>
+                </div>
+
+                <button class="add-child-btn" id="openAddChildBtn">+ Adauga copil</button>
+            </section>
+
+            <section class="empty-state" id="emptyState">
+                <div>
+                    <span>👶</span>
+                    <h3>Nu ai niciun copil adaugat</h3>
+                    <p>Adauga primul profil pentru a incepe sa urmaresti dezvoltarea copilului.</p>
+                    <button id="emptyAddChildBtn">Adauga copil</button>
+                </div>
+            </section>
+
+            <section class="profile-content" id="profileContent">
+                <article class="profile-card main-profile-card">
+                    <div class="child-big-avatar">
+                        <span>👶</span>
+                    </div>
+
+                    <div class="child-main-info">
+                        <div class="name-row">
+                            <h3 id="childName">Copil</h3>
+                            <span id="childAge">0 ani</span>
+                        </div>
+
+                        <p>📅 Nascut pe <span id="childBirthDate">-</span></p>
+                        <p>🎂 Varsta: <span id="childExactAge">-</span></p>
+                        <p>💧 Grupa sanguina: <span id="childBloodType">-</span></p>
+                        <p>🛡️ Alergii: <span id="childAllergies">-</span></p>
+                    </div>
+
+                    <div class="kindergarten-info">
+                        <h4>Gradinita</h4>
+                        <p id="kindergartenName">-</p>
+                        <p id="kindergartenGroup">-</p>
+                        <p id="educatorName">Educatoare: -</p>
+                    </div>
+
+                    <div class="about-info">
+                        <h4>Activitati preferate</h4>
+                        <div class="chips" id="favoriteActivities"></div>
+
+                        <h4>Despre copil</h4>
+                        <p id="childDescription">Nu exista descriere.</p>
+
+                        <div class="profile-actions">
+                            <button id="editChildBtn">Editeaza</button>
+                            <button id="deleteChildBtn">Sterge</button>
+                        </div>
+                    </div>
+                </article>
+
+                <section class="details-grid">
+                    <article class="panel growth-panel">
+                        <div class="panel-header">
+                            <h3>Crestere si dezvoltare</h3>
+                        </div>
+
+                        <div class="growth-grid">
+                            <div class="growth-card">
+                                <span>📏</span>
+                                <h4>Inaltime</h4>
+                                <strong><span id="heightValue">0</span> cm</strong>
+                                <div class="mini-line green-line"></div>
+                                <p>Percentila 75</p>
+                            </div>
+
+                            <div class="growth-card">
+                                <span>⚖️</span>
+                                <h4>Greutate</h4>
+                                <strong><span id="weightValue">0</span> kg</strong>
+                                <div class="mini-line purple-line"></div>
+                                <p>Percentila 60</p>
+                            </div>
+
+                            <div class="growth-card">
+                                <span>♡</span>
+                                <h4>IMC</h4>
+                                <strong id="bmiValue">0</strong>
+                                <div class="mini-line orange-line"></div>
+                                <p>In interval normal</p>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel milestones-panel">
+                        <div class="panel-header">
+                            <h3>Repere importante</h3>
+                            <button id="openMilestoneBtn">+ Adauga reper</button>
+                        </div>
+
+                        <div class="milestone-list" id="milestoneList"></div>
+                    </article>
+                </section>
+
+                <section class="caregivers-section">
+                    <div class="section-title">
+                        <div>
+                            <h3>Familie si ingrijitori</h3>
+                            <p>Persoanele care au acces la profilul copilului si rolurile lor.</p>
+                        </div>
+
+                        <button id="openCaregiverBtn">+ Adauga ingrijitor</button>
+                    </div>
+
+                    <div class="caregivers-grid" id="caregiversGrid"></div>
+                </section>
+
+                <section class="privacy-banner">
+                    <div>
+                        <strong>Confidentialitatea este prioritatea noastra</strong>
+                        <p>Toate informatiile despre copil sunt in siguranta si nu sunt partajate fara acordul tau.</p>
+                    </div>
+                    <button>Setari confidentialitate</button>
+                </section>
+            </section>
+        </main>
+    </div>
+
+    <div class="modal" id="childModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="childModalTitle">Adauga copil</h3>
+                <button class="close-modal" data-close="childModal">×</button>
+            </div>
+
+            <form id="childForm">
+                <input type="hidden" id="childId">
+
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="name">Nume copil</label>
+                        <input type="text" id="name" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="birth_date">Data nasterii</label>
+                        <input type="date" id="birth_date" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="blood_type">Grupa sanguina</label>
+                        <input type="text" id="blood_type" placeholder="A+">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="allergies">Alergii</label>
+                        <input type="text" id="allergies" placeholder="Nu are alergii cunoscute">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="kindergarten_name">Gradinita</label>
+                        <input type="text" id="kindergarten_name">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="kindergarten_group">Grupa</label>
+                        <input type="text" id="kindergarten_group">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="educator_name">Educatoare</label>
+                        <input type="text" id="educator_name">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="height_cm">Inaltime cm</label>
+                        <input type="number" step="0.01" id="height_cm">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="weight_kg">Greutate kg</label>
+                        <input type="number" step="0.01" id="weight_kg">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="bmi">IMC</label>
+                        <input type="number" step="0.01" id="bmi">
+                    </div>
+
+                    <div class="input-group full">
+                        <label for="favorite_activities_input">Activitati preferate</label>
+                        <input type="text" id="favorite_activities_input" placeholder="Desen, Povesti, Dans">
+                    </div>
+
+                    <div class="input-group full">
+                        <label for="description">Descriere</label>
+                        <textarea id="description" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Salveaza</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="milestoneModal">
+        <div class="modal-card small-modal">
+            <div class="modal-header">
+                <h3>Adauga reper</h3>
+                <button class="close-modal" data-close="milestoneModal">×</button>
+            </div>
+
+            <form id="milestoneForm">
+                <div class="input-group">
+                    <label for="milestoneTitle">Titlu reper</label>
+                    <input type="text" id="milestoneTitle" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="milestoneDate">Data</label>
+                    <input type="date" id="milestoneDate" required>
+                </div>
+
+                <button type="submit" class="submit-btn">Adauga reper</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="caregiverModal">
+        <div class="modal-card small-modal">
+            <div class="modal-header">
+                <h3>Adauga ingrijitor</h3>
+                <button class="close-modal" data-close="caregiverModal">×</button>
+            </div>
+
+            <form id="caregiverForm">
+                <div class="input-group">
+                    <label for="caregiverName">Nume</label>
+                    <input type="text" id="caregiverName" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="caregiverRole">Rol</label>
+                    <input type="text" id="caregiverRole" required placeholder="Mama, Tata, Bunica">
+                </div>
+
+                <div class="input-group">
+                    <label for="accessLevel">Nivel acces</label>
+                    <input type="text" id="accessLevel" required placeholder="Administrator, Vizualizator">
+                </div>
+
+                <button type="submit" class="submit-btn">Adauga ingrijitor</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="childProfile.js?v=1"></script>
+</body>
+</html>
