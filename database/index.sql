@@ -7,3 +7,40 @@ CREATE TABLE IF NOT EXISTS users (
     reset_token_expires_at DATETIME DEFAULT NULL,   
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS children (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    birth_date DATE NOT NULL,
+    blood_type VARCHAR(10) DEFAULT NULL,
+    allergies VARCHAR(255) DEFAULT NULL,
+    kindergarten_name VARCHAR(150) DEFAULT NULL,
+    kindergarten_group VARCHAR(100) DEFAULT NULL,
+    educator_name VARCHAR(100) DEFAULT NULL,
+    height_cm DECIMAL(5,2) DEFAULT NULL,
+    weight_kg DECIMAL(5,2) DEFAULT NULL,
+    bmi DECIMAL(5,2) DEFAULT NULL,
+    favorite_activities VARCHAR(255) DEFAULT NULL,
+    description TEXT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS child_milestones (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    child_id INT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    milestone_date DATE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS child_caregivers (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    child_id INT NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    role VARCHAR(80) NOT NULL,
+    access_level VARCHAR(80) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE
+);

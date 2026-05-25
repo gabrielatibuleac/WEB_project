@@ -6,24 +6,29 @@ class AuthController {
     public function __construct($db) {
         $this->model = new AuthModel($db);
     }
-    public function handleLogin($data) {
+   public function handleLogin($data) {
     if (empty($data['email']) || empty($data['password'])) {
         return ["status" => "error", "message" => "Campurile sunt obligatorii"];
     }
+
     $user = $this->model->getUserByEmail($data['email']);
 
     if ($user && password_verify($data['password'], $user['password'])) {
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+
         $_SESSION["isLoggedIn"] = true;
-        $_SESSION["username"] = $user['full_name'];
-        
+        $_SESSION["user_id"] = $user["id"];
+        $_SESSION["username"] = $user["full_name"];
+        $_SESSION["email"] = $user["email"];
+
         return ["status" => "success", "message" => "Autentificare reusita!"];
     }
 
     return ["status" => "error", "message" => "Email sau parola incorecta"];
-}public function handleForgotPassword($email, $password) {
+}
+public function handleForgotPassword($email, $password) {
     if (empty($email) || empty($password)) {
         return ["status" => "error", "message" => "Toate campurile sunt obligatorii."];
     }
