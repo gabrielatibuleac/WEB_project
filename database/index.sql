@@ -44,3 +44,13 @@ CREATE TABLE IF NOT EXISTS child_caregivers (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE
 );
+CREATE TABLE IF NOT EXISTS sleep_logs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    child_id INT NOT NULL,
+    sleep_type VARCHAR(50) NOT NULL,
+    start_time TIME DEFAULT NULL,
+    end_time TIME DEFAULT NULL,
+    notes TEXT,
+    quality INT DEFAULT NULL,  
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
