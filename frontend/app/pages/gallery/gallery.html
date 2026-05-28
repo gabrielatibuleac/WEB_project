@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie - BaIn</title>
+    <link rel="stylesheet" href="../../../global.css?v=2">
+    <link rel="stylesheet" href="../dashboard/dashboard.css?v=4">
+    <link rel="stylesheet" href="gallery.css?v=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">👶</div>
+                <div>
+                    <h1>BaIn</h1>
+                    <p>Baby Info on Web</p>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <a href="../dashboard/index.html">⌂ Acasa</a>
+                <a href="../childProfile/childProfile.html">♙ Profil copil</a>
+                <a href="../feeding/feeding.html">🍼 Hranire</a>
+                <a href="../sleep/sleep.html">☾ Somn</a>
+                <a href="../timeline/timeline.html">◷ Timeline</a>
+                <a href="gallery.html" class="active">▧ Galerie</a>
+                <a href="../medical/medical.html">✚ Medical</a>
+                <a href="../relations/relations.html">♧ Relatii</a>
+                <a href="../sharing/sharing.html">⌯ Partajare</a>
+                <a href="../account/account.html" class="account-link">👤 Contul meu</a>
+            </nav>
+
+            <div class="sidebar-illustration">
+                <span>🧸</span>
+                <p>Fiecare zi conteaza.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div></div>
+                <div class="top-actions">
+                    <button class="icon-btn">🔔</button>
+                    <button class="icon-btn">?</button>
+                    <div class="user-menu">
+                        <div class="avatar" id="topUserInitial">A</div>
+                        <span id="topUserName">User</span>
+                        <button id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="gallery-header-section">
+                <div>
+                    <h2 class="page-title">Galerie</h2>
+                    <p class="page-subtitle">Toate amintirile voastre prețioase, într-un singur loc.</p>
+                </div>
+                
+                <div class="header-controls">
+                    <div class="child-selector gallery-specific-selector">
+                        <div class="child-avatar">👶</div>
+                        <div>
+                            <select id="galleryChildSelect"></select>
+                            <p id="galleryChildAge">Se incarca...</p>
+                        </div>
+                    </div>
+
+                    <div class="header-actions">
+                        <button class="btn-primary" id="uploadBtn">↑ Încarcă fișier</button>
+                        <input type="file" id="hiddenFileInput" style="display: none;" multiple accept="image/*,video/*,audio/*">
+                    </div>
+                </div>
+            </div>
+
+            <div class="gallery-filters">
+                <div class="filter-tabs" id="filterTabs">
+                    <button class="active" data-type="all"><i class="fas fa-th"></i> Toate</button>
+                    <button data-type="image"><i class="fas fa-image"></i> Fotografii</button>
+                    <button data-type="video"><i class="fas fa-video"></i> Videoclipuri</button>
+                </div>
+                <div class="filter-dropdowns">
+                    <button class="filter-btn" id="favFilterBtn"><i class="far fa-heart"></i> Favorite</button>
+                </div>
+            </div>
+
+            <div class="gallery-main-layout">
+                <div class="media-column panel">
+                    <div id="mediaGrid" class="media-grid">
+                        <p class="loading-text">Se încarcă galeria...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="gallery.js?v=3"></script>
+</body>
+</html>

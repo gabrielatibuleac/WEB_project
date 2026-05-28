@@ -22,7 +22,7 @@ class SleepController {
         $start_time = !empty($data->start_time) ? $data->start_time : null;
         $end_time = !empty($data->end_time) ? $data->end_time : null;
         $notes = !empty($data->notes) ? $data->notes : null;
-        $quality = !empty($data->quality) ? $data->quality : null; // <--- ADĂUGAT
+        $quality = !empty($data->quality) ? $data->quality : null; 
          
         if($this->model->addSleep($child_id, $sleep_type, $start_time, $end_time, $notes, $quality)) {
             return [
