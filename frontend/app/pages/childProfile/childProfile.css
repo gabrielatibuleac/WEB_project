@@ -10,6 +10,7 @@ body {
     background: var(--soft-bg);
     font-family: 'Inter', sans-serif;
     color: var(--text-dark);
+    overflow-x: hidden;
 }
 
 .dashboard-layout {
@@ -111,6 +112,7 @@ body {
 
 .main-content {
     padding: 28px 38px 42px 38px;
+    min-width: 0;
 }
 
 .topbar {
@@ -195,6 +197,7 @@ body {
     align-items: center;
     gap: 14px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+    min-width: 0;
 }
 
 .child-avatar {
@@ -206,6 +209,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 2rem;
+    flex-shrink: 0;
 }
 
 .child-selector select {
@@ -216,6 +220,7 @@ body {
     width: 100%;
     outline: none;
     cursor: pointer;
+    min-width: 0;
 }
 
 .add-child-btn,
@@ -299,11 +304,13 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
 }
 
 .name-row h3 {
     font-size: 2rem;
     margin: 0;
+    overflow-wrap: anywhere;
 }
 
 .name-row span {
@@ -315,18 +322,19 @@ body {
 }
 
 .child-main-info p,
-.kindergarten-info p,
+.education-info p,
 .about-info p {
     color: var(--text-gray);
     margin: 12px 0;
+    overflow-wrap: anywhere;
 }
 
-.kindergarten-info {
+.education-info {
     border-left: 1px solid var(--border);
     padding-left: 24px;
 }
 
-.kindergarten-info h4,
+.education-info h4,
 .about-info h4 {
     margin: 0 0 12px 0;
 }
@@ -383,6 +391,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    gap: 12px;
 }
 
 .panel-header h3 {
@@ -464,6 +473,7 @@ body {
 
 .milestone-item strong {
     display: block;
+    overflow-wrap: anywhere;
 }
 
 .milestone-item small {
@@ -479,6 +489,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 18px;
+    gap: 14px;
 }
 
 .section-title h3 {
@@ -518,11 +529,13 @@ body {
 
 .caregiver-card h4 {
     margin: 0;
+    overflow-wrap: anywhere;
 }
 
 .caregiver-card p {
     margin: 5px 0;
     color: var(--text-gray);
+    overflow-wrap: anywhere;
 }
 
 .caregiver-card small {
@@ -535,6 +548,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 18px;
 }
 
 .privacy-banner strong {
@@ -596,6 +610,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 22px;
+    gap: 12px;
 }
 
 .modal-header h3 {
@@ -611,6 +626,7 @@ body {
     border-radius: 50%;
     font-size: 1.3rem;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .form-grid {
@@ -623,6 +639,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .input-group.full {
@@ -635,6 +652,7 @@ body {
 }
 
 .input-group input,
+.input-group select,
 .input-group textarea {
     border: 1.5px solid #eeeeee;
     border-radius: 14px;
@@ -642,9 +660,13 @@ body {
     font-family: inherit;
     font-size: 0.95rem;
     outline: none;
+    background: var(--white);
+    color: var(--text-dark);
+    min-width: 0;
 }
 
 .input-group input:focus,
+.input-group select:focus,
 .input-group textarea:focus {
     border-color: var(--color-1);
 }
@@ -690,9 +712,20 @@ body {
     .caregivers-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .education-info {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid var(--border);
+        padding-top: 18px;
+    }
+
+    .child-big-avatar {
+        margin: 0 auto;
+    }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
     .main-content {
         padding: 18px;
     }
@@ -724,10 +757,84 @@ body {
         justify-content: space-between;
     }
 
+    .page-header {
+        gap: 16px;
+    }
+
+    .child-selector,
+    .add-child-btn,
+    .section-title button,
+    .panel-header button {
+        width: 100%;
+    }
+
+    .child-big-avatar {
+        width: 130px;
+        height: 130px;
+        font-size: 4rem;
+    }
+
+    .name-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .privacy-banner,
-    .section-title {
+    .section-title,
+    .panel-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 14px;
+    }
+
+    .modal-card {
+        padding: 20px;
+        border-radius: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 12px;
+    }
+
+    .sidebar {
+        padding: 18px;
+    }
+
+    .side-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h2,
+    .name-row h3 {
+        font-size: 1.55rem;
+    }
+
+    .profile-card,
+    .panel,
+    .privacy-banner {
+        padding: 18px;
+    }
+
+    .growth-card strong {
+        font-size: 1.5rem;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-actions button,
+    .privacy-banner button {
+        width: 100%;
+    }
+
+    .milestone-item {
+        grid-template-columns: 36px 1fr;
+    }
+
+    .milestone-item > small {
+        grid-column: 2;
     }
 }

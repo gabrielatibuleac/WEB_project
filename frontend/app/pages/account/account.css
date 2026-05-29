@@ -222,6 +222,7 @@ body.dark-mode {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 18px;
+    gap: 12px;
 }
 
 .panel-header h3 {
@@ -258,6 +259,7 @@ body.dark-mode {
 .profile-info p {
     margin: 8px 0;
     color: var(--text-gray);
+    overflow-wrap: anywhere;
 }
 
 .badge {
@@ -411,6 +413,7 @@ body.dark-mode {
     padding: 12px;
     outline: none;
     font-family: inherit;
+    min-width: 0;
 }
 
 .bottom-banner {
@@ -421,6 +424,7 @@ body.dark-mode {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 18px;
 }
 
 .bottom-banner strong {
@@ -456,6 +460,8 @@ body.dark-mode {
     background: var(--white);
     width: 100%;
     max-width: 720px;
+    max-height: 90vh;
+    overflow-y: auto;
     border-radius: 28px;
     padding: 28px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
@@ -470,6 +476,7 @@ body.dark-mode {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 22px;
+    gap: 12px;
 }
 
 .close-modal {
@@ -481,6 +488,7 @@ body.dark-mode {
     border-radius: 50%;
     font-size: 1.3rem;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .photo-editor {
@@ -535,6 +543,7 @@ body.dark-mode {
     flex-direction: column;
     gap: 8px;
     font-weight: 800;
+    min-width: 0;
 }
 
 .notifications-list {
@@ -565,6 +574,7 @@ body.dark-mode {
 
 .empty-text {
     color: var(--text-gray);
+    line-height: 1.5;
 }
 
 @media (max-width: 1200px) {
@@ -593,9 +603,13 @@ body.dark-mode {
     .preferences-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .profile-panel {
+        align-items: flex-start;
+    }
 }
 
-@media (max-width: 700px) {
+@media (max-width: 768px) {
     .main-content {
         padding: 18px;
     }
@@ -615,6 +629,9 @@ body.dark-mode {
     .topbar {
         height: auto;
         padding: 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
     }
 
     .top-actions {
@@ -623,8 +640,7 @@ body.dark-mode {
         flex-wrap: wrap;
     }
 
-    .user-menu,
-    .profile-panel {
+    .user-menu {
         width: 100%;
         justify-content: space-between;
     }
@@ -633,5 +649,67 @@ body.dark-mode {
     .photo-editor {
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .profile-avatar {
+        width: 110px;
+        height: 110px;
+        font-size: 3rem;
+    }
+
+    .setting-row,
+    .security-row,
+    .permission-row {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .bottom-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .modal-card {
+        padding: 20px;
+        border-radius: 22px;
+    }
+
+    .upload-btn,
+    .outline-btn,
+    .primary-btn {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        padding: 12px;
+    }
+
+    .sidebar {
+        padding: 18px;
+    }
+
+    .side-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .profile-info h3 {
+        font-size: 1.35rem;
+    }
+
+    .bottom-banner span {
+        font-size: 2.6rem;
     }
 }

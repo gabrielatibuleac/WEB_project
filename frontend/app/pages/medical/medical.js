@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const apiBase = '/WEB_project/backend/api/children.php';
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
+    const childrenApiBase = '/WEB_project/backend/api/children.php';
+    const medicalApiBase = '/WEB_project/backend/api/medical.php';
+
     const childSelect = document.getElementById('childSelect');
     const childBirthText = document.getElementById('childBirthText');
     const medicalTitle = document.getElementById('medicalTitle');
@@ -37,41 +41,105 @@ document.addEventListener('DOMContentLoaded', async () => {
     let children = [];
     let currentChild = null;
     let currentProfile = null;
+    let currentMedicalData = normalizeMedicalData({});
+
+    const recordTypeMap = {
+        vaccines: 'vaccine',
+        visits: 'visit',
+        medications: 'medication',
+        allergies: 'allergy',
+        notes: 'note'
+    };
+
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+
+        if (!adminLink) {
+            return;
+        }
+
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
 
     async function requestJson(url, options = {}) {
-        const response = await fetch(url, options);
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
         const text = await response.text();
+        let result;
 
         try {
-            return JSON.parse(text);
+            result = JSON.parse(text);
         } catch (error) {
             console.error(text);
             return { status: 'error', message: 'Raspuns invalid de la server.' };
         }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
     }
 
-    async function checkSession() {
-        const result = await requestJson('/WEB_project/backend/api/check_session.php', {
-            method: 'GET',
-            credentials: 'same-origin'
+    async function checkAuth() {
+        const result = await requestJson('/WEB_project/backend/api/check_auth.php', {
+            method: 'GET'
         });
 
         if (result.status !== 'success') {
-            window.location.href = '../auth/login.html';
+            redirectToLogin();
             return false;
         }
 
-        const fullName = result.user.name || 'User';
+        const fullName = result.user.name || result.user.full_name || 'User';
+
         topUserName.textContent = fullName;
         topUserInitial.textContent = fullName.charAt(0).toUpperCase();
+
+        showAdminLinkIfNeeded(result.user);
 
         return true;
     }
 
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
+        });
+
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
     async function loadChildren() {
-        const result = await requestJson(`${apiBase}?action=list`, {
-            method: 'GET',
-            credentials: 'same-origin'
+        const result = await requestJson(`${childrenApiBase}?action=list`, {
+            method: 'GET'
         });
 
         children = result.status === 'success' ? result.children || [] : [];
@@ -82,7 +150,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             option.value = '';
             option.textContent = 'Nu ai copil adaugat';
             childSelect.appendChild(option);
+
             childBirthText.textContent = 'Adauga primul copil din Profil copil.';
+            currentChild = null;
+            currentMedicalData = normalizeMedicalData({});
             renderMedical();
             return;
         }
@@ -115,17 +186,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem('selectedChildId', currentChild.id);
         childBirthText.textContent = `Nascut pe ${formatDate(currentChild.birth_date)}`;
         medicalTitle.textContent = `Fisa medicala - ${currentChild.name}`;
+
         currentProfile = await loadProfile(currentChild.id);
+        currentMedicalData = await loadMedicalData(currentChild.id);
+
         renderMedical();
     }
 
     async function loadProfile(childId) {
-        const result = await requestJson(`${apiBase}?action=profile&id=${childId}`, {
-            method: 'GET',
-            credentials: 'same-origin'
+        const result = await requestJson(`${childrenApiBase}?action=profile&id=${childId}`, {
+            method: 'GET'
         });
 
         return result.status === 'success' ? result : null;
+    }
+
+    async function loadMedicalData(childId) {
+        const result = await requestJson(`${medicalApiBase}?action=list&child_id=${childId}`, {
+            method: 'GET'
+        });
+
+        if (result.status !== 'success') {
+            return normalizeMedicalData({});
+        }
+
+        return normalizeMedicalData(result.data || {});
     }
 
     function renderMedical() {
@@ -134,15 +219,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const data = getMedicalData();
+        const data = normalizeMedicalData(currentMedicalData);
         const today = getTodayIso();
-
-        data.visits = data.visits.filter((visit) => visit.date >= today);
-        saveMedicalData(data);
-        syncAllMedicalItemsToTimeline(data);
+        const displayVisits = data.visits.filter((visit) => visit.date >= today);
 
         renderList(vaccinesList, data.vaccines, '🛡️');
-        renderList(visitsList, data.visits, '📅');
+        renderList(visitsList, displayVisits, '📅');
         renderList(medicationsList, data.medications, '💊');
         renderList(allergiesList, data.allergies, '⚠️');
         renderList(notesList, data.notes, '✚');
@@ -151,7 +233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         vaccineStatus.textContent = data.vaccines.length > 0 ? 'In evidenta' : 'Fara date';
         vaccineInfo.textContent = data.vaccines.length > 0 ? `${data.vaccines.length} vaccinari adaugate.` : `Nu exista vaccinari pentru ${currentChild.name}.`;
 
-        const nextVisit = getNextVisit(data.visits);
+        const nextVisit = getNextVisit(displayVisits);
         nextVisitDate.textContent = nextVisit ? formatDate(nextVisit.date) : '-';
         nextVisitInfo.textContent = nextVisit ? nextVisit.title : `Nu exista programari pentru ${currentChild.name}.`;
 
@@ -207,15 +289,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             .forEach((item) => {
                 const row = document.createElement('div');
                 row.className = 'medical-item';
+
                 row.innerHTML = `
                     <div class="medical-item-icon">${icon}</div>
                     <div>
                         <strong>${escapeHtml(item.title)}</strong>
-                        <p>${escapeHtml(item.description)}</p>
+                        <p>${escapeHtml(item.description || '')}</p>
                         <small>${formatDate(item.date)}</small>
                     </div>
-                    <small>Salvat</small>
+                    <button class="delete-medical-btn" data-id="${escapeHtml(item.id)}">Sterge</button>
                 `;
+
+                const deleteBtn = row.querySelector('.delete-medical-btn');
+                deleteBtn.addEventListener('click', () => deleteMedicalRecord(deleteBtn.dataset.id));
+
                 container.appendChild(row);
             });
     }
@@ -236,37 +323,65 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="emergency-contact-icon">☎</div>
                 <div>
                     <strong>${escapeHtml(item.title)}</strong>
-                    <p>${escapeHtml(item.description)}</p>
+                    <p>${escapeHtml(item.description || '')}</p>
                     <small>Contact urgent</small>
                 </div>
                 <button class="delete-emergency-btn" data-id="${escapeHtml(item.id)}">Sterge</button>
             `;
 
+            const deleteBtn = row.querySelector('.delete-emergency-btn');
+            deleteBtn.addEventListener('click', () => deleteEmergencyContact(deleteBtn.dataset.id));
+
             emergencyContactsList.appendChild(row);
         });
+    }
 
-        document.querySelectorAll('.delete-emergency-btn').forEach((button) => {
-            button.addEventListener('click', () => {
-                deleteEmergencyContact(button.dataset.id);
-            });
+    async function deleteMedicalRecord(id) {
+        if (!currentChild) {
+            return;
+        }
+
+        const result = await requestJson(`${medicalApiBase}?action=delete_record`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                child_id: currentChild.id,
+                id: id
+            })
         });
+
+        alert(result.message);
+
+        if (result.status === 'success') {
+            currentMedicalData = await loadMedicalData(currentChild.id);
+            renderMedical();
+        }
     }
 
-    function deleteEmergencyContact(id) {
-        const data = getMedicalData();
+    async function deleteEmergencyContact(id) {
+        if (!currentChild) {
+            return;
+        }
 
-        data.emergency = data.emergency.filter((item) => String(item.id) !== String(id));
+        const result = await requestJson(`${medicalApiBase}?action=delete_emergency`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                child_id: currentChild.id,
+                id: id
+            })
+        });
 
-        saveMedicalData(data);
-        renderMedical();
-    }
+        alert(result.message);
 
-    function getMedicalData() {
-        return normalizeMedicalData(getStore(`bain_medical_${currentChild.id}`, {}));
-    }
-
-    function saveMedicalData(data) {
-        setStore(`bain_medical_${currentChild.id}`, normalizeMedicalData(data));
+        if (result.status === 'success') {
+            currentMedicalData = await loadMedicalData(currentChild.id);
+            renderMedical();
+        }
     }
 
     function normalizeMedicalData(data) {
@@ -278,46 +393,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             notes: Array.isArray(data.notes) ? data.notes : [],
             emergency: Array.isArray(data.emergency) ? data.emergency : []
         };
-    }
-
-    function syncAllMedicalItemsToTimeline(data) {
-        const timelineItems = getStore(`bain_timeline_${currentChild.id}`, []);
-        const cleanTimelineItems = timelineItems.filter((item) => item.source !== 'medical');
-
-        const medicalItems = [];
-
-        const sources = [
-            { key: 'vaccines', list: data.vaccines, label: 'Vaccin', icon: '🛡️' },
-            { key: 'visits', list: data.visits, label: 'Programare medicala', icon: '📅' },
-            { key: 'medications', list: data.medications, label: 'Medicatie', icon: '💊' },
-            { key: 'allergies', list: data.allergies, label: 'Alergie', icon: '⚠️' },
-            { key: 'notes', list: data.notes, label: 'Nota medicala', icon: '✚' }
-        ];
-
-        sources.forEach((source) => {
-            source.list.forEach((item) => {
-                if (!item.date) {
-                    return;
-                }
-
-                medicalItems.push({
-                    id: `medical_${source.key}_${item.id}`,
-                    title: item.title,
-                    type: 'medical',
-                    date: item.date,
-                    time: item.time || '00:00',
-                    description: `${source.label}: ${item.description}`,
-                    likes: 0,
-                    comments: 0,
-                    source: 'medical',
-                    medicalType: source.key,
-                    sourceLabel: source.label,
-                    icon: source.icon
-                });
-            });
-        });
-
-        setStore(`bain_timeline_${currentChild.id}`, [...cleanTimelineItems, ...medicalItems]);
     }
 
     function openMedicalModal(type, title) {
@@ -363,12 +438,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         medicalModal.classList.add('active');
     }
 
-    function getNextVisit(visits) {
-        const today = getTodayIso();
+    async function saveMedicalForm() {
+        const type = medicalType.value;
 
-        return visits
-            .filter((visit) => visit.date >= today)
-            .sort((a, b) => String(a.date).localeCompare(String(b.date)))[0] || null;
+        if (!currentChild) {
+            return;
+        }
+
+        if (type === 'emergency') {
+            await saveEmergencyContact();
+            return;
+        }
+
+        if (type === 'visits' && medicalDateInput.value < getTodayIso()) {
+            alert('Nu poti adauga o programare medicala in trecut.');
+            return;
+        }
+
+        const result = await requestJson(`${medicalApiBase}?action=create_record`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                child_id: currentChild.id,
+                record_type: recordTypeMap[type],
+                title: medicalTitleInput.value.trim(),
+                description: medicalDescriptionInput.value.trim(),
+                record_date: medicalDateInput.value,
+                record_time: null
+            })
+        });
+
+        alert(result.message);
+
+        if (result.status === 'success') {
+            medicalModal.classList.remove('active');
+            currentMedicalData = await loadMedicalData(currentChild.id);
+            renderMedical();
+        }
+    }
+
+    async function saveEmergencyContact() {
+        const name = medicalTitleInput.value.trim();
+        const description = medicalDescriptionInput.value.trim();
+        const phone = extractPhone(description);
+
+        if (!phone) {
+            alert('Introdu un numar de telefon valid in descriere.');
+            return;
+        }
+
+        const result = await requestJson(`${medicalApiBase}?action=create_emergency`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                child_id: currentChild.id,
+                name: name,
+                phone: phone,
+                relation: '',
+                details: description
+            })
+        });
+
+        alert(result.message);
+
+        if (result.status === 'success') {
+            medicalModal.classList.remove('active');
+            currentMedicalData = await loadMedicalData(currentChild.id);
+            renderMedical();
+        }
     }
 
     function renderNotifications() {
@@ -379,7 +520,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const data = getMedicalData();
+        const data = normalizeMedicalData(currentMedicalData);
         const items = [...data.visits, ...data.medications, ...data.notes, ...data.vaccines, ...data.allergies]
             .filter((item) => item.date)
             .sort((a, b) => String(b.date).localeCompare(String(a.date)))
@@ -393,6 +534,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         items.forEach((item) => {
             const row = document.createElement('div');
             row.className = 'notification-item';
+
             row.innerHTML = `
                 <span>✚</span>
                 <div>
@@ -400,8 +542,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <small>${formatDate(item.date)}</small>
                 </div>
             `;
+
             notificationsList.appendChild(row);
         });
+    }
+
+    function getNextVisit(visits) {
+        const today = getTodayIso();
+
+        return visits
+            .filter((visit) => visit.date >= today)
+            .sort((a, b) => String(a.date).localeCompare(String(b.date)))[0] || null;
     }
 
     function getTodayIso() {
@@ -427,35 +578,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return phone;
     }
 
-    function isDuplicateEmergencyPhone(data, description) {
-        const newPhone = normalizePhone(description);
+    function extractPhone(value) {
+        const match = String(value).match(/(\+?4?0?7[\d\s.-]{8,})/);
 
-        if (!newPhone) {
-            return false;
+        if (!match) {
+            return '';
         }
 
-        return data.emergency.some((item) => {
-            const existingPhone = normalizePhone(item.description);
-            return existingPhone && existingPhone === newPhone;
-        });
-    }
-
-    function getStore(key, fallback) {
-        const raw = localStorage.getItem(key);
-
-        if (!raw) {
-            return fallback;
-        }
-
-        try {
-            return JSON.parse(raw);
-        } catch (error) {
-            return fallback;
-        }
-    }
-
-    function setStore(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
+        return normalizePhone(match[0]);
     }
 
     function parseDate(dateString) {
@@ -524,51 +654,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('openEmergencyBtn').addEventListener('click', () => openMedicalModal('emergency', 'Adauga contact urgent'));
     document.getElementById('openMedicalNoteBtn').addEventListener('click', () => openMedicalModal('notes', 'Adauga nota medicala'));
 
-    medicalForm.addEventListener('submit', (event) => {
+    medicalForm.addEventListener('submit', async (event) => {
         event.preventDefault();
-
-        const data = getMedicalData();
-        const type = medicalType.value;
-
-        if (!Array.isArray(data[type])) {
-            data[type] = [];
-        }
-
-        if (type === 'emergency' && isDuplicateEmergencyPhone(data, medicalDescriptionInput.value)) {
-            alert('Acest numar de telefon exista deja la contactele urgente.');
-            return;
-        }
-
-        if (type === 'visits' && medicalDateInput.value < getTodayIso()) {
-            alert('Nu poti adauga o programare medicala in trecut.');
-            return;
-        }
-
-        const item = {
-            id: String(Date.now()),
-            title: medicalTitleInput.value.trim(),
-            date: medicalDateInput.value,
-            description: medicalDescriptionInput.value.trim()
-        };
-
-        data[type].push(item);
-
-        saveMedicalData(data);
-        syncAllMedicalItemsToTimeline(data);
-
-        medicalModal.classList.remove('active');
-        renderMedical();
-
-        if (type === 'emergency') {
-            alert('Contact urgent salvat.');
-        } else {
-            alert('Informatie medicala salvata.');
-        }
+        await saveMedicalForm();
     });
 
     document.querySelectorAll('.close-modal').forEach((button) => {
         button.addEventListener('click', () => {
-            document.getElementById(button.dataset.close).classList.remove('active');
+            const modal = document.getElementById(button.dataset.close);
+
+            if (modal) {
+                modal.classList.remove('active');
+            }
         });
     });
 
@@ -577,17 +674,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         notificationsModal.classList.add('active');
     });
 
-    logoutBtn.addEventListener('click', async () => {
-        await fetch('/WEB_project/backend/api/logout.php', {
-            method: 'POST',
-            credentials: 'same-origin'
-        });
+    logoutBtn.addEventListener('click', logoutUser);
 
-        localStorage.removeItem('selectedChildId');
-        window.location.href = '../auth/login.html';
-    });
-
-    const ok = await checkSession();
+    const ok = await checkAuth();
 
     if (ok) {
         await loadChildren();

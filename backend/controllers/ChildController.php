@@ -8,20 +8,35 @@ class ChildController {
         $this->model = new ChildModel($db);
     }
 
+    private function nullableText($value) {
+        $value = trim((string)($value ?? ""));
+        return $value === "" ? null : $value;
+    }
+
+    private function nullableNumber($value) {
+        if ($value === null || $value === "") {
+            return null;
+        }
+
+        return is_numeric($value) ? (float)$value : null;
+    }
+
     private function cleanChildData($data) {
         return [
             "name" => trim($data["name"] ?? ""),
             "birth_date" => trim($data["birth_date"] ?? ""),
-            "blood_type" => trim($data["blood_type"] ?? ""),
-            "allergies" => trim($data["allergies"] ?? ""),
-            "kindergarten_name" => trim($data["kindergarten_name"] ?? ""),
-            "kindergarten_group" => trim($data["kindergarten_group"] ?? ""),
-            "educator_name" => trim($data["educator_name"] ?? ""),
-            "height_cm" => (float)($data["height_cm"] ?? 0),
-            "weight_kg" => (float)($data["weight_kg"] ?? 0),
-            "bmi" => (float)($data["bmi"] ?? 0),
-            "favorite_activities" => trim($data["favorite_activities"] ?? ""),
-            "description" => trim($data["description"] ?? "")
+            "gender" => $this->nullableText($data["gender"] ?? null),
+            "blood_type" => $this->nullableText($data["blood_type"] ?? null),
+            "allergies" => $this->nullableText($data["allergies"] ?? null),
+            "education_level" => $this->nullableText($data["education_level"] ?? null),
+            "institution_name" => $this->nullableText($data["institution_name"] ?? null),
+            "group_or_class" => $this->nullableText($data["group_or_class"] ?? null),
+            "responsible_person" => $this->nullableText($data["responsible_person"] ?? null),
+            "height_cm" => $this->nullableNumber($data["height_cm"] ?? null),
+            "weight_kg" => $this->nullableNumber($data["weight_kg"] ?? null),
+            "bmi" => $this->nullableNumber($data["bmi"] ?? null),
+            "favorite_activities" => $this->nullableText($data["favorite_activities"] ?? null),
+            "description" => $this->nullableText($data["description"] ?? null)
         ];
     }
 

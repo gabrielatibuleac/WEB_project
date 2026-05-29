@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const apiBase = '/WEB_project/backend/api/children.php';
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+    const accountApiBase = '/WEB_project/backend/api/account.php';
 
     const topUserName = document.getElementById('topUserName');
     const topUserInitial = document.getElementById('topUserInitial');
@@ -10,14 +11,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profileEmail = document.getElementById('profileEmail');
     const profilePhone = document.getElementById('profilePhone');
     const profileLocation = document.getElementById('profileLocation');
+
     const caregiverCount = document.getElementById('caregiverCount');
     const childrenCount = document.getElementById('childrenCount');
     const familyMembersList = document.getElementById('familyMembersList');
     const childrenList = document.getElementById('childrenList');
+
     const editProfileBtn = document.getElementById('editProfileBtn');
     const addChildBtn = document.getElementById('addChildBtn');
     const profileModal = document.getElementById('profileModal');
     const profileForm = document.getElementById('profileForm');
+
     const editName = document.getElementById('editName');
     const editEmail = document.getElementById('editEmail');
     const editPhone = document.getElementById('editPhone');
@@ -26,260 +30,176 @@ document.addEventListener('DOMContentLoaded', async () => {
     const editPhotoPreview = document.getElementById('editPhotoPreview');
     const editPhotoInitial = document.getElementById('editPhotoInitial');
     const removePhotoBtn = document.getElementById('removePhotoBtn');
+
     const languageSelect = document.getElementById('languageSelect');
     const themeSelect = document.getElementById('themeSelect');
     const timezoneSelect = document.getElementById('timezoneSelect');
     const defaultPageSelect = document.getElementById('defaultPageSelect');
+
     const twoFactorBtn = document.getElementById('twoFactorBtn');
     const twoFactorStatus = document.getElementById('twoFactorStatus');
     const changePasswordBtn = document.getElementById('changePasswordBtn');
     const downloadDataBtn = document.getElementById('downloadDataBtn');
+
     const logoutBtn = document.getElementById('logoutBtn');
     const openNotificationsBtn = document.getElementById('openNotificationsBtn');
     const notificationsModal = document.getElementById('notificationsModal');
     const notificationsList = document.getElementById('notificationsList');
 
-    let sessionUser = null;
-    let children = [];
-    let profiles = [];
+    let accountData = null;
     let selectedPhoto = '';
 
-    const translations = {
-        ro: {
-            navHome: '⌂ Acasa',
-            navChild: '♙ Profil copil',
-            navFeeding: '🍼 Hranire',
-            navSleep: '☾ Somn',
-            navTimeline: '◷ Timeline',
-            navGallery: '▧ Galerie',
-            navMedical: '✚ Medical',
-            navRelations: '♧ Relatii',
-            navSharing: '⌯ Partajare',
-            navAccount: '👤 Contul meu',
-            sideMessage: 'Fiecare zi conteaza.',
-            pageTitle: 'Contul meu',
-            pageSubtitle: 'Gestioneaza datele tale, securitatea contului si setarile familiei.',
-            parentBadge: 'Parinte',
-            editProfile: 'Editeaza profilul',
-            familyTitle: 'Familia',
-            caregiverCountText: 'ingrijitori conectati',
-            childrenCountText: 'copii activi',
-            childrenTitle: 'Copiii asociati contului',
-            addChild: '+ Adauga copil',
-            permissionsTitle: 'Roluri si permisiuni',
-            permMeals: 'poate adauga mese',
-            permSleep: 'poate adauga somn',
-            permGallery: 'poate incarca in galerie',
-            permMedical: 'poate edita fisa medicala',
-            permShare: 'poate partaja momente',
-            notificationTitle: 'Setari notificari',
-            notifFeeding: 'Reminder hranire',
-            notifMedical: 'Programari medicale',
-            notifGallery: 'Actualizari din galerie',
-            notifSharing: 'Distribuiri de familie',
-            notifWeekly: 'Raport saptamanal',
-            securityTitle: 'Securitate',
-            changePassword: 'Schimba parola',
-            twoFactor: 'Autentificare in doi pasi',
-            downloadData: 'Descarca datele contului',
-            preferencesTitle: 'Preferinte aplicatie',
-            languageLabel: 'Limba',
-            themeLabel: 'Tema',
-            timezoneLabel: 'Fus orar',
-            defaultPageLabel: 'Pagina preferata',
-            bottomTitle: 'Familia incepe cu un cont bine organizat!',
-            bottomText: 'Controlezi accesul, notificarile si siguranta datelor dintr-un singur loc.',
-            nameLabel: 'Nume',
-            phoneLabel: 'Telefon',
-            locationLabel: 'Locatie',
-            saveBtn: 'Salveaza',
-            notificationsModalTitle: 'Notificari',
-            profilePhotoLabel: 'Alege poza de profil',
-            removePhoto: 'Sterge poza',
-            photoHint: 'Poza ramane salvata local in browser.',
-            active: 'Activ',
-            inactive: 'Inactiv',
-            phoneUnset: 'Telefon nesetat',
-            locationUnset: 'Locatie nesetata',
-            emailUnset: 'Email nesetat',
-            caregiver: 'ingrijitor',
-            child: 'copil',
-            children: 'copii',
-            year: 'an',
-            years: 'ani',
-            noChildren: 'Nu exista copii asociati contului.',
-            noCaregivers: 'Nu exista ingrijitori adaugati.',
-            noNotifications: 'Nu exista notificari momentan.',
-            profileSaved: 'Profil salvat.',
-            imageTooLarge: 'Poza este prea mare. Alege o imagine sub 2 MB.',
-            invalidImage: 'Fisierul ales nu este o imagine valida.',
-            twoFactorEnabled: 'Autentificarea in doi pasi a fost activata.',
-            twoFactorDisabled: 'Autentificarea in doi pasi a fost dezactivata.'
-        },
-        en: {
-            navHome: '⌂ Home',
-            navChild: '♙ Child profile',
-            navFeeding: '🍼 Feeding',
-            navSleep: '☾ Sleep',
-            navTimeline: '◷ Timeline',
-            navGallery: '▧ Gallery',
-            navMedical: '✚ Medical',
-            navRelations: '♧ Relations',
-            navSharing: '⌯ Sharing',
-            navAccount: '👤 My account',
-            sideMessage: 'Every day matters.',
-            pageTitle: 'My account',
-            pageSubtitle: 'Manage your data, account security and family settings.',
-            parentBadge: 'Parent',
-            editProfile: 'Edit profile',
-            familyTitle: 'Family',
-            caregiverCountText: 'connected caregivers',
-            childrenCountText: 'active children',
-            childrenTitle: 'Children linked to this account',
-            addChild: '+ Add child',
-            permissionsTitle: 'Roles and permissions',
-            permMeals: 'can add meals',
-            permSleep: 'can add sleep',
-            permGallery: 'can upload to gallery',
-            permMedical: 'can edit medical file',
-            permShare: 'can share moments',
-            notificationTitle: 'Notification settings',
-            notifFeeding: 'Feeding reminders',
-            notifMedical: 'Medical appointments',
-            notifGallery: 'Gallery updates',
-            notifSharing: 'Family sharing',
-            notifWeekly: 'Weekly report',
-            securityTitle: 'Security',
-            changePassword: 'Change password',
-            twoFactor: 'Two-factor authentication',
-            downloadData: 'Download account data',
-            preferencesTitle: 'Application preferences',
-            languageLabel: 'Language',
-            themeLabel: 'Theme',
-            timezoneLabel: 'Time zone',
-            defaultPageLabel: 'Preferred page',
-            bottomTitle: 'Family starts with an organized account!',
-            bottomText: 'Control access, notifications and data safety from one place.',
-            nameLabel: 'Name',
-            phoneLabel: 'Phone',
-            locationLabel: 'Location',
-            saveBtn: 'Save',
-            notificationsModalTitle: 'Notifications',
-            profilePhotoLabel: 'Choose profile photo',
-            removePhoto: 'Remove photo',
-            photoHint: 'The photo stays saved locally in this browser.',
-            active: 'Active',
-            inactive: 'Inactive',
-            phoneUnset: 'Phone not set',
-            locationUnset: 'Location not set',
-            emailUnset: 'Email not set',
-            caregiver: 'caregiver',
-            child: 'child',
-            children: 'children',
-            year: 'year',
-            years: 'years',
-            noChildren: 'No children linked to this account.',
-            noCaregivers: 'No caregivers added.',
-            noNotifications: 'No notifications yet.',
-            profileSaved: 'Profile saved.',
-            imageTooLarge: 'The photo is too large. Choose an image under 2 MB.',
-            invalidImage: 'The selected file is not a valid image.',
-            twoFactorEnabled: 'Two-factor authentication enabled.',
-            twoFactorDisabled: 'Two-factor authentication disabled.'
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+
+        if (!adminLink) {
+            return;
         }
-    };
+
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
 
     async function requestJson(url, options = {}) {
-        const response = await fetch(url, options);
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
         const text = await response.text();
+        let result;
 
         try {
-            return JSON.parse(text);
+            result = JSON.parse(text);
         } catch (error) {
             console.error(text);
             return { status: 'error', message: 'Raspuns invalid de la server.' };
         }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
     }
 
-    async function checkSession() {
-        const result = await requestJson('/WEB_project/backend/api/check_session.php', {
-            method: 'GET',
-            credentials: 'same-origin'
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
+        });
+
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    async function loadAccount() {
+        const result = await requestJson(`${accountApiBase}?action=get`, {
+            method: 'GET'
         });
 
         if (result.status !== 'success') {
-            window.location.href = '../auth/login.html';
-            return false;
+            redirectToLogin();
+            return;
         }
 
-        sessionUser = result.user;
-        return true;
-    }
-
-    async function loadChildren() {
-        const result = await requestJson(`${apiBase}?action=list`, {
-            method: 'GET',
-            credentials: 'same-origin'
-        });
-
-        children = result.status === 'success' ? result.children || [] : [];
-        profiles = [];
-
-        for (const child of children) {
-            const profile = await requestJson(`${apiBase}?action=profile&id=${child.id}`, {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
-
-            if (profile.status === 'success') {
-                profiles.push(profile);
-            }
-        }
+        accountData = result;
+        renderAccount();
     }
 
     function renderAccount() {
-        const account = getAccountData();
-        const settings = getSettings();
-        const lang = settings.language;
+        const user = accountData.user || {};
+        const profile = accountData.profile || {};
+        const settings = accountData.settings || {};
 
-        applyTheme(settings.theme);
-        applyLanguage(lang);
+        showAdminLinkIfNeeded(user);
+        applyTheme(settings.theme || 'light');
 
-        topUserName.textContent = account.name;
-        topUserInitial.textContent = getInitial(account.name);
-        profileInitial.textContent = getInitial(account.name);
-        profileName.textContent = account.name;
-        profileEmail.textContent = account.email || translations[lang].emailUnset;
-        profilePhone.textContent = account.phone || translations[lang].phoneUnset;
-        profileLocation.textContent = account.location || translations[lang].locationUnset;
+        if (topUserName) {
+            topUserName.textContent = user.name || 'User';
+        }
 
-        applyAvatar(topUserAvatar, account.photo);
-        applyAvatar(profileAvatar, account.photo);
+        if (topUserInitial) {
+            topUserInitial.textContent = getInitial(user.name);
+        }
 
-        renderChildren(lang);
-        renderCaregivers(lang);
+        if (profileInitial) {
+            profileInitial.textContent = getInitial(user.name);
+        }
+
+        if (profileName) {
+            profileName.textContent = user.name || 'User';
+        }
+
+        if (profileEmail) {
+            profileEmail.textContent = user.email || 'Email nesetat';
+        }
+
+        if (profilePhone) {
+            profilePhone.textContent = profile.phone || 'Telefon nesetat';
+        }
+
+        if (profileLocation) {
+            profileLocation.textContent = profile.location || 'Locatie nesetata';
+        }
+
+        applyAvatar(topUserAvatar, profile.photo);
+        applyAvatar(profileAvatar, profile.photo);
+
+        renderChildren(accountData.children || []);
+        renderCaregivers(accountData.caregivers || []);
         renderSettings(settings);
         renderNotifications();
     }
 
-    function renderChildren(lang) {
-        childrenCount.textContent = children.length;
+    function renderChildren(children) {
+        if (childrenCount) {
+            childrenCount.textContent = children.length;
+        }
+
+        if (!childrenList) {
+            return;
+        }
+
         childrenList.innerHTML = '';
 
         if (children.length === 0) {
-            childrenList.innerHTML = `<p class="empty-text">${translations[lang].noChildren}</p>`;
+            childrenList.innerHTML = '<p class="empty-text">Nu exista copii asociati contului.</p>';
             return;
         }
 
         children.forEach((child) => {
-            const age = getAge(child.birth_date);
             const card = document.createElement('div');
             card.className = 'child-card';
 
+            const age = getAge(child.birth_date);
+
             card.innerHTML = `
-                <span>👶</span>
+                <span>${escapeHtml(getInitial(child.name))}</span>
                 <strong>${escapeHtml(child.name)}</strong>
-                <p>${age} ${age === 1 ? translations[lang].year : translations[lang].years}</p>
+                <p>${age} ${age === 1 ? 'an' : 'ani'}</p>
             `;
 
             card.addEventListener('click', () => {
@@ -291,97 +211,161 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function renderCaregivers(lang) {
-        const caregivers = getUniqueCaregivers();
+    function renderCaregivers(caregivers) {
+        const uniqueCaregivers = getUniqueCaregivers(caregivers);
 
-        caregiverCount.textContent = caregivers.length;
-        familyMembersList.innerHTML = '';
+        if (caregiverCount) {
+            caregiverCount.textContent = uniqueCaregivers.length;
+        }
 
-        if (caregivers.length === 0) {
-            familyMembersList.innerHTML = `<p class="empty-text">${translations[lang].noCaregivers}</p>`;
+        if (!familyMembersList) {
             return;
         }
 
-        caregivers.forEach((caregiver) => {
+        familyMembersList.innerHTML = '';
+
+        if (uniqueCaregivers.length === 0) {
+            familyMembersList.innerHTML = '<p class="empty-text">Nu exista ingrijitori adaugati.</p>';
+            return;
+        }
+
+        uniqueCaregivers.forEach((caregiver) => {
             const card = document.createElement('div');
             card.className = 'mini-card';
 
             card.innerHTML = `
                 <span>👤</span>
                 <strong>${escapeHtml(caregiver.name)}</strong>
-                <p>${escapeHtml(caregiver.role || translations[lang].caregiver)}</p>
-                <p>${caregiver.childrenCount} ${caregiver.childrenCount === 1 ? translations[lang].child : translations[lang].children}</p>
+                <p>${escapeHtml(caregiver.role || 'Ingrijitor')}</p>
+                <p>${caregiver.childrenCount} ${caregiver.childrenCount === 1 ? 'copil' : 'copii'}</p>
             `;
 
             familyMembersList.appendChild(card);
         });
     }
 
-    function getUniqueCaregivers() {
+    function getUniqueCaregivers(caregivers) {
         const map = new Map();
 
-        profiles.forEach((profile) => {
-            const caregivers = profile.caregivers || [];
-            const childName = profile.child && profile.child.name ? profile.child.name : '';
+        caregivers.forEach((caregiver) => {
+            const name = caregiver.name || 'Ingrijitor';
+            const role = caregiver.role || 'Ingrijitor';
+            const key = `${name}_${role}`.toLowerCase();
 
-            caregivers.forEach((caregiver) => {
-                const name = caregiver.name || caregiver.full_name || caregiver.caregiver_name || 'Ingrijitor';
-                const role = caregiver.role || caregiver.access_level || caregiver.relation || 'Ingrijitor';
-                const email = caregiver.email || '';
-                const phone = caregiver.phone || '';
-                const key = normalizeKey(`${name}_${role}_${email}_${phone}`);
+            if (!map.has(key)) {
+                map.set(key, {
+                    name,
+                    role,
+                    children: new Set()
+                });
+            }
 
-                if (!map.has(key)) {
-                    map.set(key, {
-                        name,
-                        role,
-                        email,
-                        phone,
-                        children: new Set()
-                    });
-                }
-
-                if (childName) {
-                    map.get(key).children.add(childName);
-                }
-            });
+            if (caregiver.child_name) {
+                map.get(key).children.add(caregiver.child_name);
+            }
         });
 
         return Array.from(map.values()).map((caregiver) => ({
             name: caregiver.name,
             role: caregiver.role,
-            email: caregiver.email,
-            phone: caregiver.phone,
             childrenCount: caregiver.children.size
         }));
     }
 
     function renderSettings(settings) {
-        languageSelect.value = settings.language;
-        themeSelect.value = settings.theme;
-        timezoneSelect.value = settings.timezone;
-        defaultPageSelect.value = settings.defaultPage;
+        if (languageSelect) {
+            languageSelect.value = settings.language || settings.language_code || 'ro';
+        }
+
+        if (themeSelect) {
+            themeSelect.value = settings.theme || 'light';
+        }
+
+        if (timezoneSelect) {
+            timezoneSelect.value = settings.timezone || 'Europe/Bucharest';
+        }
+
+        if (defaultPageSelect) {
+            defaultPageSelect.value = settings.defaultPage || settings.default_page || 'dashboard';
+        }
 
         document.querySelectorAll('[data-setting]').forEach((input) => {
-            const path = input.dataset.setting;
-            input.checked = Boolean(getByPath(settings, path));
+            input.checked = Boolean(getByPath(settings, input.dataset.setting));
         });
 
-        twoFactorStatus.textContent = settings.security.twoFactor
-            ? translations[settings.language].active
-            : translations[settings.language].inactive;
+        const twoFactorValue = Boolean(settings.security?.twoFactor || settings.two_factor_enabled);
+
+        if (twoFactorStatus) {
+            twoFactorStatus.textContent = twoFactorValue ? 'Activ' : 'Inactiv';
+        }
     }
 
-    function applyLanguage(lang) {
-        document.documentElement.lang = lang;
+    function renderNotifications() {
+        if (!notificationsList) {
+            return;
+        }
 
-        document.querySelectorAll('[data-i18n]').forEach((element) => {
-            const key = element.dataset.i18n;
+        const notifications = accountData.notifications || [];
+        notificationsList.innerHTML = '';
 
-            if (translations[lang][key]) {
-                element.textContent = translations[lang][key];
-            }
+        if (notifications.length === 0) {
+            notificationsList.innerHTML = '<p class="empty-text">Nu exista notificari momentan.</p>';
+            return;
+        }
+
+        notifications.slice(0, 10).forEach((notification) => {
+            const row = document.createElement('div');
+            row.className = 'notification-item';
+
+            row.innerHTML = `
+                <span>🔔</span>
+                <div>
+                    <strong>${escapeHtml(notification.title)}</strong>
+                    <small>${escapeHtml(notification.message || '')}</small>
+                </div>
+            `;
+
+            notificationsList.appendChild(row);
         });
+    }
+
+    async function saveProfile() {
+        const result = await requestJson(`${accountApiBase}?action=update_profile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: editName.value.trim(),
+                email: editEmail.value.trim(),
+                phone: editPhone.value.trim(),
+                location: editLocation.value.trim(),
+                photo: selectedPhoto
+            })
+        });
+
+        alert(result.message);
+
+        if (result.status === 'success') {
+            profileModal.classList.remove('active');
+            await loadAccount();
+        }
+    }
+
+    async function saveSettings(settings) {
+        const result = await requestJson(`${accountApiBase}?action=update_settings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settings)
+        });
+
+        if (result.status === 'success') {
+            await loadAccount();
+        } else {
+            alert(result.message);
+        }
     }
 
     function applyTheme(theme) {
@@ -389,6 +373,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function applyAvatar(element, photo) {
+        if (!element) {
+            return;
+        }
+
         if (photo) {
             element.classList.add('has-photo');
             element.style.backgroundImage = `url("${photo}")`;
@@ -398,272 +386,200 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    function renderNotifications() {
-        const settings = getSettings();
-        const lang = settings.language;
-        const activeNotifications = Object.entries(settings.notifications)
-            .filter((entry) => entry[1])
-            .map((entry) => entry[0]);
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener('click', () => {
+            const user = accountData.user || {};
+            const profile = accountData.profile || {};
 
-        notificationsList.innerHTML = '';
+            selectedPhoto = profile.photo || '';
 
-        if (activeNotifications.length === 0) {
-            notificationsList.innerHTML = `<p class="empty-text">${translations[lang].noNotifications}</p>`;
-            return;
-        }
+            editName.value = user.name || '';
+            editEmail.value = user.email || '';
+            editPhone.value = profile.phone || '';
+            editLocation.value = profile.location || '';
 
-        activeNotifications.forEach((item) => {
-            const row = document.createElement('div');
-            row.className = 'notification-item';
-
-            row.innerHTML = `
-                <span>🔔</span>
-                <div>
-                    <strong>${escapeHtml(getNotificationName(item, lang))}</strong>
-                    <small>${translations[lang].active}</small>
-                </div>
-            `;
-
-            notificationsList.appendChild(row);
-        });
-    }
-
-    function getNotificationName(key, lang) {
-        const names = {
-            feeding: translations[lang].notifFeeding,
-            medical: translations[lang].notifMedical,
-            gallery: translations[lang].notifGallery,
-            sharing: translations[lang].notifSharing,
-            weekly: translations[lang].notifWeekly
-        };
-
-        return names[key] || key;
-    }
-
-    function getAccountData() {
-        const stored = getStore('bain_account_profile', {});
-        const fallbackName = sessionUser && sessionUser.name ? sessionUser.name : 'User';
-        const fallbackEmail = sessionUser && sessionUser.email ? sessionUser.email : '';
-
-        return {
-            name: stored.name || fallbackName,
-            email: stored.email || fallbackEmail,
-            phone: stored.phone || '',
-            location: stored.location || '',
-            photo: stored.photo || ''
-        };
-    }
-
-    function saveAccountData(data) {
-        setStore('bain_account_profile', data);
-    }
-
-    function getSettings() {
-        const defaults = {
-            language: 'ro',
-            theme: 'light',
-            timezone: 'Europe/Bucharest',
-            defaultPage: 'dashboard',
-            notifications: {
-                feeding: true,
-                medical: true,
-                gallery: true,
-                sharing: false,
-                weekly: true
-            },
-            security: {
-                twoFactor: false
+            if (editPhotoInput) {
+                editPhotoInput.value = '';
             }
-        };
 
-        const saved = getStore('bain_account_settings', {});
-        return mergeObjects(defaults, saved);
-    }
+            if (editPhotoInitial) {
+                editPhotoInitial.textContent = getInitial(user.name);
+            }
 
-    function saveSettings(settings) {
-        setStore('bain_account_settings', settings);
-    }
-
-    function savePreference(key, value) {
-        const settings = getSettings();
-        settings[key] = value;
-        saveSettings(settings);
-        renderAccount();
-    }
-
-    function saveNestedSetting(path, value) {
-        const settings = getSettings();
-        setByPath(settings, path, value);
-        saveSettings(settings);
-        renderAccount();
-    }
-
-    editProfileBtn.addEventListener('click', () => {
-        const account = getAccountData();
-
-        selectedPhoto = account.photo || '';
-
-        editName.value = account.name;
-        editEmail.value = account.email;
-        editPhone.value = account.phone;
-        editLocation.value = account.location;
-        editPhotoInput.value = '';
-        editPhotoInitial.textContent = getInitial(account.name);
-        applyAvatar(editPhotoPreview, selectedPhoto);
-
-        profileModal.classList.add('active');
-    });
-
-    editPhotoInput.addEventListener('change', () => {
-        const file = editPhotoInput.files[0];
-        const lang = getSettings().language;
-
-        if (!file) {
-            return;
-        }
-
-        if (!file.type.startsWith('image/')) {
-            alert(translations[lang].invalidImage);
-            editPhotoInput.value = '';
-            return;
-        }
-
-        if (file.size > 2 * 1024 * 1024) {
-            alert(translations[lang].imageTooLarge);
-            editPhotoInput.value = '';
-            return;
-        }
-
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            selectedPhoto = reader.result;
             applyAvatar(editPhotoPreview, selectedPhoto);
-        };
-
-        reader.readAsDataURL(file);
-    });
-
-    removePhotoBtn.addEventListener('click', () => {
-        selectedPhoto = '';
-        editPhotoInput.value = '';
-        applyAvatar(editPhotoPreview, '');
-    });
-
-    profileForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        saveAccountData({
-            name: editName.value.trim(),
-            email: editEmail.value.trim(),
-            phone: editPhone.value.trim(),
-            location: editLocation.value.trim(),
-            photo: selectedPhoto
+            profileModal.classList.add('active');
         });
+    }
 
-        profileModal.classList.remove('active');
-        renderAccount();
-        alert(translations[getSettings().language].profileSaved);
-    });
+    if (editPhotoInput) {
+        editPhotoInput.addEventListener('change', () => {
+            const file = editPhotoInput.files[0];
 
-    addChildBtn.addEventListener('click', () => {
-        window.location.href = '../childProfile/childProfile.html?action=add';
-    });
+            if (!file) {
+                return;
+            }
 
-    languageSelect.addEventListener('change', () => {
-        savePreference('language', languageSelect.value);
-    });
+            if (!file.type.startsWith('image/')) {
+                alert('Fisierul ales nu este o imagine valida.');
+                editPhotoInput.value = '';
+                return;
+            }
 
-    themeSelect.addEventListener('change', () => {
-        savePreference('theme', themeSelect.value);
-    });
+            if (file.size > 2 * 1024 * 1024) {
+                alert('Poza este prea mare. Alege o imagine sub 2 MB.');
+                editPhotoInput.value = '';
+                return;
+            }
 
-    timezoneSelect.addEventListener('change', () => {
-        savePreference('timezone', timezoneSelect.value);
-    });
+            const reader = new FileReader();
 
-    defaultPageSelect.addEventListener('change', () => {
-        savePreference('defaultPage', defaultPageSelect.value);
-    });
+            reader.onload = () => {
+                selectedPhoto = reader.result;
+                applyAvatar(editPhotoPreview, selectedPhoto);
+            };
+
+            reader.readAsDataURL(file);
+        });
+    }
+
+    if (removePhotoBtn) {
+        removePhotoBtn.addEventListener('click', () => {
+            selectedPhoto = '';
+            editPhotoInput.value = '';
+            applyAvatar(editPhotoPreview, '');
+        });
+    }
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            await saveProfile();
+        });
+    }
+
+    if (addChildBtn) {
+        addChildBtn.addEventListener('click', () => {
+            window.location.href = '../childProfile/childProfile.html?action=add';
+        });
+    }
+
+    if (languageSelect) {
+        languageSelect.addEventListener('change', async () => {
+            const settings = clone(accountData.settings || {});
+            settings.language = languageSelect.value;
+            await saveSettings(settings);
+        });
+    }
+
+    if (themeSelect) {
+        themeSelect.addEventListener('change', async () => {
+            const settings = clone(accountData.settings || {});
+            settings.theme = themeSelect.value;
+            await saveSettings(settings);
+        });
+    }
+
+    if (timezoneSelect) {
+        timezoneSelect.addEventListener('change', async () => {
+            const settings = clone(accountData.settings || {});
+            settings.timezone = timezoneSelect.value;
+            await saveSettings(settings);
+        });
+    }
+
+    if (defaultPageSelect) {
+        defaultPageSelect.addEventListener('change', async () => {
+            const settings = clone(accountData.settings || {});
+            settings.defaultPage = defaultPageSelect.value;
+            await saveSettings(settings);
+        });
+    }
 
     document.querySelectorAll('[data-setting]').forEach((input) => {
-        input.addEventListener('change', () => {
-            saveNestedSetting(input.dataset.setting, input.checked);
+        input.addEventListener('change', async () => {
+            const settings = clone(accountData.settings || {});
+            setByPath(settings, input.dataset.setting, input.checked);
+            await saveSettings(settings);
         });
     });
 
-    twoFactorBtn.addEventListener('click', () => {
-        const settings = getSettings();
-        settings.security.twoFactor = !settings.security.twoFactor;
-        saveSettings(settings);
-        renderAccount();
+    if (twoFactorBtn) {
+        twoFactorBtn.addEventListener('click', async () => {
+            const settings = clone(accountData.settings || {});
 
-        alert(settings.security.twoFactor
-            ? translations[settings.language].twoFactorEnabled
-            : translations[settings.language].twoFactorDisabled);
-    });
+            if (!settings.security) {
+                settings.security = {};
+            }
 
-    changePasswordBtn.addEventListener('click', () => {
-        window.location.href = '../auth/forgotpassword.html';
-    });
-
-    downloadDataBtn.addEventListener('click', () => {
-        const data = {
-            account: getAccountData(),
-            settings: getSettings(),
-            children,
-            profiles
-        };
-
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-            type: 'application/json'
+            settings.security.twoFactor = !settings.security.twoFactor;
+            await saveSettings(settings);
+            alert(settings.security.twoFactor ? 'Autentificarea in doi pasi a fost activata.' : 'Autentificarea in doi pasi a fost dezactivata.');
         });
+    }
 
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'bain-account-data.json';
-        link.click();
-        URL.revokeObjectURL(url);
-    });
+    if (changePasswordBtn) {
+        changePasswordBtn.addEventListener('click', () => {
+            window.location.href = '../auth/forgotpassword.html';
+        });
+    }
 
-    openNotificationsBtn.addEventListener('click', () => {
-        renderNotifications();
-        notificationsModal.classList.add('active');
-    });
+    if (downloadDataBtn) {
+        downloadDataBtn.addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(accountData, null, 2)], {
+                type: 'application/json'
+            });
+
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'bain-account-data.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    if (openNotificationsBtn && notificationsModal) {
+        openNotificationsBtn.addEventListener('click', () => {
+            renderNotifications();
+            notificationsModal.classList.add('active');
+        });
+    }
 
     document.querySelectorAll('.close-modal').forEach((button) => {
         button.addEventListener('click', () => {
-            document.getElementById(button.dataset.close).classList.remove('active');
+            const modal = document.getElementById(button.dataset.close);
+
+            if (modal) {
+                modal.classList.remove('active');
+            }
         });
     });
 
-    logoutBtn.addEventListener('click', async () => {
-        await fetch('/WEB_project/backend/api/logout.php', {
-            method: 'POST',
-            credentials: 'same-origin'
-        });
-
-        localStorage.removeItem('selectedChildId');
-        window.location.href = '../auth/login.html';
-    });
-
-    function getStore(key, fallback) {
-        const raw = localStorage.getItem(key);
-
-        if (!raw) {
-            return fallback;
-        }
-
-        try {
-            return JSON.parse(raw);
-        } catch (error) {
-            return fallback;
-        }
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logoutUser);
     }
 
-    function setStore(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
+    function clone(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
+
+    function getByPath(object, path) {
+        return path.split('.').reduce((current, key) => current && current[key], object);
+    }
+
+    function setByPath(object, path, value) {
+        const parts = path.split('.');
+        let current = object;
+
+        parts.slice(0, -1).forEach((key) => {
+            if (!current[key]) {
+                current[key] = {};
+            }
+
+            current = current[key];
+        });
+
+        current[parts[parts.length - 1]] = value;
     }
 
     function parseDate(dateString) {
@@ -702,51 +618,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return String(name || 'U').trim().charAt(0).toUpperCase();
     }
 
-    function normalizeKey(value) {
-        return String(value)
-            .toLowerCase()
-            .trim()
-            .replace(/\s+/g, ' ');
-    }
-
-    function getByPath(object, path) {
-        return path.split('.').reduce((current, key) => current && current[key], object);
-    }
-
-    function setByPath(object, path, value) {
-        const parts = path.split('.');
-        let current = object;
-
-        parts.slice(0, -1).forEach((key) => {
-            if (!current[key]) {
-                current[key] = {};
-            }
-
-            current = current[key];
-        });
-
-        current[parts[parts.length - 1]] = value;
-    }
-
-    function mergeObjects(base, saved) {
-        const result = { ...base };
-
-        Object.keys(saved || {}).forEach((key) => {
-            if (
-                saved[key] &&
-                typeof saved[key] === 'object' &&
-                !Array.isArray(saved[key]) &&
-                base[key]
-            ) {
-                result[key] = mergeObjects(base[key], saved[key]);
-            } else {
-                result[key] = saved[key];
-            }
-        });
-
-        return result;
-    }
-
     function escapeHtml(value) {
         return String(value)
             .replaceAll('&', '&amp;')
@@ -756,10 +627,5 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replaceAll("'", '&#039;');
     }
 
-    const ok = await checkSession();
-
-    if (ok) {
-        await loadChildren();
-        renderAccount();
-    }
+    await loadAccount();
 });

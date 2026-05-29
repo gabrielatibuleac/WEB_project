@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
     const welcomeName = document.getElementById('welcomeName');
     const topUserName = document.getElementById('topUserName');
     const topUserInitial = document.getElementById('topUserInitial');
@@ -19,152 +21,205 @@ document.addEventListener('DOMContentLoaded', async () => {
     const scheduleList = document.getElementById('scheduleList');
     const momentsList = document.getElementById('momentsList');
 
-    const apiBase = '/WEB_project/backend/api/children.php';
+    const openNotificationsBtn = document.getElementById('openNotificationsBtn');
+    const notificationsModal = document.getElementById('notificationsModal');
+    const notificationsList = document.getElementById('notificationsList');
+
+    const childrenApiBase = '/WEB_project/backend/api/children.php';
+    const dashboardApiBase = '/WEB_project/backend/api/dashboard.php';
+
+    let dashboardNotifications = [];
+
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+
+        if (!adminLink) {
+            return;
+        }
+
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
+    }
 
     async function checkSession() {
-        try {
-            const response = await fetch('/WEB_project/backend/api/check_session.php', {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
+        const result = await requestJson('/WEB_project/backend/api/check_auth.php', {
+            method: 'GET'
+        });
 
-            const result = await response.json();
-
-            if (result.status !== 'success') {
-                window.location.href = '../auth/login.html';
-                return false;
-            }
-
-            const fullName = result.user.name || 'User';
-            const firstName = fullName.split(' ')[0];
-
-            welcomeName.textContent = firstName;
-            topUserName.textContent = fullName;
-            topUserInitial.textContent = fullName.charAt(0).toUpperCase();
-
-            return true;
-        } catch (error) {
-            window.location.href = '../auth/login.html';
+        if (result.status !== 'success') {
+            redirectToLogin();
             return false;
         }
+
+        const fullName = result.user.name || result.user.full_name || 'User';
+        const firstName = fullName.split(' ')[0];
+
+        if (welcomeName) {
+            welcomeName.textContent = firstName;
+        }
+
+        if (topUserName) {
+            topUserName.textContent = fullName;
+        }
+
+        if (topUserInitial) {
+            topUserInitial.textContent = fullName.charAt(0).toUpperCase();
+        }
+
+        showAdminLinkIfNeeded(result.user);
+
+        return true;
+    }
+
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
+        });
+
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
     }
 
     async function loadChildrenOnDashboard() {
-        try {
-            const response = await fetch(`${apiBase}?action=list`, {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
+        const result = await requestJson(`${childrenApiBase}?action=list`, {
+            method: 'GET'
+        });
 
-            const result = await response.json();
-
-            if (result.status !== 'success') {
-                renderEmptyDashboard();
-                return;
-            }
-
-            const children = result.children || [];
-            dashboardChildSelect.innerHTML = '';
-
-            if (children.length === 0) {
-                const option = document.createElement('option');
-                option.textContent = 'Nu ai copil adaugat';
-                option.value = '';
-                dashboardChildSelect.appendChild(option);
-
-                dashboardChildBirth.textContent = 'Adauga primul copil din Profil copil.';
-                renderEmptyDashboard();
-                return;
-            }
-
-            const savedChildId = localStorage.getItem('selectedChildId');
-            let selectedChild = children[0];
-
-            children.forEach((child) => {
-                const option = document.createElement('option');
-                option.value = child.id;
-                option.textContent = `${child.name}, ${getAge(child.birth_date)} ani`;
-                dashboardChildSelect.appendChild(option);
-
-                if (savedChildId && String(child.id) === String(savedChildId)) {
-                    selectedChild = child;
-                }
-            });
-
-            dashboardChildSelect.value = selectedChild.id;
-            await updateDashboardChild(selectedChild);
-
-            dashboardChildSelect.addEventListener('change', async () => {
-                const child = children.find((item) => String(item.id) === String(dashboardChildSelect.value));
-
-                if (child) {
-                    await updateDashboardChild(child);
-                }
-            });
-        } catch (error) {
-            console.error(error);
+        if (result.status !== 'success') {
             renderEmptyDashboard();
+            return;
         }
+
+        const children = result.children || [];
+        dashboardChildSelect.innerHTML = '';
+
+        if (children.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Nu ai copil adaugat';
+            dashboardChildSelect.appendChild(option);
+
+            dashboardChildBirth.textContent = 'Adauga primul copil din Profil copil.';
+            renderEmptyDashboard();
+            return;
+        }
+
+        const savedChildId = localStorage.getItem('selectedChildId');
+        let selectedChild = children[0];
+
+        children.forEach((child) => {
+            const option = document.createElement('option');
+            option.value = child.id;
+            option.textContent = `${child.name}, ${getAge(child.birth_date)} ani`;
+            dashboardChildSelect.appendChild(option);
+
+            if (savedChildId && String(child.id) === String(savedChildId)) {
+                selectedChild = child;
+            }
+        });
+
+        dashboardChildSelect.value = selectedChild.id;
+        await updateDashboardChild(selectedChild);
+
+        dashboardChildSelect.addEventListener('change', async () => {
+            const child = children.find((item) => String(item.id) === String(dashboardChildSelect.value));
+
+            if (child) {
+                await updateDashboardChild(child);
+            }
+        });
     }
 
     async function updateDashboardChild(child) {
         localStorage.setItem('selectedChildId', child.id);
         dashboardChildBirth.textContent = `Nascut pe ${formatDate(child.birth_date)}`;
 
-        const profile = await loadChildProfile(child.id);
+        const result = await requestJson(`${dashboardApiBase}?action=summary&child_id=${child.id}`, {
+            method: 'GET'
+        });
 
-        if (!profile) {
+        if (result.status !== 'success') {
             renderEmptyDashboard(child);
             return;
         }
 
-        renderDashboardData(child, profile.milestones || [], profile.caregivers || []);
+        renderDashboardData(child, result.summary || {});
     }
 
-    async function loadChildProfile(childId) {
-        try {
-            const response = await fetch(`${apiBase}?action=profile&id=${childId}`, {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
+    function renderDashboardData(child, summary) {
+        feedingCount.textContent = summary.feeding_count || 0;
+        feedingInfo.textContent = summary.feeding_count > 0
+            ? `${summary.feeding_count} mese adaugate azi pentru ${child.name}.`
+            : `Nu exista mese adaugate azi pentru ${child.name}.`;
 
-            const result = await response.json();
+        sleepTotal.textContent = formatMinutes(summary.sleep_minutes || 0);
+        sleepInfo.textContent = summary.sleep_minutes > 0
+            ? `Somn inregistrat azi pentru ${child.name}.`
+            : `Nu exista somn adaugat azi pentru ${child.name}.`;
 
-            if (result.status !== 'success') {
-                return null;
-            }
+        memoryCount.textContent = summary.memory_count || 0;
+        memoryInfo.textContent = summary.memory_count === 1
+            ? '1 moment adaugat.'
+            : `${summary.memory_count || 0} momente adaugate.`;
 
-            return result;
-        } catch (error) {
-            console.error(error);
-            return null;
-        }
-    }
+        medicalCount.textContent = summary.medical_count || 0;
+        medicalInfo.textContent = summary.medical_count > 0
+            ? `${summary.medical_count} informatii medicale salvate pentru ${child.name}.`
+            : `Nu exista informatii medicale pentru ${child.name}.`;
 
-    function renderDashboardData(child, milestones, caregivers) {
-        const medicalData = getMedicalData(child.id);
-        const medicalTotal = countMedicalItems(medicalData);
-        const timelineItems = getTimelineItems(child.id, milestones);
-
-        feedingCount.textContent = '0';
-        feedingInfo.textContent = `Nu exista mese adaugate azi pentru ${child.name}.`;
-
-        sleepTotal.textContent = '0h 0m';
-        sleepInfo.textContent = `Nu exista somn adaugat azi pentru ${child.name}.`;
-
-        memoryCount.textContent = timelineItems.length;
-        memoryInfo.textContent = timelineItems.length === 1 ? '1 moment adaugat.' : `${timelineItems.length} momente adaugate.`;
-
-        medicalCount.textContent = medicalTotal;
-        medicalInfo.textContent = medicalTotal === 0
-            ? `Nu exista informatii medicale pentru ${child.name}.`
-            : `${medicalTotal} informatii medicale salvate pentru ${child.name}.`;
-
-        relationsCount.textContent = caregivers.length;
+        relationsCount.textContent = summary.caregivers_count || 0;
         relationsChildName.textContent = `cu ${child.name}`;
 
-        renderSchedule(child, medicalData, timelineItems);
-        renderMoments(timelineItems);
+        renderSchedule(child, summary.today_schedule || []);
+        renderMoments(summary.recent_moments || []);
+
+        dashboardNotifications = summary.notifications || [];
     }
 
     function renderEmptyDashboard(child = null) {
@@ -187,60 +242,26 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         scheduleList.innerHTML = '<p class="empty-panel-message">Nu exista activitati programate pentru azi.</p>';
         momentsList.innerHTML = '<p class="empty-panel-message">Nu exista momente recente.</p>';
+        dashboardNotifications = [];
     }
 
-    function renderSchedule(child, medicalData, timelineItems) {
-        const today = getTodayIso();
-        const items = [];
-
-        const medicalSources = [
-            { list: medicalData.visits || [], label: 'Programare medicala', icon: '📅' },
-            { list: medicalData.medications || [], label: 'Medicatie', icon: '💊' },
-            { list: medicalData.vaccines || [], label: 'Vaccin', icon: '🛡️' },
-            { list: medicalData.allergies || [], label: 'Alergie', icon: '⚠️' },
-            { list: medicalData.notes || [], label: 'Nota medicala', icon: '✚' }
-        ];
-
-        medicalSources.forEach((source) => {
-            source.list.forEach((item) => {
-                if (item.date === today) {
-                    items.push({
-                        time: 'Astazi',
-                        title: item.title,
-                        description: `${source.icon} ${source.label}: ${item.description}`
-                    });
-                }
-            });
-        });
-
-        timelineItems.forEach((item) => {
-            if (item.date === today && item.source !== 'medical') {
-                items.push({
-                    time: item.time || 'Astazi',
-                    title: item.title,
-                    description: item.description
-                });
-            }
-        });
-
+    function renderSchedule(child, items) {
         scheduleList.innerHTML = '';
 
-        if (items.length === 0) {
-            scheduleList.innerHTML = `
-                <p class="empty-panel-message">Nu exista activitati programate pentru azi pentru ${escapeHtml(child.name)}.</p>
-            `;
+        if (!items || items.length === 0) {
+            scheduleList.innerHTML = `<p class="empty-panel-message">Nu exista activitati programate pentru azi pentru ${escapeHtml(child.name)}.</p>`;
             return;
         }
 
-        items.slice(0, 5).forEach((item) => {
+        items.slice(0, 6).forEach((item) => {
             const row = document.createElement('div');
             row.className = 'schedule-item';
 
             row.innerHTML = `
-                <span>${escapeHtml(item.time)}</span>
+                <span>${escapeHtml(item.time || 'Astazi')}</span>
                 <div>
-                    <strong>${escapeHtml(item.title)}</strong>
-                    <p>${escapeHtml(item.description)}</p>
+                    <strong>${escapeHtml(item.title || 'Activitate')}</strong>
+                    <p>${escapeHtml(item.description || '')}</p>
                 </div>
                 <b>✓</b>
             `;
@@ -252,7 +273,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderMoments(items) {
         momentsList.innerHTML = '';
 
-        if (items.length === 0) {
+        if (!items || items.length === 0) {
             momentsList.innerHTML = '<p class="empty-panel-message">Nu exista momente recente.</p>';
             return;
         }
@@ -262,10 +283,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             item.className = 'moment-item';
 
             item.innerHTML = `
-                <div class="moment-placeholder">${getTypeIcon(moment.type)}</div>
+                <div class="moment-placeholder">${moment.icon || getTypeIcon(moment.type)}</div>
                 <div>
                     <strong>${escapeHtml(moment.title)}</strong>
-                    <p>${escapeHtml(moment.description)}</p>
+                    <p>${escapeHtml(moment.description || '')}</p>
                     <small>${formatDate(moment.date)}</small>
                 </div>
                 <span>♥ ${moment.likes || 0}</span>
@@ -275,62 +296,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    function getTimelineItems(childId, milestones) {
-        const localItems = getStore(`bain_timeline_${childId}`, []);
+    function renderNotifications() {
+        if (!notificationsList) {
+            return;
+        }
 
-        const milestoneItems = milestones.map((item) => ({
-            id: `milestone_${item.id}`,
-            title: item.title,
-            description: 'Reper important adaugat in profil',
-            type: 'progress',
-            date: item.milestone_date,
-            time: '00:00',
-            likes: 0,
-            source: 'milestone'
-        }));
+        notificationsList.innerHTML = '';
 
-        return [...localItems, ...milestoneItems].sort((a, b) => {
-            const aTime = `${a.date || ''} ${a.time || '00:00'}`;
-            const bTime = `${b.date || ''} ${b.time || '00:00'}`;
-            return bTime.localeCompare(aTime);
+        if (!dashboardNotifications || dashboardNotifications.length === 0) {
+            notificationsList.innerHTML = '<p class="empty-panel-message">Nu exista notificari momentan.</p>';
+            return;
+        }
+
+        dashboardNotifications.forEach((notification) => {
+            const row = document.createElement('div');
+            row.className = 'notification-item';
+
+            row.innerHTML = `
+                <span>${getNotificationIcon(notification.notification_type)}</span>
+                <div>
+                    <strong>${escapeHtml(notification.title)}</strong>
+                    <p>${escapeHtml(notification.message || '')}</p>
+                    <small>${formatDateTime(notification.created_at)}</small>
+                </div>
+            `;
+
+            notificationsList.appendChild(row);
         });
     }
 
-    function getMedicalData(childId) {
-        return normalizeMedicalData(getStore(`bain_medical_${childId}`, {}));
-    }
-
-    function normalizeMedicalData(data) {
-        return {
-            vaccines: Array.isArray(data.vaccines) ? data.vaccines : [],
-            visits: Array.isArray(data.visits) ? data.visits : [],
-            medications: Array.isArray(data.medications) ? data.medications : [],
-            allergies: Array.isArray(data.allergies) ? data.allergies : [],
-            notes: Array.isArray(data.notes) ? data.notes : [],
-            emergency: Array.isArray(data.emergency) ? data.emergency : []
+    function getNotificationIcon(type) {
+        const icons = {
+            medical: '✚',
+            feeding: '🍼',
+            sleep: '☾',
+            sharing: '⌯',
+            gallery: '▧',
+            account: '👤'
         };
+
+        return icons[type] || '🔔';
     }
 
-    function countMedicalItems(data) {
-        return (data.vaccines || []).length
-            + (data.visits || []).length
-            + (data.medications || []).length
-            + (data.allergies || []).length
-            + (data.notes || []).length;
-    }
+    function formatMinutes(minutes) {
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
 
-    function getStore(key, fallback) {
-        const raw = localStorage.getItem(key);
-
-        if (!raw) {
-            return fallback;
-        }
-
-        try {
-            return JSON.parse(raw);
-        } catch (error) {
-            return fallback;
-        }
+        return `${h}h ${m}m`;
     }
 
     function getTypeIcon(type) {
@@ -343,15 +355,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         return icons[type] || '☆';
-    }
-
-    function getTodayIso() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-
-        return `${year}-${month}-${day}`;
     }
 
     function parseDate(dateString) {
@@ -376,7 +379,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const today = new Date();
-
         let age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
 
@@ -401,6 +403,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    function formatDateTime(dateString) {
+        const date = new Date(dateString);
+
+        if (Number.isNaN(date.getTime())) {
+            return '-';
+        }
+
+        return date.toLocaleString('ro-RO', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
     function escapeHtml(value) {
         return String(value)
             .replaceAll('&', '&amp;')
@@ -411,20 +429,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            await fetch('/WEB_project/backend/api/logout.php', {
-                method: 'POST',
-                credentials: 'same-origin'
-            });
-
-            localStorage.removeItem('selectedChildId');
-            window.location.href = '../auth/login.html';
-        });
+        logoutBtn.addEventListener('click', logoutUser);
     }
 
     document.querySelectorAll('[data-route]').forEach((element) => {
         element.addEventListener('click', () => {
             window.location.href = element.dataset.route;
+        });
+    });
+
+    if (openNotificationsBtn && notificationsModal) {
+        openNotificationsBtn.addEventListener('click', () => {
+            renderNotifications();
+            notificationsModal.classList.add('active');
+        });
+    }
+
+    document.querySelectorAll('.close-modal').forEach((button) => {
+        button.addEventListener('click', () => {
+            const modal = document.getElementById(button.dataset.close);
+
+            if (modal) {
+                modal.classList.remove('active');
+            }
         });
     });
 

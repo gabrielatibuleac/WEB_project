@@ -21,37 +21,80 @@ class ChildModel {
     }
 
     public function createChild($userId, $data) {
-        $stmt = $this->db->prepare("INSERT INTO children (user_id, name, birth_date, blood_type, allergies, kindergarten_name, kindergarten_group, educator_name, height_cm, weight_kg, bmi, favorite_activities, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $this->db->prepare("
+            INSERT INTO children (
+                user_id,
+                name,
+                birth_date,
+                gender,
+                blood_type,
+                allergies,
+                education_level,
+                institution_name,
+                group_or_class,
+                responsible_person,
+                height_cm,
+                weight_kg,
+                bmi,
+                favorite_activities,
+                description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ");
+
         $stmt->bind_param(
-            "isssssssdddss",
+            "isssssssssdddss",
             $userId,
             $data["name"],
             $data["birth_date"],
+            $data["gender"],
             $data["blood_type"],
             $data["allergies"],
-            $data["kindergarten_name"],
-            $data["kindergarten_group"],
-            $data["educator_name"],
+            $data["education_level"],
+            $data["institution_name"],
+            $data["group_or_class"],
+            $data["responsible_person"],
             $data["height_cm"],
             $data["weight_kg"],
             $data["bmi"],
             $data["favorite_activities"],
             $data["description"]
         );
+
         return $stmt->execute();
     }
 
     public function updateChild($childId, $userId, $data) {
-        $stmt = $this->db->prepare("UPDATE children SET name = ?, birth_date = ?, blood_type = ?, allergies = ?, kindergarten_name = ?, kindergarten_group = ?, educator_name = ?, height_cm = ?, weight_kg = ?, bmi = ?, favorite_activities = ?, description = ? WHERE id = ? AND user_id = ?");
+        $stmt = $this->db->prepare("
+            UPDATE children
+            SET
+                name = ?,
+                birth_date = ?,
+                gender = ?,
+                blood_type = ?,
+                allergies = ?,
+                education_level = ?,
+                institution_name = ?,
+                group_or_class = ?,
+                responsible_person = ?,
+                height_cm = ?,
+                weight_kg = ?,
+                bmi = ?,
+                favorite_activities = ?,
+                description = ?
+            WHERE id = ? AND user_id = ?
+        ");
+
         $stmt->bind_param(
-            "sssssssdddssii",
+            "sssssssssdddssii",
             $data["name"],
             $data["birth_date"],
+            $data["gender"],
             $data["blood_type"],
             $data["allergies"],
-            $data["kindergarten_name"],
-            $data["kindergarten_group"],
-            $data["educator_name"],
+            $data["education_level"],
+            $data["institution_name"],
+            $data["group_or_class"],
+            $data["responsible_person"],
             $data["height_cm"],
             $data["weight_kg"],
             $data["bmi"],
@@ -60,6 +103,7 @@ class ChildModel {
             $childId,
             $userId
         );
+
         return $stmt->execute();
     }
 

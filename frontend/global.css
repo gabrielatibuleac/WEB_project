@@ -47,3 +47,71 @@ body {
     transform: scale(1.02);
     opacity: 1 !important;
 }
+body.dark-mode {
+    --white: #1f1f23;
+    --soft-bg: #121214;
+    --border: #33333a;
+    --text-dark: #f7f7f7;
+    --text-gray: #c9c9c9;
+    background: var(--soft-bg);
+    color: var(--text-dark);
+}
+
+body.dark-mode .sidebar,
+body.dark-mode .topbar,
+body.dark-mode .panel,
+body.dark-mode .stat-card,
+body.dark-mode .profile-card,
+body.dark-mode .child-selector,
+body.dark-mode .modal-card,
+body.dark-mode .auth-card {
+    background: var(--white);
+    color: var(--text-dark);
+}
+
+body.dark-mode input,
+body.dark-mode select,
+body.dark-mode textarea {
+    background: #2a2a30;
+    color: var(--text-dark);
+    border-color: var(--border);
+}
+
+body.dark-mode .side-nav a {
+    color: var(--text-gray);
+}
+
+body.dark-mode .side-nav a:hover,
+body.dark-mode .side-nav a.active {
+    color: #ffffff;
+}
+
+body.dark-mode .bottom-banner,
+body.dark-mode .privacy-banner,
+body.dark-mode .emergency-panel {
+    background: #2a2220;
+}
+
+body.dark-mode .mini-card,
+body.dark-mode .child-card,
+body.dark-mode .medical-item,
+body.dark-mode .timeline-list,
+body.dark-mode .share-row,
+body.dark-mode .rss-row,
+body.dark-mode .notification-item,
+body.dark-mode .caregiver-card,
+body.dark-mode .growth-card {
+    background: #24242a;
+    border-color: var(--border);
+}
+.avatar.has-photo {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent !important;
+    font-size: 0 !important;
+}
+
+.avatar.has-photo * {
+    display: none !important;
+}

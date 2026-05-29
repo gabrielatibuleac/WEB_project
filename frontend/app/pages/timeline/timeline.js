@@ -1,5 +1,9 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const apiBase = '/WEB_project/backend/api/children.php';
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
+    const childrenApiBase = '/WEB_project/backend/api/children.php';
+    const timelineApiBase = '/WEB_project/backend/api/timeline.php';
+
     const childSelect = document.getElementById('childSelect');
     const childBirthText = document.getElementById('childBirthText');
     const timelineTitle = document.getElementById('timelineTitle');
@@ -19,43 +23,98 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let children = [];
     let currentChild = null;
-    let currentProfile = null;
+    let currentItems = [];
     let currentFilter = 'all';
 
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+
+        if (!adminLink) {
+            return;
+        }
+
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
     async function requestJson(url, options = {}) {
-        const response = await fetch(url, options);
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
         const text = await response.text();
+        let result;
 
         try {
-            return JSON.parse(text);
+            result = JSON.parse(text);
         } catch (error) {
             console.error(text);
             return { status: 'error', message: 'Raspuns invalid de la server.' };
         }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
     }
 
-    async function checkSession() {
-        const result = await requestJson('/WEB_project/backend/api/check_session.php', {
-            method: 'GET',
-            credentials: 'same-origin'
+    async function checkAuth() {
+        const result = await requestJson('/WEB_project/backend/api/check_auth.php', {
+            method: 'GET'
         });
 
         if (result.status !== 'success') {
-            window.location.href = '../auth/login.html';
+            redirectToLogin();
             return false;
         }
 
-        const fullName = result.user.name || 'User';
+        const fullName = result.user.name || result.user.full_name || 'User';
+
         topUserName.textContent = fullName;
         topUserInitial.textContent = fullName.charAt(0).toUpperCase();
+
+        showAdminLinkIfNeeded(result.user);
 
         return true;
     }
 
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
+        });
+
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
     async function loadChildren() {
-        const result = await requestJson(`${apiBase}?action=list`, {
-            method: 'GET',
-            credentials: 'same-origin'
+        const result = await requestJson(`${childrenApiBase}?action=list`, {
+            method: 'GET'
         });
 
         children = result.status === 'success' ? result.children || [] : [];
@@ -66,6 +125,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             option.value = '';
             option.textContent = 'Nu ai copil adaugat';
             childSelect.appendChild(option);
+
+            currentChild = null;
+            currentItems = [];
             timelineTitle.textContent = 'Momentele copilului';
             childBirthText.textContent = 'Adauga primul copil din Profil copil.';
             renderTimeline();
@@ -100,104 +162,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem('selectedChildId', currentChild.id);
         childBirthText.textContent = `Nascut pe ${formatDate(currentChild.birth_date)}`;
         timelineTitle.textContent = `Momentele ${currentChild.name}`;
-        currentProfile = await loadProfile(currentChild.id);
+
+        await loadTimelineItems();
         renderTimeline();
     }
 
-    async function loadProfile(childId) {
-        const result = await requestJson(`${apiBase}?action=profile&id=${childId}`, {
-            method: 'GET',
-            credentials: 'same-origin'
-        });
-
-        return result.status === 'success' ? result : null;
-    }
-
-    function getTimelineItems() {
+    async function loadTimelineItems() {
         if (!currentChild) {
-            return [];
+            currentItems = [];
+            return;
         }
 
-        const localItems = getStore(`bain_timeline_${currentChild.id}`, []);
-        const cleanLocalItems = localItems.filter((item) => item.source !== 'medical');
-
-        const milestones = currentProfile && currentProfile.milestones ? currentProfile.milestones : [];
-
-        const milestoneItems = milestones.map((item) => ({
-            id: `milestone_${item.id}`,
-            title: item.title,
-            description: 'Reper important adaugat in profilul copilului.',
-            type: 'progress',
-            date: item.milestone_date,
-            time: '00:00',
-            likes: 0,
-            comments: 0,
-            source: 'milestone'
-        }));
-
-        const medicalItems = getMedicalTimelineItems(currentChild.id);
-
-        return [...cleanLocalItems, ...milestoneItems, ...medicalItems].sort((a, b) => {
-            const aTime = `${a.date || ''} ${a.time || '00:00'}`;
-            const bTime = `${b.date || ''} ${b.time || '00:00'}`;
-            return bTime.localeCompare(aTime);
-        });
-    }
-
-    function getMedicalTimelineItems(childId) {
-        const data = normalizeMedicalData(getStore(`bain_medical_${childId}`, {}));
-        const items = [];
-
-        const sources = [
-            { key: 'vaccines', list: data.vaccines, label: 'Vaccin', icon: '🛡️' },
-            { key: 'visits', list: data.visits, label: 'Programare medicala', icon: '📅' },
-            { key: 'medications', list: data.medications, label: 'Medicatie', icon: '💊' },
-            { key: 'allergies', list: data.allergies, label: 'Alergie', icon: '⚠️' },
-            { key: 'notes', list: data.notes, label: 'Nota medicala', icon: '✚' }
-        ];
-
-        sources.forEach((source) => {
-            source.list.forEach((item) => {
-                if (!item.date) {
-                    return;
-                }
-
-                items.push({
-                    id: `medical_${source.key}_${item.id}`,
-                    title: item.title,
-                    description: `${source.label}: ${item.description}`,
-                    type: 'medical',
-                    date: item.date,
-                    time: item.time || '00:00',
-                    likes: 0,
-                    comments: 0,
-                    source: 'medical',
-                    medicalType: source.key,
-                    sourceLabel: source.label,
-                    icon: source.icon
-                });
-            });
+        const result = await requestJson(`${timelineApiBase}?action=list&child_id=${currentChild.id}`, {
+            method: 'GET'
         });
 
-        return items;
-    }
-
-    function normalizeMedicalData(data) {
-        return {
-            vaccines: Array.isArray(data.vaccines) ? data.vaccines : [],
-            visits: Array.isArray(data.visits) ? data.visits : [],
-            medications: Array.isArray(data.medications) ? data.medications : [],
-            allergies: Array.isArray(data.allergies) ? data.allergies : [],
-            notes: Array.isArray(data.notes) ? data.notes : [],
-            emergency: Array.isArray(data.emergency) ? data.emergency : []
-        };
+        currentItems = result.status === 'success' ? result.items || [] : [];
     }
 
     function renderTimeline() {
-        const allItems = getTimelineItems();
         const items = currentFilter === 'all'
-            ? allItems
-            : allItems.filter((item) => String(item.type).toLowerCase() === currentFilter);
+            ? currentItems
+            : currentItems.filter((item) => String(item.type).toLowerCase() === currentFilter);
 
         timelineList.innerHTML = '';
 
@@ -227,12 +213,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <div class="timeline-info">
                     <small>${formatDate(item.date)}, ${item.time || '00:00'}</small>
                     <h3>${escapeHtml(item.title)}</h3>
-                    <p>${escapeHtml(item.description)}</p>
+                    <p>${escapeHtml(item.description || '')}</p>
                     <small>♥ ${item.likes || 0}   ◌ ${item.comments || 0}</small>
                 </div>
                 <div class="timeline-actions">
-                    <button type="button" data-details="${item.id}">Vezi detalii</button>
-                    <button type="button" data-share="${item.id}">⌯</button>
+                    <button type="button" data-details="${escapeHtml(item.id)}">Vezi detalii</button>
+                    <button type="button" data-share="${escapeHtml(item.id)}">⌯</button>
                 </div>
             `;
 
@@ -245,32 +231,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.querySelectorAll('[data-share]').forEach((button) => {
             button.addEventListener('click', () => {
-                localStorage.setItem(`bain_selected_share_${currentChild.id}`, button.dataset.share);
-                window.location.href = '../sharing/sharing.html';
+                window.location.href = `../sharing/sharing.html?child_id=${encodeURIComponent(currentChild.id)}&moment_id=${encodeURIComponent(button.dataset.share)}`;
             });
         });
     }
 
     function openDetails(itemId) {
-        const item = getTimelineItems().find((entry) => String(entry.id) === String(itemId));
+        const item = currentItems.find((entry) => String(entry.id) === String(itemId));
 
         if (!item) {
             return;
         }
 
         detailsTitle.textContent = item.title;
+
         detailsContent.innerHTML = `
-            <p class="muted">${escapeHtml(item.description)}</p>
+            <p class="muted">${escapeHtml(item.description || '')}</p>
             <p><strong>Categorie:</strong> ${escapeHtml(item.sourceLabel || getTypeLabel(item.type))}</p>
             <p><strong>Data:</strong> ${formatDate(item.date)}</p>
-            <p><strong>Ora:</strong> ${item.time || '00:00'}</p>
+            <p><strong>Ora:</strong> ${escapeHtml(item.time || '00:00')}</p>
         `;
 
         detailsModal.classList.add('active');
     }
 
     function renderNotifications() {
-        const items = getTimelineItems().slice(0, 5);
+        const items = currentItems.slice(0, 5);
         notificationsList.innerHTML = '';
 
         if (items.length === 0) {
@@ -281,6 +267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         items.forEach((item) => {
             const row = document.createElement('div');
             row.className = 'notification-item';
+
             row.innerHTML = `
                 <span>${item.icon || getTypeIcon(item.type)}</span>
                 <div>
@@ -288,27 +275,83 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <small>${formatDate(item.date)}</small>
                 </div>
             `;
+
             notificationsList.appendChild(row);
         });
     }
 
-    function getStore(key, fallback) {
-        const raw = localStorage.getItem(key);
+    childSelect.addEventListener('change', async () => {
+        await selectChild(childSelect.value);
+    });
 
-        if (!raw) {
-            return fallback;
+    document.querySelectorAll('.timeline-tabs button').forEach((button) => {
+        button.addEventListener('click', () => {
+            document.querySelectorAll('.timeline-tabs button').forEach((item) => item.classList.remove('active'));
+            button.classList.add('active');
+            currentFilter = String(button.dataset.filter || 'all').toLowerCase();
+            renderTimeline();
+        });
+    });
+
+    openAddMomentBtn.addEventListener('click', () => {
+        if (!currentChild) {
+            alert('Adauga mai intai un copil.');
+            return;
         }
 
-        try {
-            return JSON.parse(raw);
-        } catch (error) {
-            return fallback;
-        }
-    }
+        momentForm.reset();
+        document.getElementById('momentDate').value = getTodayIso();
+        document.getElementById('momentTime').value = new Date().toTimeString().slice(0, 5);
+        momentModal.classList.add('active');
+    });
 
-    function setStore(key, value) {
-        localStorage.setItem(key, JSON.stringify(value));
-    }
+    momentForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        if (!currentChild) {
+            return;
+        }
+
+        const result = await requestJson(`${timelineApiBase}?action=create`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                child_id: currentChild.id,
+                title: document.getElementById('momentTitle').value,
+                type: document.getElementById('momentType').value,
+                date: document.getElementById('momentDate').value,
+                time: document.getElementById('momentTime').value,
+                description: document.getElementById('momentDescription').value
+            })
+        });
+
+        alert(result.message);
+
+        if (result.status === 'success') {
+            momentModal.classList.remove('active');
+            await loadTimelineItems();
+            renderTimeline();
+        }
+    });
+
+    document.querySelectorAll('.close-modal').forEach((button) => {
+        button.addEventListener('click', () => {
+            const modal = document.getElementById(button.dataset.close);
+
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        });
+    });
+
+    openNotificationsBtn.addEventListener('click', () => {
+        renderNotifications();
+        notificationsModal.classList.add('active');
+    });
+
+    logoutBtn.addEventListener('click', logoutUser);
 
     function parseDate(dateString) {
         if (!dateString) {
@@ -416,84 +459,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replaceAll("'", '&#039;');
     }
 
-    function uid() {
-        return String(Date.now()) + String(Math.floor(Math.random() * 100000));
-    }
-
-    childSelect.addEventListener('change', async () => {
-        await selectChild(childSelect.value);
-    });
-
-    document.querySelectorAll('.timeline-tabs button').forEach((button) => {
-        button.addEventListener('click', () => {
-            document.querySelectorAll('.timeline-tabs button').forEach((item) => item.classList.remove('active'));
-            button.classList.add('active');
-            currentFilter = String(button.dataset.filter || 'all').toLowerCase();
-            renderTimeline();
-        });
-    });
-
-    openAddMomentBtn.addEventListener('click', () => {
-        if (!currentChild) {
-            alert('Adauga mai intai un copil.');
-            return;
-        }
-
-        momentForm.reset();
-        document.getElementById('momentDate').value = getTodayIso();
-        document.getElementById('momentTime').value = new Date().toTimeString().slice(0, 5);
-        momentModal.classList.add('active');
-    });
-
-    momentForm.addEventListener('submit', (event) => {
-        event.preventDefault();
-
-        if (!currentChild) {
-            return;
-        }
-
-        const items = getStore(`bain_timeline_${currentChild.id}`, []);
-
-        items.push({
-            id: uid(),
-            title: document.getElementById('momentTitle').value,
-            type: document.getElementById('momentType').value,
-            date: document.getElementById('momentDate').value,
-            time: document.getElementById('momentTime').value,
-            description: document.getElementById('momentDescription').value,
-            likes: 0,
-            comments: 0,
-            source: 'local'
-        });
-
-        setStore(`bain_timeline_${currentChild.id}`, items);
-        momentModal.classList.remove('active');
-        renderTimeline();
-        alert('Moment adaugat cu succes.');
-    });
-
-    document.querySelectorAll('.close-modal').forEach((button) => {
-        button.addEventListener('click', () => {
-            document.getElementById(button.dataset.close).classList.remove('active');
-        });
-    });
-
-    openNotificationsBtn.addEventListener('click', () => {
-        renderNotifications();
-        notificationsModal.classList.add('active');
-    });
-
-    logoutBtn.addEventListener('click', async () => {
-        await fetch('/WEB_project/backend/api/logout.php', {
-            method: 'POST',
-            credentials: 'same-origin'
-        });
-
-        localStorage.removeItem('selectedChildId');
-        window.location.href = '../auth/login.html';
-    });
-
-    const ok = await checkSession();
+    const ok = await checkAuth();
 
     if (ok) {
         await loadChildren();
