@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
     const feedingChildSelect = document.getElementById('feedingChildSelect');
     const childNameText = document.getElementById('childNameText');
     const childBirthText = document.getElementById('feedingChildBirth');
@@ -14,18 +16,122 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_FEEDING = '/WEB_project/backend/api/feeding.php';
 
-    function setupTopbar() {
-        topUserName.textContent = window.authManager.getUserName();
-        topUserInitial.textContent = window.authManager.getUserInitial();
-        window.authManager.showAdminLinkIfNeeded();
+    // ── Auth helpers ─────────────────────────────────────────────────────────
 
-        logoutBtn.addEventListener('click', async () => {
-            await window.authManager.logout();
-        });
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
     }
 
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+        if (!adminLink) return;
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
+    }
+
+    async function apiRequest(url, method = 'GET', data = null) {
+        const options = { method };
+
+        if (data) {
+            options.headers = { 'Content-Type': 'application/json' };
+            options.body = JSON.stringify(data);
+        }
+
+        return await requestJson(url, options);
+    }
+async function checkSession() {
+    const result = await requestJson(`/WEB_project/backend/api/check_auth.php?_=${Date.now()}`, {
+        method: 'GET'
+    });
+
+    if (result.status !== 'success') {
+        redirectToLogin();
+        return false;
+    }
+
+    const user = result.user;
+    const fullName = user.name || user.full_name || 'User';
+
+    if (topUserName) topUserName.textContent = fullName;
+    if (topUserInitial) topUserInitial.textContent = fullName.charAt(0).toUpperCase();
+
+    showAdminLinkIfNeeded(user);
+
+    // ← ADAUGĂ ASTA:
+    await loadUserPhoto();
+
+    return true;
+}
+
+async function loadUserPhoto() {
+    const result = await apiRequest('/WEB_project/backend/api/account.php?action=get');
+
+    if (result.status === 'success') {
+        const photoUrl = result.profile?.photo || null;
+        const avatarDiv = document.getElementById('topUserInitial');
+
+        if (avatarDiv && photoUrl) {
+            avatarDiv.classList.add('has-photo');
+            avatarDiv.style.backgroundImage = `url("${photoUrl}")`;
+            avatarDiv.style.backgroundSize = 'cover';
+            avatarDiv.style.backgroundPosition = 'center';
+            avatarDiv.textContent = '';
+        }
+    }
+}
+
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', { method: 'POST' });
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    // ── Children ─────────────────────────────────────────────────────────────
+
     async function loadChildren() {
-        const result = await window.authManager.get(`${API_CHILDREN}?action=list`);
+        const result = await apiRequest(`${API_CHILDREN}?action=list`);
 
         if (result.status !== 'success' || !result.children?.length) {
             feedingChildSelect.innerHTML = '<option>Fără copii</option>';
@@ -40,14 +146,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             feedingChildSelect.appendChild(option);
         });
 
-        const savedId = window.authManager.selectedChildId;
+        const savedId = localStorage.getItem('selectedChildId');
         const selectedChild = result.children.find(c => String(c.id) === String(savedId)) || result.children[0];
 
         feedingChildSelect.value = selectedChild.id;
-        window.authManager.setSelectedChild(selectedChild.id);
+        localStorage.setItem('selectedChildId', selectedChild.id);
 
-        childNameText.textContent = selectedChild.name;
-        childBirthText.textContent = `Născut(ă) pe ${formatDate(selectedChild.birth_date)}`;
+        if (childNameText) childNameText.textContent = selectedChild.name;
+        if (childBirthText) childBirthText.textContent = `Născut(ă) pe ${formatDate(selectedChild.birth_date)}`;
 
         await loadFeedingData(selectedChild.id);
 
@@ -55,16 +161,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const childId = e.target.value;
             const child = result.children.find(c => String(c.id) === String(childId));
             if (child) {
-                window.authManager.setSelectedChild(child.id);
-                childNameText.textContent = child.name;
-                childBirthText.textContent = `Născut(ă) pe ${formatDate(child.birth_date)}`;
+                localStorage.setItem('selectedChildId', child.id);
+                if (childNameText) childNameText.textContent = child.name;
+                if (childBirthText) childBirthText.textContent = `Născut(ă) pe ${formatDate(child.birth_date)}`;
                 await loadFeedingData(child.id);
             }
         });
     }
 
+    // ── Feeding data ─────────────────────────────────────────────────────────
+
     async function loadFeedingData(childId) {
-        const result = await window.authManager.get(`${API_FEEDING}?action=get_feeding_data&child_id=${childId}`);
+        const result = await apiRequest(`${API_FEEDING}?action=get_feeding_data&child_id=${childId}`);
 
         if (result.status === 'success' && result.data) {
             renderFeeding(result.data);
@@ -136,6 +244,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         preferencesList.innerHTML = '<li style="color: var(--text-gray); font-size: 0.9rem;">Fără preferințe.</li>';
     }
 
+    // ── Modals ───────────────────────────────────────────────────────────────
+
     function setupModals() {
         const mealModal = document.getElementById('mealModal');
         const favModal = document.getElementById('favoriteModal');
@@ -152,7 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('addMealForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const result = await window.authManager.post(`${API_FEEDING}?action=add_meal`, {
+            const result = await apiRequest(`${API_FEEDING}?action=add_meal`, 'POST', {
                 child_id: feedingChildSelect.value,
                 time: document.getElementById('mealTime').value,
                 type: document.getElementById('mealType').value,
@@ -171,7 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('addFavoriteForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const result = await window.authManager.post(`${API_FEEDING}?action=add_favorite`, {
+            const result = await apiRequest(`${API_FEEDING}?action=add_favorite`, 'POST', {
                 child_id: feedingChildSelect.value,
                 food_name: document.getElementById('favoriteFoodName').value
             });
@@ -187,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('addPreferenceForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const result = await window.authManager.post(`${API_FEEDING}?action=add_preference`, {
+            const result = await apiRequest(`${API_FEEDING}?action=add_preference`, 'POST', {
                 child_id: feedingChildSelect.value,
                 type: document.getElementById('preferenceType').value,
                 text: document.getElementById('preferenceText').value
@@ -204,7 +314,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('editNoteForm')?.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const result = await window.authManager.post(`${API_FEEDING}?action=save_note`, {
+            const result = await apiRequest(`${API_FEEDING}?action=save_note`, 'POST', {
                 child_id: feedingChildSelect.value,
                 content: document.getElementById('noteContent').value
             });
@@ -222,8 +332,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    // ── Calendar ─────────────────────────────────────────────────────────────
+
     function renderCalendar() {
         const calendarStrip = document.getElementById('calendarStrip');
+        if (!calendarStrip) return;
+
         const today = new Date();
         const dayNames = ['Dum', 'Lun', 'Mar', 'Mie', 'Joi', 'Vin', 'Sâm'];
         let html = '';
@@ -241,31 +355,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         calendarStrip.innerHTML = html;
     }
 
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
     function getAge(dateString) {
         if (!dateString) return 0;
-        const birthDate = new Date(dateString);
+        const parts = dateString.split('-').map(Number);
+        const birthDate = new Date(parts[0], parts[1] - 1, parts[2]);
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
         const month = today.getMonth() - birthDate.getMonth();
-        
-        if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        
+        if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) age--;
         return Math.max(age, 0);
     }
 
     function formatDate(dateString) {
         if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('ro-RO', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
+        const parts = dateString.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2])
+            .toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
-    setupTopbar();
-    renderCalendar();
-    loadChildren();
-    setupModals();
+    // ── Logout ───────────────────────────────────────────────────────────────
+
+    if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+
+    const isLoggedIn = await checkSession();
+    if (isLoggedIn) {
+        renderCalendar();
+        await loadChildren();
+        setupModals();
+    }
 });
+
+
+

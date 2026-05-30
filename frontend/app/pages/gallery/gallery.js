@@ -5,6 +5,7 @@ if (document.readyState === 'loading') {
 }
 
 async function initGallery() {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
     const uploadBtn = document.getElementById('uploadBtn');
     const hiddenFileInput = document.getElementById('hiddenFileInput');
     const filterTabs = document.querySelectorAll('#filterTabs button');
@@ -24,18 +25,97 @@ async function initGallery() {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_GALLERY = '/WEB_project/backend/api/gallery.php';
 
-    function setupTopbar() {
-        topUserName.textContent = window.authManager.getUserName();
-        topUserInitial.textContent = window.authManager.getUserInitial();
-        window.authManager.showAdminLinkIfNeeded();
-
-        logoutBtn.addEventListener('click', async () => {
-            await window.authManager.logout();
-        });
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
     }
 
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
+    }
+
+    async function apiRequest(url, method = 'GET', data = null) {
+        const options = {
+            method: method
+        };
+
+        if (data) {
+            options.headers = {
+                'Content-Type': 'application/json'
+            };
+            options.body = JSON.stringify(data);
+        }
+
+        return await requestJson(url, options);
+    }
+    async function loadUserData() {
+    const result = await apiRequest('/WEB_project/backend/api/account.php?action=get');
+    
+    if (result.status === 'success' && result.user) {
+        const user = result.user;
+        const profile = result.profile || {};
+        
+        // Setează numele
+        if (topUserName) topUserName.textContent = user.name || 'User';
+        
+        // Setează initiala pe SPAN, nu pe div
+        const initialSpan = document.getElementById('topUserInitialText');
+        if (initialSpan) initialSpan.textContent = (user.name || 'U').charAt(0).toUpperCase();
+        
+        // Aplică poza
+        const photoUrl = profile.photo || null;
+        const avatarDiv = document.getElementById('topUserInitial');
+        
+        if (avatarDiv && photoUrl) {
+            avatarDiv.classList.add('has-photo');
+            avatarDiv.style.backgroundImage = `url("${photoUrl}")`;
+            avatarDiv.style.backgroundSize = 'cover';
+            avatarDiv.style.backgroundPosition = 'center';
+            const initialSpan = document.getElementById('topUserInitialText');
+    if (initialSpan) initialSpan.style.display = 'none';
+        }
+    }
+}
+
     async function loadChildren() {
-        const result = await window.authManager.get(`${API_CHILDREN}?action=list`);
+        const result = await apiRequest(`${API_CHILDREN}?action=list`);
 
         if (result.status !== 'success' || !result.children?.length) {
             galleryChildSelect.innerHTML = '<option>Niciun copil adăugat</option>';
@@ -47,7 +127,7 @@ async function initGallery() {
         allChildrenData = result.children;
         galleryChildSelect.innerHTML = '';
 
-        const savedId = window.authManager.selectedChildId;
+        const savedId = localStorage.getItem('selectedChildId');
         let selectedChild = result.children.find(c => String(c.id) === String(savedId)) || result.children[0];
 
         result.children.forEach(child => {
@@ -58,7 +138,7 @@ async function initGallery() {
         });
 
         galleryChildSelect.value = selectedChild.id;
-        window.authManager.setSelectedChild(selectedChild.id);
+        localStorage.setItem('selectedChildId', selectedChild.id);
 
         updateAgeDisplay(selectedChild.id);
         await loadGalleryData(selectedChild.id);
@@ -67,7 +147,7 @@ async function initGallery() {
             const childId = e.target.value;
             const child = result.children.find(c => String(c.id) === String(childId));
             if (child) {
-                window.authManager.setSelectedChild(childId);
+                localStorage.setItem('selectedChildId', childId);
                 updateAgeDisplay(childId);
                 loadGalleryData(childId);
             }
@@ -110,7 +190,7 @@ async function initGallery() {
     async function loadGalleryData(childId) {
         mediaGrid.innerHTML = '<p class="loading-text">Se încarcă...</p>';
         
-        const result = await window.authManager.get(`${API_GALLERY}?action=get_all&child_id=${childId}`);
+        const result = await apiRequest(`${API_GALLERY}?action=get_all&child_id=${childId}`);
 
         if (result.status === 'success') {
             currentMediaData = result.media || [];
@@ -185,7 +265,7 @@ async function initGallery() {
             const files = e.target.files;
             if (files.length === 0) return;
 
-            const selectedChildId = window.authManager.selectedChildId;
+            const selectedChildId = localStorage.getItem('selectedChildId');
             if (!selectedChildId) {
                 alert('Te rugam sa selectezi un copil mai intai.');
                 return;
@@ -204,7 +284,7 @@ async function initGallery() {
                 const response = await fetch(API_GALLERY, {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${window.authManager.token}`
+                        'Authorization': `Bearer ${getAuthToken()}`
                     },
                     body: formData
                 });
@@ -263,17 +343,14 @@ async function initGallery() {
 
                 if (confirm('Ești sigur că vrei să ștergi acest fișier? Acțiunea este ireversibilă.')) {
                     const mediaId = deleteButton.getAttribute('data-id');
-                    console.log('Deleting media ID:', mediaId);
                     
                     try {
                         deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
                         
-                        const token = window.authManager.token;
-                        
                         const response = await fetch(API_GALLERY, {
                             method: 'POST',
                             headers: {
-                                'Authorization': `Bearer ${token}`,
+                                'Authorization': `Bearer ${getAuthToken()}`,
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
@@ -283,10 +360,9 @@ async function initGallery() {
                         });
                         
                         const result = await response.json();
-                        console.log('Delete result:', result);
                         
                         if (result.status === 'success') {
-                            await loadGalleryData(window.authManager.selectedChildId);
+                            await loadGalleryData(localStorage.getItem('selectedChildId'));
                         } else {
                             alert('Eroare ștergere: ' + (result.message || 'Necunoscut'));
                             deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
@@ -330,7 +406,12 @@ async function initGallery() {
             .replaceAll('"', '&quot;')
             .replaceAll("'", '&#039;');
     }
-
-    setupTopbar();
+    logoutBtn.addEventListener('click', async () => {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
+        });
+        redirectToLogin();
+    });
+     await loadUserData()
     await loadChildren();
 }

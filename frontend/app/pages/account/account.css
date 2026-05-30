@@ -349,51 +349,9 @@ body.dark-mode {
     margin: 5px 0 0 0;
     color: var(--text-gray);
 }
-
-.permission-row,
-.setting-row,
-.security-row {
-    border-bottom: 1px solid var(--border);
-    padding: 13px 0;
-    display: flex;
-    justify-content: space-between;
-    gap: 18px;
-    align-items: center;
-    color: var(--text-gray);
-}
-
-.permission-row b {
-    color: #3bbf74;
-}
-
-.setting-row input {
-    transform: scale(1.15);
-    accent-color: var(--color-1);
-}
-
-.security-row {
-    width: 100%;
-    background: transparent;
-    border-left: none;
-    border-right: none;
-    border-top: none;
-    font-family: inherit;
-    cursor: pointer;
-    text-align: left;
-}
-
-.security-row span {
-    font-weight: 800;
-    color: var(--text-dark);
-}
-
-.security-row strong {
-    color: var(--color-1);
-}
-
 .preferences-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
 }
 
@@ -414,31 +372,6 @@ body.dark-mode {
     outline: none;
     font-family: inherit;
     min-width: 0;
-}
-
-.bottom-banner {
-    margin-top: 26px;
-    background: #ffe8df;
-    border-radius: 24px;
-    padding: 22px 34px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-}
-
-.bottom-banner strong {
-    color: var(--color-1);
-    font-size: 1.2rem;
-}
-
-.bottom-banner p {
-    color: var(--text-gray);
-    margin: 6px 0 0 0;
-}
-
-.bottom-banner span {
-    font-size: 3.4rem;
 }
 
 .modal {
@@ -656,20 +589,6 @@ body.dark-mode {
         height: 110px;
         font-size: 3rem;
     }
-
-    .setting-row,
-    .security-row,
-    .permission-row {
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    .bottom-banner {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 20px;
-    }
-
     .modal-card {
         padding: 20px;
         border-radius: 22px;
@@ -709,7 +628,4 @@ body.dark-mode {
         font-size: 1.35rem;
     }
 
-    .bottom-banner span {
-        font-size: 2.6rem;
-    }
 }

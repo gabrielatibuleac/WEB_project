@@ -1,23 +1,24 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
     let myChildren = [];
     let myRelationships = [];
     let currentSelectedChildId = localStorage.getItem('selectedChildId');
 
-    const API_CHILDREN = '/WEB_project/backend/api/children.php?action=list';
+    const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_RELATIONS = '/WEB_project/backend/api/relations.php';
-
 
     const topUserName = document.getElementById('topUserName');
     const topUserInitial = document.getElementById('topUserInitial');
     const logoutBtn = document.getElementById('logoutBtn');
-    
+
     const dashboardChildSelect = document.getElementById('dashboardChildSelect');
     const dashboardChildBirth = document.getElementById('dashboardChildBirth');
 
     const searchInput = document.getElementById('searchInput');
     const typeFilter = document.getElementById('typeFilter');
     const container = document.getElementById('relationshipsContainer');
-    
+
     const statTotal = document.getElementById('statTotal');
     const statSiblings = document.getElementById('statSiblings');
     const statCousins = document.getElementById('statCousins');
@@ -27,71 +28,163 @@ document.addEventListener('DOMContentLoaded', async () => {
     const openModalBtn = document.getElementById('openModalBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const addRelationForm = document.getElementById('addRelationForm');
-    
-    setupTopbar();
-    await loadChildren();
-    await fetchRelationships();
-    
-    dashboardChildSelect.addEventListener('change', handleChildSelectionChange);
-    searchInput.addEventListener('input', renderPage);
-    typeFilter.addEventListener('change', renderPage);
-    
-    openModalBtn.addEventListener('click', () => {
-        if(currentSelectedChildId) document.getElementById('childSelect').value = currentSelectedChildId;
-        modal.classList.add('active');
-    });
-    
-    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
-    addRelationForm.addEventListener('submit', handleAddRelation);
 
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            await window.authManager.logout();
+    // ── Auth helpers ─────────────────────────────────────────────────────────
+
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+        if (!adminLink) return;
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
         });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
     }
 
-    function setupTopbar() {
-        topUserName.textContent = window.authManager.getUserName();
-        topUserInitial.textContent = window.authManager.getUserInitial();
-        window.authManager.showAdminLinkIfNeeded();
+    async function apiRequest(url, method = 'GET', data = null) {
+        const options = { method };
+
+        if (data) {
+            options.headers = { 'Content-Type': 'application/json' };
+            options.body = JSON.stringify(data);
+        }
+
+        return await requestJson(url, options);
     }
+
+    // ── checkSession ─────────────────────────────────────────────────────────
+
+    async function checkSession() {
+        const result = await requestJson('/WEB_project/backend/api/check_auth.php', {
+            method: 'GET'
+        });
+
+        if (result.status !== 'success') {
+            redirectToLogin();
+            return false;
+        }
+
+        const user = result.user;
+        const fullName = user.name || user.full_name || 'User';
+
+        if (topUserName) topUserName.textContent = fullName;
+
+        // Setează initiala pe span (nu pe div)
+        const initialSpan = document.getElementById('topUserInitialText');
+        if (initialSpan) {
+            initialSpan.textContent = fullName.charAt(0).toUpperCase();
+        } else if (topUserInitial) {
+            topUserInitial.textContent = fullName.charAt(0).toUpperCase();
+        }
+
+        showAdminLinkIfNeeded(user);
+
+        // Încarcă poza de profil din API
+        await loadUserPhoto();
+
+        return true;
+    }
+
+    async function loadUserPhoto() {
+        const result = await apiRequest('/WEB_project/backend/api/account.php?action=get');
+
+        if (result.status === 'success') {
+            const photoUrl = result.profile?.photo || null;
+            const avatarDiv = document.getElementById('topUserInitial');
+            const initialSpan = document.getElementById('topUserInitialText');
+
+            if (avatarDiv && photoUrl) {
+                avatarDiv.classList.add('has-photo');
+                avatarDiv.style.backgroundImage = `url("${photoUrl}")`;
+                avatarDiv.style.backgroundSize = 'cover';
+                avatarDiv.style.backgroundPosition = 'center';
+                if (initialSpan) initialSpan.style.display = 'none';
+            }
+        }
+    }
+
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', { method: 'POST' });
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    // ── Children ─────────────────────────────────────────────────────────────
 
     async function loadChildren() {
-        try {
-            const result = await window.authManager.get(API_CHILDREN);
+        const result = await apiRequest(`${API_CHILDREN}?action=list`);
 
-            if (result.status === 'success' && result.children.length > 0) {
-                myChildren = result.children;
-                dashboardChildSelect.innerHTML = '';
-                document.getElementById('childSelect').innerHTML = ''; 
+        if (result.status === 'success' && result.children?.length > 0) {
+            myChildren = result.children;
+            dashboardChildSelect.innerHTML = '';
+            document.getElementById('childSelect').innerHTML = '';
 
-                myChildren.forEach((child) => {
-                    const age = getAge(child.birth_date);
-                    
-                    const opt1 = document.createElement('option');
-                    opt1.value = child.id;
-                    opt1.textContent = `${child.name}, ${age} ani`;
-                    dashboardChildSelect.appendChild(opt1);
+            myChildren.forEach((child) => {
+                const age = getAge(child.birth_date);
 
-                    const opt2 = document.createElement('option');
-                    opt2.value = child.id;
-                    opt2.textContent = child.name;
-                    document.getElementById('childSelect').appendChild(opt2);
-                });
+                const opt1 = document.createElement('option');
+                opt1.value = child.id;
+                opt1.textContent = `${child.name}, ${age} ani`;
+                dashboardChildSelect.appendChild(opt1);
 
-                if (!currentSelectedChildId || !myChildren.find(c => String(c.id) === String(currentSelectedChildId))) {
-                    currentSelectedChildId = myChildren[0].id;
-                }
-                
-                dashboardChildSelect.value = currentSelectedChildId;
-                localStorage.setItem('selectedChildId', currentSelectedChildId);
-                updateChildBirthText(currentSelectedChildId);
+                const opt2 = document.createElement('option');
+                opt2.value = child.id;
+                opt2.textContent = child.name;
+                document.getElementById('childSelect').appendChild(opt2);
+            });
 
-            } else {
-                dashboardChildSelect.innerHTML = '<option value="">Niciun copil</option>';
+            if (!currentSelectedChildId || !myChildren.find(c => String(c.id) === String(currentSelectedChildId))) {
+                currentSelectedChildId = myChildren[0].id;
             }
-        } catch (err) {
-            console.error(err);
+
+            dashboardChildSelect.value = currentSelectedChildId;
+            localStorage.setItem('selectedChildId', currentSelectedChildId);
+            updateChildBirthText(currentSelectedChildId);
+        } else {
+            dashboardChildSelect.innerHTML = '<option value="">Niciun copil</option>';
         }
     }
 
@@ -99,7 +192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentSelectedChildId = dashboardChildSelect.value;
         localStorage.setItem('selectedChildId', currentSelectedChildId);
         updateChildBirthText(currentSelectedChildId);
-        renderPage(); 
+        renderPage();
     }
 
     function updateChildBirthText(childId) {
@@ -109,54 +202,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    // ── Relations ────────────────────────────────────────────────────────────
+
     async function fetchRelationships() {
-        try {
-            const result = await window.authManager.get(API_RELATIONS);
-            if (result.status === 'success') {
-                myRelationships = result.relationships || [];
-                renderPage();
-            }
-        } catch (err) {
-            console.error(err);
+        const result = await apiRequest(API_RELATIONS);
+        if (result.status === 'success') {
+            myRelationships = result.relationships || [];
+            renderPage();
         }
     }
 
     async function handleAddRelation(e) {
         e.preventDefault();
 
-        const data = {
+        const result = await apiRequest(`${API_RELATIONS}?action=add`, 'POST', {
             child_id: document.getElementById('childSelect').value,
             related_name: document.getElementById('relatedPersonName').value,
             relation_type: document.getElementById('relationType').value,
             notes: document.getElementById('relationNotes').value
-        };
+        });
 
-        try {
-            const response = await fetch(API_RELATIONS + '?action=add', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${window.authManager.token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-
-            if (result.status === 'success') {
-                addRelationForm.reset();
-                modal.classList.remove('active');
-                await fetchRelationships();
-            } else {
-                alert('Eroare: ' + result.message);
-            }
-        } catch (err) {
-            alert("A aparut o problema la server.");
+        if (result.status === 'success') {
+            addRelationForm.reset();
+            modal.classList.remove('active');
+            await fetchRelationships();
+        } else {
+            alert('Eroare: ' + result.message);
         }
     }
 
+    // ── Render ───────────────────────────────────────────────────────────────
+
     function renderPage() {
-        if(!currentSelectedChildId || myChildren.length === 0) {
+        if (!currentSelectedChildId || myChildren.length === 0) {
             container.innerHTML = `<article class="panel empty-state"><h3>Niciun copil selectat.</h3></article>`;
             return;
         }
@@ -220,32 +298,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = html;
     }
 
+    // ── Helpers ──────────────────────────────────────────────────────────────
+
     function getRelationLabelAndClass(type) {
         switch (type) {
-            case 'sibling': return { label: 'Frate/Sora', class: 'sibling' };
-            case 'cousin': return { label: 'Var/Verisoara', class: 'cousin' };
-            case 'friend': return { label: 'Prieten', class: 'friend' };
-            case 'classmate': return { label: 'Coleg', class: 'classmate' };
-            default: return { label: type, class: '' };
+            case 'sibling':   return { label: 'Frate/Sora',    class: 'sibling' };
+            case 'cousin':    return { label: 'Var/Verisoara', class: 'cousin' };
+            case 'friend':    return { label: 'Prieten',       class: 'friend' };
+            case 'classmate': return { label: 'Coleg',         class: 'classmate' };
+            default:          return { label: type,            class: '' };
         }
     }
 
     function getAge(dateString) {
         if (!dateString) return 0;
-        const bDate = new Date(dateString);
+        const parts = dateString.split('-').map(Number);
+        const bDate = new Date(parts[0], parts[1] - 1, parts[2]);
         const today = new Date();
         let age = today.getFullYear() - bDate.getFullYear();
-        if (today.getMonth() < bDate.getMonth() || (today.getMonth() === bDate.getMonth() && today.getDate() < bDate.getDate())) age--;
+        if (today.getMonth() < bDate.getMonth() ||
+           (today.getMonth() === bDate.getMonth() && today.getDate() < bDate.getDate())) age--;
         return Math.max(age, 0);
     }
 
     function formatDate(dateString) {
         if (!dateString) return '-';
-        return new Date(dateString).toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' });
+        const parts = dateString.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2])
+            .toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
     function escapeHtml(unsafe) {
-        if(!unsafe) return '';
-        return unsafe.toString().replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        if (!unsafe) return '';
+        return unsafe.toString()
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // ── Event listeners ──────────────────────────────────────────────────────
+
+    dashboardChildSelect.addEventListener('change', handleChildSelectionChange);
+    searchInput.addEventListener('input', renderPage);
+    typeFilter.addEventListener('change', renderPage);
+
+    openModalBtn.addEventListener('click', () => {
+        if (currentSelectedChildId) document.getElementById('childSelect').value = currentSelectedChildId;
+        modal.classList.add('active');
+    });
+
+    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    addRelationForm.addEventListener('submit', handleAddRelation);
+
+    if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+
+    const isLoggedIn = await checkSession();
+    if (isLoggedIn) {
+        await loadChildren();
+        await fetchRelationships();
     }
 });

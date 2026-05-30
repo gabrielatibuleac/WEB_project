@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
     const sleepChildSelect = document.getElementById('sleepChildSelect');
     const sleepChildAge = document.getElementById('sleepChildAge');
     const sleepModal = document.getElementById('sleepModal');
@@ -17,17 +19,123 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_SLEEP = '/WEB_project/backend/api/sleep.php';
 
-    function setupTopbar() {
-        topUserName.textContent = window.authManager.getUserName();
-        topUserInitial.textContent = window.authManager.getUserInitial();
-        window.authManager.showAdminLinkIfNeeded();
+    // ── Auth helpers (identice cu childProfile.js) ──────────────────────────
 
-        logoutBtn.addEventListener('click', async () => {
-            await window.authManager.logout();
-        });
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
     }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
+        if (!adminLink) return;
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
+    }
+
+    async function apiRequest(url, method = 'GET', data = null) {
+        const options = { method };
+
+        if (data) {
+            options.headers = { 'Content-Type': 'application/json' };
+            options.body = JSON.stringify(data);
+        }
+
+        return await requestJson(url, options);
+    }
+
+   async function checkSession() {
+    const result = await requestJson(`/WEB_project/backend/api/check_auth.php?_=${Date.now()}`, {
+        method: 'GET'
+    });
+
+    if (result.status !== 'success') {
+        redirectToLogin();
+        return false;
+    }
+
+    const user = result.user;
+    const fullName = user.name || user.full_name || 'User';
+
+    if (topUserName) topUserName.textContent = fullName;
+    if (topUserInitial) topUserInitial.textContent = fullName.charAt(0).toUpperCase();
+
+    showAdminLinkIfNeeded(user);
+
+    // ← ADAUGĂ ASTA:
+    await loadUserPhoto();
+
+    return true;
+}
+
+async function loadUserPhoto() {
+    const result = await apiRequest('/WEB_project/backend/api/account.php?action=get');
+
+    if (result.status === 'success') {
+        const photoUrl = result.profile?.photo || null;
+        const avatarDiv = document.getElementById('topUserInitial');
+
+        if (avatarDiv && photoUrl) {
+            avatarDiv.classList.add('has-photo');
+            avatarDiv.style.backgroundImage = `url("${photoUrl}")`;
+            avatarDiv.style.backgroundSize = 'cover';
+            avatarDiv.style.backgroundPosition = 'center';
+            avatarDiv.textContent = '';
+        }
+    }
+}
+
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', { method: 'POST' });
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    // ── Children ─────────────────────────────────────────────────────────────
+
     async function loadChildren() {
-        const result = await window.authManager.get(`${API_CHILDREN}?action=list`);
+        const result = await apiRequest(`${API_CHILDREN}?action=list`);
 
         if (result.status !== 'success' || !result.children?.length) {
             sleepChildSelect.innerHTML = '<option value="">Fără copii</option>';
@@ -44,23 +152,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             sleepChildSelect.appendChild(option);
         });
 
-        const savedId = window.authManager.selectedChildId;
+        const savedId = localStorage.getItem('selectedChildId');
         const selectedChild = result.children.find(c => String(c.id) === String(savedId)) || result.children[0];
 
         sleepChildSelect.value = selectedChild.id;
-        window.authManager.setSelectedChild(selectedChild.id);
+        localStorage.setItem('selectedChildId', selectedChild.id);
 
         updateChildAgeDisplay(selectedChild.birth_date);
         await loadSleepDataForChild(selectedChild.id);
 
         sleepChildSelect.addEventListener('change', (e) => {
-            const selectedOption = e.target.options[e.target.selectedIndex];
             const childId = e.target.value;
             const child = result.children.find(c => String(c.id) === String(childId));
-            
+
             if (child) {
-                window.authManager.setSelectedChild(childId);
-                updateChildAgeDisplay(selectedOption.getAttribute('data-birth'));
+                localStorage.setItem('selectedChildId', childId);
+                updateChildAgeDisplay(child.birth_date);
                 loadSleepDataForChild(childId);
             }
         });
@@ -72,8 +179,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const birthDate = new Date(birthDateString);
+        const parts = birthDateString.split('-').map(Number);
+        const birthDate = new Date(parts[0], parts[1] - 1, parts[2]);
         const today = new Date();
+
         let ageYears = today.getFullYear() - birthDate.getFullYear();
         let ageMonths = today.getMonth() - birthDate.getMonth();
 
@@ -88,26 +197,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             sleepChildAge.textContent = `${ageYears} ani, ${ageMonths} luni`;
         }
     }
+
+    // ── Modal ────────────────────────────────────────────────────────────────
+
     function openModal(type) {
         formSleepType.value = type;
         sleepModal.classList.add('open');
 
         if (type === 'noapte') {
-            modalTitle.textContent = "Înregistrează Somn de Noapte ☾";
-            endTimeGroup.style.display = "block";
-            qualityGroup.style.display = "block";
+            modalTitle.textContent = 'Înregistrează Somn de Noapte ☾';
+            endTimeGroup.style.display = 'block';
+            qualityGroup.style.display = 'block';
         } else if (type === 'zi') {
-            modalTitle.textContent = "Înregistrează Somn de Zi ☀️";
-            endTimeGroup.style.display = "block";
-            qualityGroup.style.display = "block";
+            modalTitle.textContent = 'Înregistrează Somn de Zi ☀️';
+            endTimeGroup.style.display = 'block';
+            qualityGroup.style.display = 'block';
         } else if (type === 'nota') {
-            modalTitle.textContent = "Adaugă o notiță privind somnul 📄";
-            endTimeGroup.style.display = "none";
-            qualityGroup.style.display = "none";
+            modalTitle.textContent = 'Adaugă o notiță privind somnul 📄';
+            endTimeGroup.style.display = 'none';
+            qualityGroup.style.display = 'none';
         } else if (type === 'rutina') {
-            modalTitle.textContent = "Bifează realizarea Rutinei ⭐";
-            endTimeGroup.style.display = "none";
-            qualityGroup.style.display = "none";
+            modalTitle.textContent = 'Bifează realizarea Rutinei ⭐';
+            endTimeGroup.style.display = 'none';
+            qualityGroup.style.display = 'none';
         }
     }
 
@@ -121,16 +233,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     cancelModalBtn.addEventListener('click', closeModal);
 
     document.querySelectorAll('.tile-btn').forEach(button => {
-        button.addEventListener('click', () => {
-            const type = button.getAttribute('data-type');
-            openModal(type);
-        });
+        button.addEventListener('click', () => openModal(button.getAttribute('data-type')));
     });
+
+    // ── Form submit ──────────────────────────────────────────────────────────
 
     sleepForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const result = await window.authManager.post(`${API_SLEEP}?action=add`, {
+        const result = await apiRequest(`${API_SLEEP}?action=add`, 'POST', {
             child_id: sleepChildSelect.value,
             type: formSleepType.value,
             start_time: document.getElementById('startTime').value,
@@ -147,11 +258,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
+    // ── Sleep data ───────────────────────────────────────────────────────────
+
     async function loadSleepDataForChild(childId) {
         const notesFeed = document.getElementById('sleepNotesFeed');
         notesFeed.innerHTML = '<p class="loading-text">Se încarcă datele...</p>';
 
-        const result = await window.authManager.get(`${API_SLEEP}?action=getMetrics&child_id=${childId}`);
+        const result = await apiRequest(`${API_SLEEP}?action=getMetrics&child_id=${childId}`);
 
         if (result.status !== 'success') {
             notesFeed.innerHTML = '<p style="color: #888; font-size: 0.9rem;">Eroare la încărcare.</p>';
@@ -164,22 +277,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (sleepLogs.length === 0) {
             notesFeed.innerHTML = '<p style="color: #888; font-size: 0.9rem;">Nu există înregistrări.</p>';
         } else {
-            const top5Logs = sleepLogs.slice(0, 5);
-
-            top5Logs.forEach(log => {
+            sleepLogs.slice(0, 5).forEach(log => {
                 const notaText = log.notes || 'Înregistrare adăugată.';
                 const cardClass = log.sleep_type === 'zi' ? 'card-day' : (log.sleep_type === 'rutina' ? '' : 'card-night');
-                const dateObj = new Date(log.created_at);
-                const dataFormatata = dateObj.toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-                const bgColor = log.sleep_type === 'rutina' ? 'background: #fff0f0; border-left: 4px solid #e11d48;' : '';
+                const dataFormatata = new Date(log.created_at).toLocaleDateString('ro-RO', {
+                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
 
                 notesFeed.innerHTML += `
-                    <div class="note-box-card ${cardClass}" style="${bgColor}">
-                        <p>"${notaText}"</p>
+                    <div class="note-box-card ${cardClass}">
                         <div class="note-box-header">
-                            <span>Tip: ${log.sleep_type}</span>
-                            <span>${dataFormatata}</span>
+                            <span class="note-type-tag">${log.sleep_type}</span>
+                            <span class="note-date">${dataFormatata}</span>
                         </div>
+                        <p class="note-text">"${notaText}"</p>
                     </div>
                 `;
             });
@@ -224,22 +335,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const doarSomnuri = sleepLogs.filter(log => log.sleep_type === 'noapte' || log.sleep_type === 'zi');
 
-        if (document.getElementById('statTotalAzi')) {
-            document.getElementById('statTotalAzi').textContent = doarSomnuri.length + ' ses.';
-        }
-        if (document.getElementById('statNoapteAzi')) {
-            document.getElementById('statNoapteAzi').textContent = formatTime(totalNoapteMins);
-        }
-        if (document.getElementById('statZiAzi')) {
-            document.getElementById('statZiAzi').textContent = formatTime(totalZiMins);
+        const statTotalAzi = document.getElementById('statTotalAzi');
+        if (statTotalAzi) statTotalAzi.textContent = doarSomnuri.length + ' ses.';
+
+        const statNoapteAzi = document.getElementById('statNoapteAzi');
+        if (statNoapteAzi) statNoapteAzi.textContent = formatTime(totalNoapteMins);
+
+        const statZiAzi = document.getElementById('statZiAzi');
+        if (statZiAzi) statZiAzi.textContent = formatTime(totalZiMins);
+
+        const statOraMedieCulcare = document.getElementById('statOraMedieCulcare');
+        if (statOraMedieCulcare) {
+            statOraMedieCulcare.textContent = doarSomnuri.length > 0
+                ? doarSomnuri[0].start_time.substring(0, 5)
+                : '--:--';
         }
 
-        if (document.getElementById('statOraMedieCulcare')) {
-            document.getElementById('statOraMedieCulcare').textContent = doarSomnuri.length > 0 ? doarSomnuri[0].start_time.substring(0, 5) : '--:--';
-        }
-        if (document.getElementById('statOraMedieTrezire')) {
-            const ultimulComplet = doarSomnuri.find(log => log.end_time !== null && log.end_time !== '');
-            document.getElementById('statOraMedieTrezire').textContent = ultimulComplet ? ultimulComplet.end_time.substring(0, 5) : '--:--';
+        const statOraMedieTrezire = document.getElementById('statOraMedieTrezire');
+        if (statOraMedieTrezire) {
+            const ultimulComplet = doarSomnuri.find(log => log.end_time);
+            statOraMedieTrezire.textContent = ultimulComplet
+                ? ultimulComplet.end_time.substring(0, 5)
+                : '--:--';
         }
 
         const statCalitateText = document.getElementById('statCalitateText');
@@ -248,17 +365,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (statCalitateText && statCalitateStele) {
             if (cateCalitati > 0) {
                 const media = Math.round(sumaCalitate / cateCalitati);
-
-                if (media === 5) statCalitateText.textContent = 'Excelent';
-                else if (media === 4) statCalitateText.textContent = 'Foarte bun';
-                else if (media === 3) statCalitateText.textContent = 'Bun';
-                else if (media === 2) statCalitateText.textContent = 'Agitat';
-                else statCalitateText.textContent = 'Foarte greu';
+                const labels = { 5: 'Excelent', 4: 'Foarte bun', 3: 'Bun', 2: 'Agitat', 1: 'Foarte greu' };
+                statCalitateText.textContent = labels[media] || 'Fără date';
 
                 let steleHTML = '';
                 for (let i = 1; i <= 5; i++) {
-                    if (i <= media) steleHTML += '<span style="color: #f59e0b;">★</span> ';
-                    else steleHTML += '<span style="color: #e5e7eb;">★</span> ';
+                    steleHTML += i <= media
+                        ? '<span style="color: #f59e0b;">★</span> '
+                        : '<span style="color: #e5e7eb;">★</span> ';
                 }
                 statCalitateStele.innerHTML = steleHTML;
             } else {
@@ -273,8 +387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (rutineSalvate.length === 0) {
                 routineContainer.innerHTML = '<p style="color:gray; font-size:13px;">Încă nu ai bifat nicio rutină astăzi.</p>';
             } else {
-                const top3Rutine = rutineSalvate.slice(0, 3);
-                top3Rutine.forEach(rutina => {
+                rutineSalvate.slice(0, 3).forEach(rutina => {
                     routineContainer.innerHTML += `
                         <div class="timeline-step done">
                             <span class="step-time">${rutina.start_time.substring(0, 5)}</span>
@@ -294,7 +407,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const modalContainer = document.getElementById('allNotesContainer');
                 modalContainer.innerHTML = '';
                 sleepLogs.forEach(log => {
-                    const dataObj = new Date(log.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+                    const dataObj = new Date(log.created_at).toLocaleDateString('ro-RO', {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                    });
                     modalContainer.innerHTML += `
                         <div class="note-box-card" style="margin-bottom: 10px; background: #f9fafb; border: 1px solid #e5e7eb;">
                             <p>"${log.notes || 'Fără notiță'}"</p>
@@ -316,7 +431,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const modalContainer = document.getElementById('allRoutinesContainer');
                 modalContainer.innerHTML = '';
                 rutineSalvate.forEach(rutina => {
-                    const dataObj = new Date(rutina.created_at).toLocaleDateString('ro-RO', { month: 'short', day: 'numeric' });
+                    const dataObj = new Date(rutina.created_at).toLocaleDateString('ro-RO', {
+                        month: 'short', day: 'numeric'
+                    });
                     modalContainer.innerHTML += `
                         <div class="timeline-step done" style="margin-bottom: 15px; background: #f9fafb; padding: 10px; border-radius: 8px;">
                             <span class="step-time">${rutina.start_time.substring(0, 5)}</span>
@@ -339,9 +456,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (doarSomnuri.length === 0) {
             chartBarsContainer.innerHTML = '<p style="color: #888; font-size: 0.9rem; margin: auto;">Încă nu ai adăugat somnuri.</p>';
         } else {
-            const recentLogs = doarSomnuri.slice(0, 7).reverse();
-
-            recentLogs.forEach(log => {
+            doarSomnuri.slice(0, 7).reverse().forEach(log => {
                 const isNight = log.sleep_type === 'noapte';
                 const pillarClass = isNight ? 'pillar-night' : 'pillar-day';
                 const barHeight = isNight ? '80%' : '45%';
@@ -360,6 +475,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    setupTopbar();
-    await loadChildren();
+    // ── Logout ───────────────────────────────────────────────────────────────
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logoutUser);
+    }
+
+    // ── Init ─────────────────────────────────────────────────────────────────
+
+    const isLoggedIn = await checkSession();
+    if (isLoggedIn) {
+        await loadChildren();
+    }
 });
