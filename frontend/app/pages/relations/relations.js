@@ -29,7 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeModalBtn = document.getElementById('closeModalBtn');
     const addRelationForm = document.getElementById('addRelationForm');
 
-    // ── Auth helpers ─────────────────────────────────────────────────────────
 
     function getAuthToken() {
         return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
@@ -94,8 +93,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return await requestJson(url, options);
     }
 
-    // ── checkSession ─────────────────────────────────────────────────────────
-
     async function checkSession() {
         const result = await requestJson('/WEB_project/backend/api/check_auth.php', {
             method: 'GET'
@@ -111,7 +108,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (topUserName) topUserName.textContent = fullName;
 
-        // Setează initiala pe span (nu pe div)
         const initialSpan = document.getElementById('topUserInitialText');
         if (initialSpan) {
             initialSpan.textContent = fullName.charAt(0).toUpperCase();
@@ -120,8 +116,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         showAdminLinkIfNeeded(user);
-
-        // Încarcă poza de profil din API
         await loadUserPhoto();
 
         return true;
@@ -152,7 +146,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '../auth/login.html';
     }
 
-    // ── Children ─────────────────────────────────────────────────────────────
 
     async function loadChildren() {
         const result = await apiRequest(`${API_CHILDREN}?action=list`);
@@ -202,7 +195,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Relations ────────────────────────────────────────────────────────────
 
     async function fetchRelationships() {
         const result = await apiRequest(API_RELATIONS);
@@ -231,7 +223,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // ── Render ───────────────────────────────────────────────────────────────
 
     function renderPage() {
         if (!currentSelectedChildId || myChildren.length === 0) {
@@ -298,7 +289,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         container.innerHTML = html;
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
 
     function getRelationLabelAndClass(type) {
         switch (type) {
@@ -335,8 +325,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    // ── Event listeners ──────────────────────────────────────────────────────
-
     dashboardChildSelect.addEventListener('change', handleChildSelectionChange);
     searchInput.addEventListener('input', renderPage);
     typeFilter.addEventListener('change', renderPage);
@@ -350,8 +338,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     addRelationForm.addEventListener('submit', handleAddRelation);
 
     if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
-
-    // ── Init ─────────────────────────────────────────────────────────────────
 
     const isLoggedIn = await checkSession();
     if (isLoggedIn) {

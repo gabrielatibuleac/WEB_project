@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_FEEDING = '/WEB_project/backend/api/feeding.php';
 
-    // ── Auth helpers ─────────────────────────────────────────────────────────
-
     function getAuthToken() {
         return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
     }
@@ -98,7 +96,6 @@ async function checkSession() {
 
     showAdminLinkIfNeeded(user);
 
-    // ← ADAUGĂ ASTA:
     await loadUserPhoto();
 
     return true;
@@ -128,7 +125,6 @@ async function loadUserPhoto() {
         window.location.href = '../auth/login.html';
     }
 
-    // ── Children ─────────────────────────────────────────────────────────────
 
     async function loadChildren() {
         const result = await apiRequest(`${API_CHILDREN}?action=list`);
@@ -168,8 +164,6 @@ async function loadUserPhoto() {
             }
         });
     }
-
-    // ── Feeding data ─────────────────────────────────────────────────────────
 
     async function loadFeedingData(childId) {
         const result = await apiRequest(`${API_FEEDING}?action=get_feeding_data&child_id=${childId}`);
@@ -244,7 +238,6 @@ async function loadUserPhoto() {
         preferencesList.innerHTML = '<li style="color: var(--text-gray); font-size: 0.9rem;">Fără preferințe.</li>';
     }
 
-    // ── Modals ───────────────────────────────────────────────────────────────
 
     function setupModals() {
         const mealModal = document.getElementById('mealModal');
@@ -332,7 +325,6 @@ async function loadUserPhoto() {
         });
     }
 
-    // ── Calendar ─────────────────────────────────────────────────────────────
 
     function renderCalendar() {
         const calendarStrip = document.getElementById('calendarStrip');
@@ -355,8 +347,6 @@ async function loadUserPhoto() {
         calendarStrip.innerHTML = html;
     }
 
-    // ── Helpers ──────────────────────────────────────────────────────────────
-
     function getAge(dateString) {
         if (!dateString) return 0;
         const parts = dateString.split('-').map(Number);
@@ -375,11 +365,8 @@ async function loadUserPhoto() {
             .toLocaleDateString('ro-RO', { day: '2-digit', month: 'long', year: 'numeric' });
     }
 
-    // ── Logout ───────────────────────────────────────────────────────────────
 
     if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);
-
-    // ── Init ─────────────────────────────────────────────────────────────────
 
     const isLoggedIn = await checkSession();
     if (isLoggedIn) {

@@ -19,8 +19,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_SLEEP = '/WEB_project/backend/api/sleep.php';
 
-    // ── Auth helpers (identice cu childProfile.js) ──────────────────────────
-
     function getAuthToken() {
         return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
     }
@@ -102,7 +100,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     showAdminLinkIfNeeded(user);
 
-    // ← ADAUGĂ ASTA:
     await loadUserPhoto();
 
     return true;
@@ -131,8 +128,6 @@ async function loadUserPhoto() {
         localStorage.removeItem('selectedChildId');
         window.location.href = '../auth/login.html';
     }
-
-    // ── Children ─────────────────────────────────────────────────────────────
 
     async function loadChildren() {
         const result = await apiRequest(`${API_CHILDREN}?action=list`);
@@ -198,7 +193,6 @@ async function loadUserPhoto() {
         }
     }
 
-    // ── Modal ────────────────────────────────────────────────────────────────
 
     function openModal(type) {
         formSleepType.value = type;
@@ -236,8 +230,6 @@ async function loadUserPhoto() {
         button.addEventListener('click', () => openModal(button.getAttribute('data-type')));
     });
 
-    // ── Form submit ──────────────────────────────────────────────────────────
-
     sleepForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -257,8 +249,6 @@ async function loadUserPhoto() {
             alert('Eroare: ' + result.message);
         }
     });
-
-    // ── Sleep data ───────────────────────────────────────────────────────────
 
     async function loadSleepDataForChild(childId) {
         const notesFeed = document.getElementById('sleepNotesFeed');
@@ -475,13 +465,9 @@ async function loadUserPhoto() {
         }
     }
 
-    // ── Logout ───────────────────────────────────────────────────────────────
-
     if (logoutBtn) {
         logoutBtn.addEventListener('click', logoutUser);
     }
-
-    // ── Init ─────────────────────────────────────────────────────────────────
 
     const isLoggedIn = await checkSession();
     if (isLoggedIn) {

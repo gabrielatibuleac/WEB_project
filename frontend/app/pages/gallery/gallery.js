@@ -95,11 +95,9 @@ async function initGallery() {
         // Setează numele
         if (topUserName) topUserName.textContent = user.name || 'User';
         
-        // Setează initiala pe SPAN, nu pe div
         const initialSpan = document.getElementById('topUserInitialText');
         if (initialSpan) initialSpan.textContent = (user.name || 'U').charAt(0).toUpperCase();
         
-        // Aplică poza
         const photoUrl = profile.photo || null;
         const avatarDiv = document.getElementById('topUserInitial');
         
