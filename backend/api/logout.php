@@ -1,12 +1,10 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+require_once '../config/db.php';
+require_once '../utils/token_auth.php';
 
-session_unset();
-session_destroy();
+deleteCurrentAuthToken($mysql);
 
 echo json_encode([
     "status" => "success",

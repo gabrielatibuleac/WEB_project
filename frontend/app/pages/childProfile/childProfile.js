@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
+
     const topUserName = document.getElementById('topUserName');
     const userInitial = document.getElementById('userInitial');
     const logoutBtn = document.getElementById('logoutBtn');
@@ -21,51 +23,114 @@ document.addEventListener('DOMContentLoaded', async () => {
     const openMilestoneBtn = document.getElementById('openMilestoneBtn');
     const openCaregiverBtn = document.getElementById('openCaregiverBtn');
 
+    const apiBase = '/WEB_project/backend/api/children.php';
+
     let children = [];
     let currentChild = null;
 
-    const apiBase = '/WEB_project/backend/api/children.php';
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
 
-    async function checkSession() {
-        try {
-            const response = await fetch('/WEB_project/backend/api/check_session.php', {
-                method: 'GET',
-                credentials: 'same-origin'
-            });
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
 
-            const result = await response.json();
+    function showAdminLinkIfNeeded(user) {
+        const adminLink = document.getElementById('adminNavLink');
 
-            if (result.status !== 'success') {
-                window.location.href = '../auth/login.html';
-                return;
-            }
-
-            const fullName = result.user.name || 'User';
-            topUserName.textContent = fullName;
-            userInitial.textContent = fullName.charAt(0).toUpperCase();
-        } catch (error) {
-            window.location.href = '../auth/login.html';
+        if (!adminLink) {
+            return;
         }
+
+        adminLink.hidden = !user || user.role !== 'admin';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
     }
 
     async function apiRequest(url, method = 'GET', data = null) {
         const options = {
-            method: method,
-            credentials: 'same-origin',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            method: method
         };
 
         if (data) {
+            options.headers = {
+                'Content-Type': 'application/json'
+            };
+
             options.body = JSON.stringify(data);
         }
 
-        const response = await fetch(url, options);
-        return await response.json();
+        return await requestJson(url, options);
     }
 
-    async function loadChildren() {
+    async function checkSession() {
+        const result = await requestJson('/WEB_project/backend/api/check_auth.php', {
+            method: 'GET'
+        });
+
+        if (result.status !== 'success') {
+            redirectToLogin();
+            return false;
+        }
+
+        const fullName = result.user.name || result.user.full_name || 'User';
+
+        topUserName.textContent = fullName;
+        userInitial.textContent = fullName.charAt(0).toUpperCase();
+
+        showAdminLinkIfNeeded(result.user);
+
+        return true;
+    }
+
+    async function logoutUser() {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
+        });
+
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    async function loadChildren(selectedId = null) {
         const result = await apiRequest(`${apiBase}?action=list`);
 
         if (result.status !== 'success') {
@@ -80,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             emptyState.style.display = 'block';
             profileContent.style.display = 'none';
             currentChild = null;
+            localStorage.removeItem('selectedChildId');
             return;
         }
 
@@ -93,7 +159,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             childSelect.appendChild(option);
         });
 
-        await loadProfile(children[0].id);
+        const savedChildId = selectedId || localStorage.getItem('selectedChildId');
+        const selectedChild = children.find((child) => String(child.id) === String(savedChildId)) || children[0];
+
+        await loadProfile(selectedChild.id);
     }
 
     async function loadProfile(childId) {
@@ -106,6 +175,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         currentChild = result.child;
         childSelect.value = currentChild.id;
+        localStorage.setItem('selectedChildId', currentChild.id);
 
         renderChild(currentChild);
         renderMilestones(result.milestones || []);
@@ -117,11 +187,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('childAge').textContent = `${getAge(child.birth_date)} ani`;
         document.getElementById('childBirthDate').textContent = formatDate(child.birth_date);
         document.getElementById('childExactAge').textContent = getExactAge(child.birth_date);
+        document.getElementById('childGender').textContent = child.gender || '-';
         document.getElementById('childBloodType').textContent = child.blood_type || '-';
         document.getElementById('childAllergies').textContent = child.allergies || 'Nu are alergii cunoscute';
-        document.getElementById('kindergartenName').textContent = child.kindergarten_name || '-';
-        document.getElementById('kindergartenGroup').textContent = child.kindergarten_group || '-';
-        document.getElementById('educatorName').textContent = child.educator_name ? `Educatoare: ${child.educator_name}` : 'Educatoare: -';
+
+        document.getElementById('educationLevel').textContent = child.education_level || '-';
+        document.getElementById('institutionName').textContent = child.institution_name || '-';
+        document.getElementById('groupOrClass').textContent = child.group_or_class || '-';
+        document.getElementById('responsiblePerson').textContent = child.responsible_person || '-';
+
         document.getElementById('childDescription').textContent = child.description || 'Nu exista descriere.';
         document.getElementById('heightValue').textContent = child.height_cm || '0';
         document.getElementById('weightValue').textContent = child.weight_kg || '0';
@@ -130,7 +204,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const favoriteActivities = document.getElementById('favoriteActivities');
         favoriteActivities.innerHTML = '';
 
-        const activities = (child.favorite_activities || '').split(',').map((item) => item.trim()).filter(Boolean);
+        const activities = (child.favorite_activities || '')
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean);
 
         if (activities.length === 0) {
             const span = document.createElement('span');
@@ -158,6 +235,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         milestones.forEach((milestone) => {
             const item = document.createElement('div');
             item.className = 'milestone-item';
+
             item.innerHTML = `
                 <span>✓</span>
                 <div>
@@ -166,6 +244,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </div>
                 <small>Finalizat</small>
             `;
+
             milestoneList.appendChild(item);
         });
     }
@@ -182,6 +261,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         caregivers.forEach((caregiver) => {
             const card = document.createElement('div');
             card.className = 'caregiver-card';
+
             card.innerHTML = `
                 <div class="caregiver-avatar">👤</div>
                 <div>
@@ -190,6 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <small>${escapeHtml(caregiver.access_level)}</small>
                 </div>
             `;
+
             caregiversGrid.appendChild(card);
         });
     }
@@ -218,16 +299,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('childId').value = currentChild.id;
         document.getElementById('name').value = currentChild.name || '';
         document.getElementById('birth_date').value = currentChild.birth_date || '';
+        document.getElementById('gender').value = currentChild.gender || '';
         document.getElementById('blood_type').value = currentChild.blood_type || '';
         document.getElementById('allergies').value = currentChild.allergies || '';
-        document.getElementById('kindergarten_name').value = currentChild.kindergarten_name || '';
-        document.getElementById('kindergarten_group').value = currentChild.kindergarten_group || '';
-        document.getElementById('educator_name').value = currentChild.educator_name || '';
+        document.getElementById('education_level').value = currentChild.education_level || '';
+        document.getElementById('institution_name').value = currentChild.institution_name || '';
+        document.getElementById('group_or_class').value = currentChild.group_or_class || '';
+        document.getElementById('responsible_person').value = currentChild.responsible_person || '';
         document.getElementById('height_cm').value = currentChild.height_cm || '';
         document.getElementById('weight_kg').value = currentChild.weight_kg || '';
         document.getElementById('bmi').value = currentChild.bmi || '';
         document.getElementById('favorite_activities_input').value = currentChild.favorite_activities || '';
         document.getElementById('description').value = currentChild.description || '';
+
         openModal(childModal);
     }
 
@@ -236,65 +320,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             id: document.getElementById('childId').value,
             name: document.getElementById('name').value,
             birth_date: document.getElementById('birth_date').value,
+            gender: document.getElementById('gender').value,
             blood_type: document.getElementById('blood_type').value,
             allergies: document.getElementById('allergies').value,
-            kindergarten_name: document.getElementById('kindergarten_name').value,
-            kindergarten_group: document.getElementById('kindergarten_group').value,
-            educator_name: document.getElementById('educator_name').value,
+            education_level: document.getElementById('education_level').value,
+            institution_name: document.getElementById('institution_name').value,
+            group_or_class: document.getElementById('group_or_class').value,
+            responsible_person: document.getElementById('responsible_person').value,
             height_cm: document.getElementById('height_cm').value,
             weight_kg: document.getElementById('weight_kg').value,
             bmi: document.getElementById('bmi').value,
             favorite_activities: document.getElementById('favorite_activities_input').value,
             description: document.getElementById('description').value
         };
-    }
-
-    function getAge(dateString) {
-        if (!dateString) {
-            return 0;
-        }
-
-        const birthDate = new Date(dateString);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-
-        return Math.max(age, 0);
-    }
-
-    function getExactAge(dateString) {
-        if (!dateString) {
-            return '-';
-        }
-
-        const age = getAge(dateString);
-        return `${age} ani`;
-    }
-
-    function formatDate(dateString) {
-        if (!dateString) {
-            return '-';
-        }
-
-        const date = new Date(dateString);
-        return date.toLocaleDateString('ro-RO', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        });
-    }
-
-    function escapeHtml(value) {
-        return String(value)
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;');
     }
 
     openAddChildBtn.addEventListener('click', openAddChildModal);
@@ -324,11 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (result.status === 'success') {
             closeModal(childModal);
-            await loadChildren();
-
-            if (data.id) {
-                await loadProfile(data.id);
-            }
+            await loadChildren(data.id || null);
         }
     });
 
@@ -398,17 +432,73 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    logoutBtn.addEventListener('click', async () => {
-        await fetch('/WEB_project/backend/api/logout.php', {
-            method: 'POST',
-            credentials: 'same-origin'
+    logoutBtn.addEventListener('click', logoutUser);
+
+    function parseDate(dateString) {
+        if (!dateString) {
+            return null;
+        }
+
+        const parts = dateString.split('-').map(Number);
+
+        if (parts.length !== 3) {
+            return null;
+        }
+
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+
+    function getAge(dateString) {
+        const birthDate = parseDate(dateString);
+
+        if (!birthDate) {
+            return 0;
+        }
+
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        return Math.max(age, 0);
+    }
+
+    function getExactAge(dateString) {
+        const age = getAge(dateString);
+        return `${age} ani`;
+    }
+
+    function formatDate(dateString) {
+        const date = parseDate(dateString);
+
+        if (!date) {
+            return '-';
+        }
+
+        return date.toLocaleDateString('ro-RO', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
         });
+    }
 
-        window.location.href = '../auth/login.html';
-    });
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
 
-    await checkSession();
-    await loadChildren();
+    const isLoggedIn = await checkSession();
+
+    if (isLoggedIn) {
+        await loadChildren();
+    }
 
     const params = new URLSearchParams(window.location.search);
 

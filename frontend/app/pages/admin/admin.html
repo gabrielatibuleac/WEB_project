@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - BaIn</title>
+    <link rel="stylesheet" href="../../../global.css?v=4">
+    <link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+    <div class="page-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">👶</div>
+                <div>
+                    <h1>BaIn</h1>
+                    <p>Baby Info on Web</p>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <a href="../dashboard/index.html">⌂ <span data-translate="navHome">Acasa</span></a>
+            <a href="../childProfile/childProfile.html">♙ <span data-translate="navChildProfile">Profil copil</span></a>
+            <a href="../feeding/feeding.html">🍼 <span data-translate="navFeeding">Hranire</span></a>
+            <a href="../sleep/sleep.html">☾ <span data-translate="navSleep">Somn</span></a>
+            <a href="../timeline/timeline.html">◷ <span data-translate="navTimeline">Timeline</span></a>
+            <a href="../gallery/gallery.html">▧ <span data-translate="navGallery">Galerie</span></a>
+            <a href="../medical/medical.html">✚ <span data-translate="navMedical">Medical</span></a>
+            <a href="../relations/relations.html">♧ <span data-translate="navRelations">Relatii</span></a>
+            <a href="../sharing/sharing.html">⌯ <span data-translate="navSharing">Partajare</span></a>
+            <a href="../account/account.html" class="account-link">👤 <span data-translate="navAccount">Contul meu</span></a>
+            <a href="../admin/admin.html" id="adminNavLink" class="admin-link" hidden>⚙ <span data-translate="navAdmin">Admin</span></a>
+            </nav>
+
+            <div class="sidebar-illustration">
+                <span>🧸</span>
+                <p>Fiecare zi conteaza.</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div></div>
+
+                <div class="top-actions">
+                    <button class="icon-btn">🔔</button>
+                    <button class="icon-btn">?</button>
+
+                    <div class="user-menu">
+                        <div class="avatar" id="topUserInitial">A</div>
+                        <span id="topUserName">Admin</span>
+                        <button id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <section class="page-header">
+                <div>
+                    <h2>Modul administrare</h2>
+                    <p>Gestioneaza utilizatorii, copiii si datele principale ale aplicatiei.</p>
+                </div>
+            </section>
+
+            <section class="stats-grid">
+                <article class="stat-card">
+                    <span>👤</span>
+                    <h3>Utilizatori</h3>
+                    <strong id="usersCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span>👶</span>
+                    <h3>Copii</h3>
+                    <strong id="childrenCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span>✚</span>
+                    <h3>Medical</h3>
+                    <strong id="medicalCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span>◷</span>
+                    <h3>Timeline</h3>
+                    <strong id="timelineCount">0</strong>
+                </article>
+
+                <article class="stat-card">
+                    <span>⌯</span>
+                    <h3>Partajari</h3>
+                    <strong id="sharesCount">0</strong>
+                </article>
+            </section>
+
+            <section class="admin-grid">
+                <article class="panel">
+                    <div class="panel-header">
+                        <h3>Utilizatori</h3>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nume</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Copii</th>
+                                    <th>Creat la</th>
+                                    <th>Actiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable"></tbody>
+                        </table>
+                    </div>
+                </article>
+
+                <article class="panel">
+                    <div class="panel-header">
+                        <h3>Copii inregistrati</h3>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Nume copil</th>
+                                    <th>Parinte</th>
+                                    <th>Email parinte</th>
+                                    <th>Educatie</th>
+                                    <th>Creat la</th>
+                                    <th>Actiuni</th>
+                                </tr>
+                            </thead>
+                            <tbody id="childrenTable"></tbody>
+                        </table>
+                    </div>
+                </article>
+            </section>
+        </main>
+    </div>
+    <script src="../../common/translate.js?v=2"></script>
+    <script src="../../common/appPreferences.js?v=2"></script>
+    <script src="admin.js?v=3"></script>
+</body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contul meu - BaIn</title>
-    <link rel="stylesheet" href="../../../global.css?v=2">
+    <link rel="stylesheet" href="../../../global.css?v=4">
     <link rel="stylesheet" href="account.css?v=3">
 </head>
 <body>
@@ -19,21 +19,22 @@
             </div>
 
             <nav class="side-nav">
-                <a href="../dashboard/index.html" data-i18n="navHome">⌂ Acasa</a>
-                <a href="../childProfile/childProfile.html" data-i18n="navChild">♙ Profil copil</a>
-                <a href="../feeding/feeding.html" data-i18n="navFeeding">🍼 Hranire</a>
-                <a href="../sleep/sleep.html" data-i18n="navSleep">☾ Somn</a>
-                <a href="../timeline/timeline.html" data-i18n="navTimeline">◷ Timeline</a>
-                <a href="../gallery/gallery.html" data-i18n="navGallery">▧ Galerie</a>
-                <a href="../medical/medical.html" data-i18n="navMedical">✚ Medical</a>
-                <a href="../relations/relations.html" data-i18n="navRelations">♧ Relatii</a>
-                <a href="../sharing/sharing.html" data-i18n="navSharing">⌯ Partajare</a>
-                <a href="account.html" class="active account-link" data-i18n="navAccount">👤 Contul meu</a>
+                <a href="../dashboard/index.html">⌂ <span data-translate="navHome">Acasa</span></a>
+            <a href="../childProfile/childProfile.html">♙ <span data-translate="navChildProfile">Profil copil</span></a>
+            <a href="../feeding/feeding.html">🍼 <span data-translate="navFeeding">Hranire</span></a>
+            <a href="../sleep/sleep.html">☾ <span data-translate="navSleep">Somn</span></a>
+            <a href="../timeline/timeline.html">◷ <span data-translate="navTimeline">Timeline</span></a>
+            <a href="../gallery/gallery.html">▧ <span data-translate="navGallery">Galerie</span></a>
+            <a href="../medical/medical.html">✚ <span data-translate="navMedical">Medical</span></a>
+            <a href="../relations/relations.html">♧ <span data-translate="navRelations">Relatii</span></a>
+            <a href="../sharing/sharing.html">⌯ <span data-translate="navSharing">Partajare</span></a>
+          <a href="../account/account.html" class="active account-link">👤 <span data-translate="navAccount">Contul meu</span></a>
+            <a href="../admin/admin.html" id="adminNavLink" class="admin-link" hidden>⚙ <span data-translate="navAdmin">Admin</span></a>
             </nav>
 
             <div class="sidebar-illustration">
                 <span>🧸</span>
-                <p data-i18n="sideMessage">Fiecare zi conteaza.</p>
+                <p data-translate="sideMessage">Fiecare zi conteaza.</p>
             </div>
         </aside>
 
@@ -48,14 +49,14 @@
                             <span id="topUserInitial">A</span>
                         </div>
                         <span id="topUserName">User</span>
-                        <button id="logoutBtn">Logout</button>
+                        <button id="logoutBtn" data-translate="logout">Logout</button>
                     </div>
                 </div>
             </header>
 
             <section class="page-header">
-                <h2 data-i18n="pageTitle">Contul meu</h2>
-                <p data-i18n="pageSubtitle">Gestioneaza datele tale, securitatea contului si setarile familiei.</p>
+                <h2 data-translate="pageTitle">Contul meu</h2>
+                <p data-translate="pageSubtitle">Gestioneaza datele tale, securitatea contului si setarile familiei.</p>
             </section>
 
             <section class="account-grid">
@@ -66,117 +67,117 @@
 
                     <div class="profile-info">
                         <h3 id="profileName">User</h3>
-                        <span class="badge" data-i18n="parentBadge">Parinte</span>
+                        <span class="badge" data-translate="parentBadge">Parinte</span>
                         <p id="profileEmail">Email nesetat</p>
                         <p id="profilePhone">Telefon nesetat</p>
                         <p id="profileLocation">Locatie nesetata</p>
-                        <button class="outline-btn" id="editProfileBtn" data-i18n="editProfile">Editeaza profilul</button>
+                        <button class="outline-btn" id="editProfileBtn" data-translate="editProfile">Editeaza profilul</button>
                     </div>
                 </article>
 
                 <article class="panel family-panel">
                     <div class="panel-header">
-                        <h3 data-i18n="familyTitle">Familia</h3>
+                        <h3 data-translate="familyTitle">Familia</h3>
                     </div>
-                    <p><strong id="caregiverCount">0</strong> <span data-i18n="caregiverCountText">ingrijitori conectati</span></p>
-                    <p><strong id="childrenCount">0</strong> <span data-i18n="childrenCountText">copii activi</span></p>
+                    <p><strong id="caregiverCount">0</strong> <span data-translate="caregiverCountText">ingrijitori conectati</span></p>
+                    <p><strong id="childrenCount">0</strong> <span data-translate="childrenCountText">copii activi</span></p>
                     <div class="mini-cards" id="familyMembersList"></div>
                 </article>
 
                 <article class="panel children-panel">
                     <div class="panel-header">
-                        <h3 data-i18n="childrenTitle">Copiii asociati contului</h3>
+                        <h3 data-translate="childrenTitle">Copiii asociati contului</h3>
                     </div>
                     <div class="children-list" id="childrenList"></div>
-                    <button class="outline-btn" id="addChildBtn" data-i18n="addChild">+ Adauga copil</button>
+                    <button class="outline-btn" id="addChildBtn" data-translate="addChild">+ Adauga copil</button>
                 </article>
 
                 <article class="panel permissions-panel">
                     <div class="panel-header">
-                        <h3 data-i18n="permissionsTitle">Roluri si permisiuni</h3>
+                        <h3 data-translate="permissionsTitle">Roluri si permisiuni</h3>
                     </div>
                     <div class="permission-row">
-                        <span data-i18n="permMeals">poate adauga mese</span>
+                        <span data-translate="permMeals">poate adauga mese</span>
                         <b>✓</b>
                     </div>
                     <div class="permission-row">
-                        <span data-i18n="permSleep">poate adauga somn</span>
+                        <span data-translate="permSleep">poate adauga somn</span>
                         <b>✓</b>
                     </div>
                     <div class="permission-row">
-                        <span data-i18n="permGallery">poate incarca in galerie</span>
+                        <span data-translate="permGallery">poate incarca in galerie</span>
                         <b>✓</b>
                     </div>
                     <div class="permission-row">
-                        <span data-i18n="permMedical">poate edita fisa medicala</span>
+                        <span data-translate="permMedical">poate edita fisa medicala</span>
                         <b>✓</b>
                     </div>
                     <div class="permission-row">
-                        <span data-i18n="permShare">poate partaja momente</span>
+                        <span data-translate="permShare">poate partaja momente</span>
                         <b>✓</b>
                     </div>
                 </article>
 
                 <article class="panel">
                     <div class="panel-header">
-                        <h3 data-i18n="notificationTitle">Setari notificari</h3>
+                        <h3 data-translate="notificationTitle">Setari notificari</h3>
                     </div>
 
                     <label class="setting-row">
-                        <span data-i18n="notifFeeding">Reminder hranire</span>
+                        <span data-translate="notifFeeding">Reminder hranire</span>
                         <input type="checkbox" data-setting="notifications.feeding">
                     </label>
 
                     <label class="setting-row">
-                        <span data-i18n="notifMedical">Programari medicale</span>
+                        <span data-translate="notifMedical">Programari medicale</span>
                         <input type="checkbox" data-setting="notifications.medical">
                     </label>
 
                     <label class="setting-row">
-                        <span data-i18n="notifGallery">Actualizari din galerie</span>
+                        <span data-translate="notifGallery">Actualizari din galerie</span>
                         <input type="checkbox" data-setting="notifications.gallery">
                     </label>
 
                     <label class="setting-row">
-                        <span data-i18n="notifSharing">Distribuiri de familie</span>
+                        <span data-translate="notifSharing">Distribuiri de familie</span>
                         <input type="checkbox" data-setting="notifications.sharing">
                     </label>
 
                     <label class="setting-row">
-                        <span data-i18n="notifWeekly">Raport saptamanal</span>
+                        <span data-translate="notifWeekly">Raport saptamanal</span>
                         <input type="checkbox" data-setting="notifications.weekly">
                     </label>
                 </article>
 
                 <article class="panel">
                     <div class="panel-header">
-                        <h3 data-i18n="securityTitle">Securitate</h3>
+                        <h3 data-translate="securityTitle">Securitate</h3>
                     </div>
 
                     <button class="security-row" id="changePasswordBtn">
-                        <span data-i18n="changePassword">Schimba parola</span>
+                        <span data-translate="changePassword">Schimba parola</span>
                         <b>›</b>
                     </button>
 
                     <button class="security-row" id="twoFactorBtn">
-                        <span data-i18n="twoFactor">Autentificare in doi pasi</span>
+                        <span data-translate="twoFactor">Autentificare in doi pasi</span>
                         <strong id="twoFactorStatus">Inactiv</strong>
                     </button>
 
                     <button class="security-row" id="downloadDataBtn">
-                        <span data-i18n="downloadData">Descarca datele contului</span>
+                        <span data-translate="downloadData">Descarca datele contului</span>
                         <b>›</b>
                     </button>
                 </article>
 
                 <article class="panel preferences-panel">
                     <div class="panel-header">
-                        <h3 data-i18n="preferencesTitle">Preferinte aplicatie</h3>
+                        <h3 data-translate="preferencesTitle">Preferinte aplicatie</h3>
                     </div>
 
                     <div class="preferences-grid">
                         <label>
-                            <span data-i18n="languageLabel">Limba</span>
+                            <span data-translate="languageLabel">Limba</span>
                             <select id="languageSelect">
                                 <option value="ro">Romana</option>
                                 <option value="en">English</option>
@@ -184,7 +185,7 @@
                         </label>
 
                         <label>
-                            <span data-i18n="themeLabel">Tema</span>
+                            <span data-translate="themeLabel">Tema</span>
                             <select id="themeSelect">
                                 <option value="light">Light</option>
                                 <option value="dark">Dark</option>
@@ -192,7 +193,7 @@
                         </label>
 
                         <label>
-                            <span data-i18n="timezoneLabel">Fus orar</span>
+                            <span data-translate="timezoneLabel">Fus orar</span>
                             <select id="timezoneSelect">
                                 <option value="Europe/Bucharest">Europe/Bucharest</option>
                                 <option value="Europe/London">Europe/London</option>
@@ -201,7 +202,7 @@
                         </label>
 
                         <label>
-                            <span data-i18n="defaultPageLabel">Pagina preferata</span>
+                            <span data-translate="defaultPageLabel">Pagina preferata</span>
                             <select id="defaultPageSelect">
                                 <option value="dashboard">Dashboard</option>
                                 <option value="childProfile">Profil copil</option>
@@ -215,8 +216,8 @@
 
             <section class="bottom-banner">
                 <div>
-                    <strong data-i18n="bottomTitle">Familia incepe cu un cont bine organizat!</strong>
-                    <p data-i18n="bottomText">Controlezi accesul, notificarile si siguranta datelor dintr-un singur loc.</p>
+                    <strong data-translate="bottomTitle">Familia incepe cu un cont bine organizat!</strong>
+                    <p data-translate="bottomText">Controlezi accesul, notificarile si siguranta datelor dintr-un singur loc.</p>
                 </div>
                 <span>👶</span>
             </section>
@@ -226,7 +227,7 @@
     <div class="modal" id="profileModal">
         <form class="modal-card" id="profileForm">
             <div class="modal-header">
-                <h3 data-i18n="editProfile">Editeaza profilul</h3>
+                <h3 data-translate="editProfile">Editeaza profilul</h3>
                 <button type="button" class="close-modal" data-close="profileModal">×</button>
             </div>
 
@@ -237,17 +238,17 @@
 
                 <div class="photo-actions">
                     <label class="upload-btn">
-                        <span data-i18n="profilePhotoLabel">Alege poza de profil</span>
+                        <span data-translate="profilePhotoLabel">Alege poza de profil</span>
                         <input type="file" id="editPhotoInput" accept="image/png, image/jpeg, image/webp">
                     </label>
-                    <button type="button" class="outline-btn danger-outline" id="removePhotoBtn" data-i18n="removePhoto">Sterge poza</button>
-                    <small data-i18n="photoHint">Poza ramane salvata local in browser.</small>
+                    <button type="button" class="outline-btn danger-outline" id="removePhotoBtn" data-translate="removePhoto">Sterge poza</button>
+                    <small data-translate="photoHint">Poza ramane salvata local in browser.</small>
                 </div>
             </div>
 
             <div class="form-grid">
                 <label>
-                    <span data-i18n="nameLabel">Nume</span>
+                    <span data-translate="nameLabel">Nume</span>
                     <input type="text" id="editName" required>
                 </label>
 
@@ -257,30 +258,31 @@
                 </label>
 
                 <label>
-                    <span data-i18n="phoneLabel">Telefon</span>
+                    <span data-translate="phoneLabel">Telefon</span>
                     <input type="text" id="editPhone">
                 </label>
 
                 <label>
-                    <span data-i18n="locationLabel">Locatie</span>
+                    <span data-translate="locationLabel">Locatie</span>
                     <input type="text" id="editLocation">
                 </label>
             </div>
 
-            <button class="primary-btn" type="submit" data-i18n="saveBtn">Salveaza</button>
+            <button class="primary-btn" type="submit" data-translate="saveBtn">Salveaza</button>
         </form>
     </div>
 
     <div class="modal" id="notificationsModal">
         <div class="modal-card small">
             <div class="modal-header">
-                <h3 data-i18n="notificationsModalTitle">Notificari</h3>
+                <h3 data-translate="notificationsModalTitle">Notificari</h3>
                 <button type="button" class="close-modal" data-close="notificationsModal">×</button>
             </div>
             <div id="notificationsList" class="notifications-list"></div>
         </div>
     </div>
-
-    <script src="account.js?v=3"></script>
+    <script src="../../common/translate.js?v=2"></script>
+    <script src="../../common/appPreferences.js?v=2"></script>
+    <script src="account.js?v=9"></script>
 </body>
 </html>

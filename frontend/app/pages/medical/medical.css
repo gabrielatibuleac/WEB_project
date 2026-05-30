@@ -10,6 +10,7 @@ body {
     background: var(--soft-bg);
     font-family: 'Inter', sans-serif;
     color: var(--text-dark);
+    overflow-x: hidden;
 }
 
 .page-layout {
@@ -111,6 +112,7 @@ body {
 
 .main-content {
     padding: 28px 38px 42px 38px;
+    min-width: 0;
 }
 
 .topbar {
@@ -195,6 +197,7 @@ body {
     align-items: center;
     gap: 14px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+    min-width: 0;
 }
 
 .child-avatar {
@@ -206,6 +209,7 @@ body {
     align-items: center;
     justify-content: center;
     font-size: 2rem;
+    flex-shrink: 0;
 }
 
 .child-selector select {
@@ -217,6 +221,7 @@ body {
     cursor: pointer;
     font-size: 1rem;
     width: 100%;
+    min-width: 0;
 }
 
 .child-selector p {
@@ -248,6 +253,7 @@ body {
     border-radius: 24px;
     padding: 24px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+    min-width: 0;
 }
 
 .stat-icon {
@@ -290,6 +296,7 @@ body {
     color: var(--text-gray);
     margin: 0;
     line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
 .medical-grid {
@@ -339,7 +346,7 @@ body {
     border-radius: 16px;
     padding: 14px;
     display: grid;
-    grid-template-columns: 38px 1fr;
+    grid-template-columns: 38px 1fr auto;
     gap: 12px;
     align-items: center;
 }
@@ -358,11 +365,13 @@ body {
 .emergency-contact strong {
     display: block;
     margin-bottom: 4px;
+    overflow-wrap: anywhere;
 }
 
 .emergency-contact p {
     margin: 0 0 4px 0;
     color: var(--text-gray);
+    overflow-wrap: anywhere;
 }
 
 .emergency-contact small {
@@ -375,6 +384,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    gap: 12px;
 }
 
 .panel-header h3 {
@@ -420,11 +430,13 @@ body {
 
 .medical-item strong {
     display: block;
+    overflow-wrap: anywhere;
 }
 
 .medical-item p {
     color: var(--text-gray);
     margin: 5px 0;
+    overflow-wrap: anywhere;
 }
 
 .medical-item small {
@@ -445,6 +457,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 18px;
 }
 
 .bottom-banner strong {
@@ -496,6 +509,7 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 22px;
+    gap: 12px;
 }
 
 .modal-header h3 {
@@ -511,6 +525,7 @@ body {
     border-radius: 50%;
     font-size: 1.3rem;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .form-grid {
@@ -523,6 +538,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .input-group.full {
@@ -542,6 +558,7 @@ body {
     font-family: inherit;
     font-size: 0.95rem;
     outline: none;
+    min-width: 0;
 }
 
 .input-group input:focus,
@@ -593,6 +610,23 @@ body {
     color: var(--text-gray);
 }
 
+.delete-emergency-btn,
+.delete-medical-btn {
+    border: 1px solid rgba(240, 128, 128, 0.35);
+    background: #fff4f1;
+    color: var(--color-1);
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.delete-emergency-btn:hover,
+.delete-medical-btn:hover {
+    background: var(--color-1);
+    color: var(--white);
+}
+
 @media (max-width: 1200px) {
     .page-layout {
         grid-template-columns: 1fr;
@@ -624,8 +658,14 @@ body {
     .panel.wide {
         grid-column: span 1;
     }
+
+    .child-selector,
+    .primary-btn {
+        width: 100%;
+    }
 }
-@media (max-width: 700px) {
+
+@media (max-width: 768px) {
     .main-content {
         padding: 18px;
     }
@@ -643,6 +683,9 @@ body {
     .topbar {
         height: auto;
         padding: 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
     }
 
     .top-actions {
@@ -655,23 +698,71 @@ body {
         width: 100%;
         justify-content: space-between;
     }
+
+    .medical-item,
+    .emergency-contact,
+    .notification-item {
+        grid-template-columns: 1fr;
+        align-items: flex-start;
+    }
+
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .panel-header button,
+    .emergency-panel button,
+    .delete-emergency-btn,
+    .delete-medical-btn {
+        width: 100%;
+    }
+
+    .bottom-banner {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+
+    .modal-card {
+        padding: 20px;
+        border-radius: 22px;
+    }
 }
 
-.delete-emergency-btn {
-    border: 1px solid rgba(240, 128, 128, 0.35);
-    background: #fff4f1;
-    color: var(--color-1);
-    padding: 8px 12px;
-    border-radius: 12px;
-    font-weight: 800;
-    cursor: pointer;
-}
+@media (max-width: 480px) {
+    .main-content {
+        padding: 12px;
+    }
 
-.delete-emergency-btn:hover {
-    background: var(--color-1);
-    color: var(--white);
-}
+    .sidebar {
+        padding: 18px;
+    }
 
-.emergency-contact {
-    grid-template-columns: 38px 1fr auto;
+    .side-nav {
+        grid-template-columns: 1fr;
+    }
+
+    .page-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .stat-card,
+    .panel {
+        padding: 18px;
+    }
+
+    .stat-card strong {
+        font-size: 1.45rem;
+    }
+
+    .primary-btn,
+    .submit-btn {
+        width: 100%;
+    }
+
+    .bottom-banner span {
+        font-size: 2.6rem;
+    }
 }
