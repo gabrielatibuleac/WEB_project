@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatii - BaIn</title>
+    <link rel="stylesheet" href="../../../global.css"> 
+    <link rel="stylesheet" href="../dashboard/dashboard.css"> 
+    <link rel="stylesheet" href="relations.css">
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">👶</div>
+                <div>
+                    <h1>BaIn</h1>
+                    <p>Baby Info on Web</p>
+                </div>
+            </div>
+
+            <nav class="side-nav">
+                <a href="../dashboard/index.html">⌂ Acasa</a>
+                <a href="../childProfile/childProfile.html">♙ Profil copil</a>
+                <a href="../feeding/feeding.html">🍼 Hranire</a>
+                <a href="../sleep/sleep.html">☾ Somn</a>
+                <a href="../timeline/timeline.html">◷ Timeline</a>
+                <a href="../gallery/gallery.html">▧ Galerie</a>
+                <a href="../medical/medical.html">✚ Medical</a>
+                <a href="relations.html" class="active">♧ Relatii</a>
+                <a href="../sharing/sharing.html">⌯ Partajare</a>
+                <a href="../account/account.html" class="account-link">👤 Contul meu</a>
+            </nav>
+
+            <div class="sidebar-illustration">
+                <span>🧸</span>
+                <p>Fiecare zi conteaza.</p>
+            </div>
+        </aside>
+
+
+        <main class="main-content">
+            <header class="topbar">
+                <div></div>
+                <div class="top-actions">
+                    <button class="icon-btn">🔔</button>
+                    <button class="icon-btn">?</button>
+                    <div class="user-menu">
+                        <div class="avatar" id="topUserInitial">U</div>
+                        <span id="topUserName">User</span>
+                        <button id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </header>
+
+            <section class="page-header">
+                <div>
+                    <h2>Relatii</h2>
+                    <p>Gestioneaza relatiile dintre copilul tau si alte persoane.</p>
+                </div>
+                
+                <div class="header-actions">
+                    <div class="child-selector">
+                        <div class="child-avatar">👶</div>
+                        <div>
+                            <select id="dashboardChildSelect"></select>
+                            <p id="dashboardChildBirth">Nu exista copil selectat</p>
+                        </div>
+                    </div>
+                    
+                    <button class="primary-btn" id="openModalBtn">✚ Adauga relatie</button>
+                </div>
+            </section>
+
+
+            <section class="stats-grid custom-stats-grid">
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon" style="background: #e6f2ff;">👥</span>
+                    </div>
+                    <strong id="statTotal">0</strong>
+                    <p>Total relatii</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon green">👶</span>
+                    </div>
+                    <strong id="statSiblings">0</strong>
+                    <p>Frati / Surori</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon purple">❤️</span>
+                    </div>
+                    <strong id="statCousins">0</strong>
+                    <p>Verisori</p>
+                </article>
+
+                <article class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon yellow">🤝</span>
+                    </div>
+                    <strong id="statFriends">0</strong>
+                    <p>Prieteni / Colegi</p>
+                </article>
+            </section>
+
+            <section class="panel filter-panel">
+                <div class="filter-controls">
+                    <div class="search-box">
+                        <span>🔍</span>
+                        <input type="text" id="searchInput" placeholder="Cauta dupa nume...">
+                    </div>
+                    <select id="typeFilter">
+                        <option value="all">Toate tipurile</option>
+                        <option value="sibling">Frati / Surori</option>
+                        <option value="cousin">Veri</option>
+                        <option value="friend">Prieteni</option>
+                        <option value="classmate">Colegi</option>
+                    </select>
+                </div>
+            </section>
+
+            <section id="relationshipsContainer" class="relations-container">
+            </section>
+
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="relationModal">
+        <div class="modal-content panel">
+            <div class="modal-header">
+                <h3>Relatie noua</h3>
+                <button type="button" class="icon-btn close-modal" id="closeModalBtn">✖</button>
+            </div>
+            <form id="addRelationForm" class="form-layout">
+                <div class="form-group">
+                    <label>Copilul tau</label>
+                    <select id="childSelect" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Nume persoana (Prieten, ruda etc.)</label>
+                    <input type="text" id="relatedPersonName" placeholder="Ex: Andrei" required>
+                </div>
+                <div class="form-group">
+                    <label>Tip relatie</label>
+                    <select id="relationType" required>
+                        <option value="" disabled selected>Selecteaza tipul...</option>
+                        <option value="sibling">Frate / Sora</option>
+                        <option value="cousin">Var / Verisoara</option>
+                        <option value="friend">Prieten</option>
+                        <option value="classmate">Coleg</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Note (optional)</label>
+                    <textarea id="relationNotes" placeholder="Detalii scurte..." rows="3"></textarea>
+                </div>
+                <button type="submit" class="primary-btn full-width">Salveaza relatia</button>
+            </form>
+        </div>
+    </div>
+
+       <script src="../../common/authManager.js?v=1"></script>
+    <script src="relations.js"></script>
+
+</body>
+</html>

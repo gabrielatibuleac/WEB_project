@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return { status: 'error', message: 'Token lipsa.' };
         }
 
-        const response = await fetch(url, {
+       const response = await fetch(url, {
             ...options,
             headers: getAuthHeaders(options.headers || {})
         });
