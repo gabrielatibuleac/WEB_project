@@ -16,6 +16,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_FEEDING = '/WEB_project/backend/api/feeding.php';
 
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove("active");
+            }
+        });
+    }
+
     let editingMealId = null;
 
     function escapeHtml(text) {

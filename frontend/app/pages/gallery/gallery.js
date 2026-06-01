@@ -18,6 +18,22 @@ async function initGallery() {
     const galleryChildAge = document.getElementById('galleryChildAge');
     const mediaGrid = document.getElementById('mediaGrid');
 
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove("active");
+            }
+        });
+    }
+
     let currentMediaData = [];
     let allChildrenData = [];
     let showingFavorites = false;
