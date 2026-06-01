@@ -299,24 +299,65 @@
     border-radius: 14px;
     font-size: 0.9rem;
     line-height: 1.4;
+    display: block;
 }
-
-.note-box-card.card-night {
-     background: #f5f3ff; 
-     border-left: 4px solid #8b5cf6;
-     }
-     
-.note-box-card.card-day {
-     background: #fffbeb;
-      border-left: 4px solid #f59e0b;
-     }
 
 .note-box-header {
     display: flex;
     justify-content: space-between;
     font-size: 0.75rem;
     color: #6b7280;
-    margin-top: 6px;
+    margin-bottom: 8px;
+}
+
+.note-text {
+    margin: 8px 0;
+    color: #1a1a1a;
+}
+
+.note-box-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.note-box-card.card-night {
+     background: #f5f3ff; 
+     border-left: 4px solid #8b5cf6;
+}
+     
+.note-box-card.card-day {
+     background: #fffbeb;
+     border-left: 4px solid #f59e0b;
+}
+
+/* Edit and Delete Buttons - Minimal Style */
+.btn-edit-sleep,
+.btn-delete-sleep {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    background: #f3f4f6;
+    color: #374151;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.btn-edit-sleep:hover {
+    background: #fef08a;
+    border-color: #f59e0b;
+    color: #d97706;
+}
+
+.btn-delete-sleep:hover {
+    background: #fee2e2;
+    border-color: #ef4444;
+    color: #ef4444;
 }
 
 .routine-timeline {

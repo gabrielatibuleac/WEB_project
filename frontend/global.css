@@ -115,3 +115,14 @@ body.dark-mode .growth-card {
 .avatar.has-photo * {
     display: none !important;
 }
+
+@media (max-width: 768px) {
+    body {
+        padding: 10px; 
+    }
+    
+    .mainBox {
+        padding: 20px 15px 40px 15px; 
+        border-radius: 24px; 
+    }
+}

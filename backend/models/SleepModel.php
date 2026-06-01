@@ -39,5 +39,34 @@ class SleepModel {
         
         return $data; 
     }
+
+    public function updateSleep($sleep_id, $child_id, $sleep_type, $start_time, $end_time, $notes, $quality) {
+        $query = "UPDATE sleep_logs SET sleep_type = ?, start_time = ?, end_time = ?, notes = ?, quality = ? 
+                  WHERE id = ? AND child_id = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("sssssii", $sleep_type, $start_time, $end_time, $notes, $quality, $sleep_id, $child_id);
+        
+        return $stmt->execute();
+    }
+
+    public function deleteSleep($sleep_id, $child_id) {
+        $query = "DELETE FROM sleep_logs WHERE id = ? AND child_id = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ii", $sleep_id, $child_id);
+        
+        return $stmt->execute();
+    }
 }
 ?>
