@@ -92,7 +92,6 @@ async function initGallery() {
         const user = result.user;
         const profile = result.profile || {};
         
-        // Setează numele
         if (topUserName) topUserName.textContent = user.name || 'User';
         
         const initialSpan = document.getElementById('topUserInitialText');

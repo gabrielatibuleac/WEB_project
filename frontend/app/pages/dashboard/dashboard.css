@@ -20,7 +20,7 @@ body.dark-mode {
     --text-gray: #c9c9c9;
     background: var(--soft-bg);
     color: var(--text-dark);
-}
+}   
 
 .dashboard-layout {
     display: grid;
