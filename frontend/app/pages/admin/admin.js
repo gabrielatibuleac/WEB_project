@@ -16,6 +16,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const usersTable = document.getElementById('usersTable');
     const childrenTable = document.getElementById('childrenTable');
 
+    const dataTableSelect = document.getElementById('dataTableSelect');
+    const exportJsonBtn = document.getElementById('exportJsonBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const importJsonInput = document.getElementById('importJsonInput');
+    const importCsvInput = document.getElementById('importCsvInput');
+
     let currentUser = null;
 
     function getAuthToken() {
@@ -42,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!token) {
             redirectToLogin();
+
             return {
                 status: 'error',
                 message: 'Token lipsa.'
@@ -60,6 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             result = JSON.parse(text);
         } catch (error) {
             console.error(text);
+
             return {
                 status: 'error',
                 message: 'Raspuns invalid de la server.'
@@ -99,6 +107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         const fullName = currentUser.name || 'Admin';
+
         topUserName.textContent = fullName;
         topUserInitial.textContent = fullName.charAt(0).toUpperCase();
 
@@ -276,6 +285,159 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    async function exportJson() {
+        const table = dataTableSelect.value || 'all';
+        await downloadFile(`${adminApiBase}?action=export_json&table=${encodeURIComponent(table)}`, `bain_export_${table}.json`);
+    }
+
+    async function exportCsv() {
+        const table = dataTableSelect.value || '';
+
+        if (!table || table === 'all') {
+            alert('Pentru export CSV selecteaza o singura tabela, nu "Toate tabelele".');
+            return;
+        }
+
+        await downloadFile(`${adminApiBase}?action=export_csv&table=${encodeURIComponent(table)}`, `bain_export_${table}.csv`);
+    }
+
+    async function downloadFile(url, filename) {
+        const token = getAuthToken();
+
+        if (!token) {
+            redirectToLogin();
+            return;
+        }
+
+        const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return;
+        }
+
+        if (response.status === 403) {
+            alert('Nu ai drepturi de administrator.');
+            return;
+        }
+
+        if (!response.ok) {
+            const text = await response.text();
+            console.error(text);
+            alert('Exportul a esuat.');
+            return;
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+
+        link.href = downloadUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        URL.revokeObjectURL(downloadUrl);
+    }
+
+    async function importJsonFile(file) {
+        const table = dataTableSelect.value || 'all';
+
+        if (!file) {
+            return;
+        }
+
+        const result = await uploadImportFile('import_json', table, file);
+        alert(result.message || 'Import JSON finalizat.');
+
+        if (result.status === 'success') {
+            await loadAdminDashboard();
+        }
+
+        importJsonInput.value = '';
+    }
+
+    async function importCsvFile(file) {
+        const table = dataTableSelect.value || '';
+
+        if (!file) {
+            return;
+        }
+
+        if (!table || table === 'all') {
+            alert('Pentru import CSV selecteaza o singura tabela.');
+            importCsvInput.value = '';
+            return;
+        }
+
+        const result = await uploadImportFile('import_csv', table, file);
+        alert(result.message || 'Import CSV finalizat.');
+
+        if (result.status === 'success') {
+            await loadAdminDashboard();
+        }
+
+        importCsvInput.value = '';
+    }
+
+    async function uploadImportFile(action, table, file) {
+        const token = getAuthToken();
+
+        if (!token) {
+            redirectToLogin();
+
+            return {
+                status: 'error',
+                message: 'Token lipsa.'
+            };
+        }
+
+        const formData = new FormData();
+
+        formData.append('file', file);
+        formData.append('table', table);
+
+        const response = await fetch(`${adminApiBase}?action=${action}&table=${encodeURIComponent(table)}`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: formData
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+
+            return {
+                status: 'error',
+                message: 'Raspuns invalid de la server.'
+            };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        if (response.status === 403) {
+            alert(result.message || 'Nu ai drepturi de administrator.');
+            return result;
+        }
+
+        return result;
+    }
+
     function formatDateTime(dateString) {
         const date = new Date(dateString);
 
@@ -302,6 +464,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     logoutBtn.addEventListener('click', logoutUser);
+
+    exportJsonBtn.addEventListener('click', exportJson);
+    exportCsvBtn.addEventListener('click', exportCsv);
+
+    importJsonInput.addEventListener('change', async () => {
+        await importJsonFile(importJsonInput.files[0]);
+    });
+
+    importCsvInput.addEventListener('change', async () => {
+        await importCsvFile(importCsvInput.files[0]);
+    });
 
     const ok = await checkAuth();
 
