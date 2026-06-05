@@ -17,7 +17,7 @@ class FeedingController {
         return $icons[$type] ?? '🍽️';
     }
 
-    public function getFeedingData($childId) {
+    public function getFeedingData($userId, $childId) {
         $today = date('Y-m-d');
         
         $mealsRaw = $this->model->getMealsByDate($childId, $today);
@@ -46,7 +46,7 @@ class FeedingController {
                 }
             }
 
-           if ($meal['meal_type'] === 'Prânz' || $meal['meal_type'] === 'Cină') $totalCalories += 250;
+            if ($meal['meal_type'] === 'Prânz' || $meal['meal_type'] === 'Cină') $totalCalories += 250;
             if ($meal['meal_type'] === 'Mic dejun' || $meal['meal_type'] === 'Lapte') $totalCalories += 150; 
             if ($meal['meal_type'] === 'Gustare') $totalCalories += 100;
         }
@@ -70,7 +70,7 @@ class FeedingController {
         echo json_encode(['status' => 'success', 'data' => $response]);
     }
 
-    public function addMeal($data) {
+    public function addMeal($userId, $data) {
         if (empty($data['child_id']) || empty($data['time']) || empty($data['type']) || empty($data['qty'])) {
             echo json_encode(['status' => 'error', 'message' => 'Toate câmpurile sunt obligatorii.']);
             return;
@@ -80,7 +80,7 @@ class FeedingController {
         echo json_encode(['status' => $success ? 'success' : 'error']);
     }
 
-    public function addFavorite($data) {
+    public function addFavorite($userId, $data) {
         if (empty($data['child_id']) || empty($data['food_name'])) {
             echo json_encode(['status' => 'error', 'message' => 'Numele alimentului este obligatoriu.']);
             return;
@@ -89,7 +89,7 @@ class FeedingController {
         echo json_encode(['status' => $success ? 'success' : 'error']);
     }
 
-    public function addPreference($data) {
+    public function addPreference($userId, $data) {
         if (empty($data['child_id']) || empty($data['type']) || empty($data['text'])) {
             echo json_encode(['status' => 'error', 'message' => 'Toate câmpurile sunt obligatorii.']);
             return;
@@ -97,7 +97,8 @@ class FeedingController {
         $success = $this->model->addPreference($data['child_id'], $data['type'], $data['text']);
         echo json_encode(['status' => $success ? 'success' : 'error']);
     }
-    public function saveNote($data) {
+
+    public function saveNote($userId, $data) {
         if (empty($data['child_id']) || empty($data['content'])) {
             echo json_encode(['status' => 'error', 'message' => 'Notița nu poate fi goală.']);
             return;

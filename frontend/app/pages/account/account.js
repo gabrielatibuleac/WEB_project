@@ -9,8 +9,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const profileInitial = document.getElementById('profileInitial');
     const profileName = document.getElementById('profileName');
     const profileEmail = document.getElementById('profileEmail');
-    const profilePhone = document.getElementById('profilePhone');
-    const profileLocation = document.getElementById('profileLocation');
 
     const caregiverCount = document.getElementById('caregiverCount');
     const childrenCount = document.getElementById('childrenCount');
@@ -24,8 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const editName = document.getElementById('editName');
     const editEmail = document.getElementById('editEmail');
-    const editPhone = document.getElementById('editPhone');
-    const editLocation = document.getElementById('editLocation');
     const editPhotoInput = document.getElementById('editPhotoInput');
     const editPhotoPreview = document.getElementById('editPhotoPreview');
     const editPhotoInitial = document.getElementById('editPhotoInitial');
@@ -33,13 +29,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const languageSelect = document.getElementById('languageSelect');
     const themeSelect = document.getElementById('themeSelect');
-    const timezoneSelect = document.getElementById('timezoneSelect');
-    const defaultPageSelect = document.getElementById('defaultPageSelect');
-
-    const twoFactorBtn = document.getElementById('twoFactorBtn');
-    const twoFactorStatus = document.getElementById('twoFactorStatus');
-    const changePasswordBtn = document.getElementById('changePasswordBtn');
-    const downloadDataBtn = document.getElementById('downloadDataBtn');
 
     const logoutBtn = document.getElementById('logoutBtn');
     const openNotificationsBtn = document.getElementById('openNotificationsBtn');
@@ -155,14 +144,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (profileEmail) {
             profileEmail.textContent = user.email || 'Email nesetat';
-        }
-
-        if (profilePhone) {
-            profilePhone.textContent = profile.phone || 'Telefon nesetat';
-        }
-
-        if (profileLocation) {
-            profileLocation.textContent = profile.location || 'Locatie nesetata';
         }
 
         applyAvatar(topUserAvatar, profile.photo);
@@ -281,23 +262,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             themeSelect.value = settings.theme || 'light';
         }
 
-        if (timezoneSelect) {
-            timezoneSelect.value = settings.timezone || 'Europe/Bucharest';
-        }
-
-        if (defaultPageSelect) {
-            defaultPageSelect.value = settings.defaultPage || settings.default_page || 'dashboard';
-        }
-
         document.querySelectorAll('[data-setting]').forEach((input) => {
             input.checked = Boolean(getByPath(settings, input.dataset.setting));
         });
-
-        const twoFactorValue = Boolean(settings.security?.twoFactor || settings.two_factor_enabled);
-
-        if (twoFactorStatus) {
-            twoFactorStatus.textContent = twoFactorValue ? 'Activ' : 'Inactiv';
-        }
     }
 
     function renderNotifications() {
@@ -330,27 +297,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     async function saveProfile() {
-        const result = await requestJson(`${accountApiBase}?action=update_profile`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                name: editName.value.trim(),
-                email: editEmail.value.trim(),
-                phone: editPhone.value.trim(),
-                location: editLocation.value.trim(),
-                photo: selectedPhoto
-            })
-        });
+    const result = await requestJson(`${accountApiBase}?action=update_profile`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: editName.value.trim(),
+            email: editEmail.value.trim(),
+            photo: selectedPhoto
+        })
+    });
 
-        alert(result.message);
+    alert(result.message);
 
-        if (result.status === 'success') {
-            profileModal.classList.remove('active');
-            await loadAccount();
+    if (result.status === 'success') {
+        // ✅ ACTUALIZEAZA authManager
+        if (window.authManager) {
+            window.authManager.setUserName(editName.value.trim());
+            window.authManager.setUserPhoto(selectedPhoto);
+            window.authManager.setUserInitial(getInitial(editName.value.trim()));
         }
+        
+        profileModal.classList.remove('active');
+        await loadAccount();
     }
+}
 
     async function saveSettings(settings) {
         const result = await requestJson(`${accountApiBase}?action=update_settings`, {
@@ -395,8 +367,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             editName.value = user.name || '';
             editEmail.value = user.email || '';
-            editPhone.value = profile.phone || '';
-            editLocation.value = profile.location || '';
 
             if (editPhotoInput) {
                 editPhotoInput.value = '';
@@ -479,22 +449,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (timezoneSelect) {
-        timezoneSelect.addEventListener('change', async () => {
-            const settings = clone(accountData.settings || {});
-            settings.timezone = timezoneSelect.value;
-            await saveSettings(settings);
-        });
-    }
-
-    if (defaultPageSelect) {
-        defaultPageSelect.addEventListener('change', async () => {
-            const settings = clone(accountData.settings || {});
-            settings.defaultPage = defaultPageSelect.value;
-            await saveSettings(settings);
-        });
-    }
-
     document.querySelectorAll('[data-setting]').forEach((input) => {
         input.addEventListener('change', async () => {
             const settings = clone(accountData.settings || {});
@@ -502,41 +456,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             await saveSettings(settings);
         });
     });
-
-    if (twoFactorBtn) {
-        twoFactorBtn.addEventListener('click', async () => {
-            const settings = clone(accountData.settings || {});
-
-            if (!settings.security) {
-                settings.security = {};
-            }
-
-            settings.security.twoFactor = !settings.security.twoFactor;
-            await saveSettings(settings);
-            alert(settings.security.twoFactor ? 'Autentificarea in doi pasi a fost activata.' : 'Autentificarea in doi pasi a fost dezactivata.');
-        });
-    }
-
-    if (changePasswordBtn) {
-        changePasswordBtn.addEventListener('click', () => {
-            window.location.href = '../auth/forgotpassword.html';
-        });
-    }
-
-    if (downloadDataBtn) {
-        downloadDataBtn.addEventListener('click', () => {
-            const blob = new Blob([JSON.stringify(accountData, null, 2)], {
-                type: 'application/json'
-            });
-
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'bain-account-data.json';
-            link.click();
-            URL.revokeObjectURL(url);
-        });
-    }
 
     if (openNotificationsBtn && notificationsModal) {
         openNotificationsBtn.addEventListener('click', () => {

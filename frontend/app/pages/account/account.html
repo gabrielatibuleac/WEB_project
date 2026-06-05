@@ -69,8 +69,6 @@
                         <h3 id="profileName">User</h3>
                         <span class="badge" data-translate="parentBadge">Parinte</span>
                         <p id="profileEmail">Email nesetat</p>
-                        <p id="profilePhone">Telefon nesetat</p>
-                        <p id="profileLocation">Locatie nesetata</p>
                         <button class="outline-btn" id="editProfileBtn" data-translate="editProfile">Editeaza profilul</button>
                     </div>
                 </article>
@@ -90,84 +88,6 @@
                     </div>
                     <div class="children-list" id="childrenList"></div>
                     <button class="outline-btn" id="addChildBtn" data-translate="addChild">+ Adauga copil</button>
-                </article>
-
-                <article class="panel permissions-panel">
-                    <div class="panel-header">
-                        <h3 data-translate="permissionsTitle">Roluri si permisiuni</h3>
-                    </div>
-                    <div class="permission-row">
-                        <span data-translate="permMeals">poate adauga mese</span>
-                        <b>✓</b>
-                    </div>
-                    <div class="permission-row">
-                        <span data-translate="permSleep">poate adauga somn</span>
-                        <b>✓</b>
-                    </div>
-                    <div class="permission-row">
-                        <span data-translate="permGallery">poate incarca in galerie</span>
-                        <b>✓</b>
-                    </div>
-                    <div class="permission-row">
-                        <span data-translate="permMedical">poate edita fisa medicala</span>
-                        <b>✓</b>
-                    </div>
-                    <div class="permission-row">
-                        <span data-translate="permShare">poate partaja momente</span>
-                        <b>✓</b>
-                    </div>
-                </article>
-
-                <article class="panel">
-                    <div class="panel-header">
-                        <h3 data-translate="notificationTitle">Setari notificari</h3>
-                    </div>
-
-                    <label class="setting-row">
-                        <span data-translate="notifFeeding">Reminder hranire</span>
-                        <input type="checkbox" data-setting="notifications.feeding">
-                    </label>
-
-                    <label class="setting-row">
-                        <span data-translate="notifMedical">Programari medicale</span>
-                        <input type="checkbox" data-setting="notifications.medical">
-                    </label>
-
-                    <label class="setting-row">
-                        <span data-translate="notifGallery">Actualizari din galerie</span>
-                        <input type="checkbox" data-setting="notifications.gallery">
-                    </label>
-
-                    <label class="setting-row">
-                        <span data-translate="notifSharing">Distribuiri de familie</span>
-                        <input type="checkbox" data-setting="notifications.sharing">
-                    </label>
-
-                    <label class="setting-row">
-                        <span data-translate="notifWeekly">Raport saptamanal</span>
-                        <input type="checkbox" data-setting="notifications.weekly">
-                    </label>
-                </article>
-
-                <article class="panel">
-                    <div class="panel-header">
-                        <h3 data-translate="securityTitle">Securitate</h3>
-                    </div>
-
-                    <button class="security-row" id="changePasswordBtn">
-                        <span data-translate="changePassword">Schimba parola</span>
-                        <b>›</b>
-                    </button>
-
-                    <button class="security-row" id="twoFactorBtn">
-                        <span data-translate="twoFactor">Autentificare in doi pasi</span>
-                        <strong id="twoFactorStatus">Inactiv</strong>
-                    </button>
-
-                    <button class="security-row" id="downloadDataBtn">
-                        <span data-translate="downloadData">Descarca datele contului</span>
-                        <b>›</b>
-                    </button>
                 </article>
 
                 <article class="panel preferences-panel">
@@ -191,35 +111,8 @@
                                 <option value="dark">Dark</option>
                             </select>
                         </label>
-
-                        <label>
-                            <span data-translate="timezoneLabel">Fus orar</span>
-                            <select id="timezoneSelect">
-                                <option value="Europe/Bucharest">Europe/Bucharest</option>
-                                <option value="Europe/London">Europe/London</option>
-                                <option value="Europe/Paris">Europe/Paris</option>
-                            </select>
-                        </label>
-
-                        <label>
-                            <span data-translate="defaultPageLabel">Pagina preferata</span>
-                            <select id="defaultPageSelect">
-                                <option value="dashboard">Dashboard</option>
-                                <option value="childProfile">Profil copil</option>
-                                <option value="timeline">Timeline</option>
-                                <option value="medical">Medical</option>
-                            </select>
-                        </label>
                     </div>
                 </article>
-            </section>
-
-            <section class="bottom-banner">
-                <div>
-                    <strong data-translate="bottomTitle">Familia incepe cu un cont bine organizat!</strong>
-                    <p data-translate="bottomText">Controlezi accesul, notificarile si siguranta datelor dintr-un singur loc.</p>
-                </div>
-                <span>👶</span>
             </section>
         </main>
     </div>
@@ -255,16 +148,6 @@
                 <label>
                     <span>Email</span>
                     <input type="email" id="editEmail" required>
-                </label>
-
-                <label>
-                    <span data-translate="phoneLabel">Telefon</span>
-                    <input type="text" id="editPhone">
-                </label>
-
-                <label>
-                    <span data-translate="locationLabel">Locatie</span>
-                    <input type="text" id="editLocation">
                 </label>
             </div>
 

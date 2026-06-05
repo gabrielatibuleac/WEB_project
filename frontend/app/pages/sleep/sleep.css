@@ -1,6 +1,3 @@
-/* =========================================
-   HEADER & PROFILE SELECTOR
-   ========================================= */
 .sleep-header-area {
     display: flex;
     justify-content: space-between;
@@ -29,7 +26,6 @@
     margin-top: 4px;
 }
 
-/* Cardul selectorului de copil ca în mockup */
 .child-profile-card {
     display: flex;
     align-items: center;
@@ -66,7 +62,6 @@
     margin-top: 2px;
 }
 
-/* Butonul rotunjit cu linii punctate */
 .btn-add-sleep-dashed {
     background: transparent;
     border: none;
@@ -96,9 +91,6 @@
     line-height: 1;
 }
 
-/* =========================================
-   Cele 4 CARDURI DE STATISTICI (Top)
-   ========================================= */
 .stats-cards-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -168,7 +160,6 @@
     font-size: 1.25rem;
 }
 
-/* Stele card 4 */
 .stars-row {
     color: #8b5cf6;
     font-size: 1.1rem;
@@ -187,9 +178,6 @@
     margin-bottom: 4px;
 }
 
-/* =========================================
-   DASHBOARD SPLIT GRID
-   ========================================= */
 .sleep-dashboard-layout {
     display: grid;
     grid-template-columns: 1.8fr 1.2fr;
@@ -225,7 +213,6 @@
     font-weight: 600;
 }
 
-/* Grafic Placeholder Aspect */
 .chart-legend {
     display: flex;
     gap: 15px;
@@ -281,7 +268,6 @@
 .pillar-day { background: #c7d2fe; }
 .bar-day-name { font-size: 0.8rem; color: #4b5563; margin-top: 4px; }
 
-/* FEED DE NOTIȚE */
 .notes-feed {
     display: flex;
     flex-direction: column;
@@ -306,7 +292,6 @@
     margin-top: 6px;
 }
 
-/* TIMELINE RUTINĂ */
 .routine-timeline {
     display: flex;
     flex-direction: column;
@@ -346,9 +331,6 @@
     font-weight: 500;
 }
 
-/* =========================================
-   CASETE "ADAUGA RAPID" (Ca în poză)
-   ========================================= */
 .quick-actions-tiles {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -383,15 +365,11 @@
     font-weight: 600;
 }
 
-/* Culorile exacte din mockup-ul tau */
 .tile-lavender { background-color: #f0eeff; color: #5a4bcf; }
 .tile-orange { background-color: #fff5eb; color: #d97706; }
 .tile-peach { background-color: #fff0f0; color: #e11d48; }
 .tile-blue { background-color: #edf7fd; color: #0284c7; }
 
-/* =========================================
-   MODAL OVERLAY FORMULAR
-   ========================================= */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -497,7 +475,6 @@
     cursor: pointer;
 }
 
-/* RESPONSIVE */
 @media (max-width: 1100px) {
     .stats-cards-grid { grid-template-columns: repeat(2, 1fr); }
     .sleep-dashboard-layout { grid-template-columns: 1fr; }

@@ -8,7 +8,7 @@ class SleepController {
         $this->model = new SleepModel($db);
     }
 
-    public function createSleep($data) {
+    public function createSleep($userId, $data) {
         if(empty($data->child_id) || empty($data->type)) {
             return [
                 "status" => "error",
@@ -37,7 +37,7 @@ class SleepController {
         }
     } 
 
-    public function getMetrics($child_id) {
+    public function getMetrics($userId, $child_id) {
         if(empty($child_id)) {
             return ["status" => "error", "message" => "Lipsește ID-ul copilului."];
         }

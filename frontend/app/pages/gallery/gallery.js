@@ -1,6 +1,11 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    console.log("1. Pagina s-a incarcat. Incepem initializarea...");
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGallery);
+} else {
+    initGallery();
+}
 
+async function initGallery() {
+    const AUTH_TOKEN_KEY = 'bain_auth_token';
     const uploadBtn = document.getElementById('uploadBtn');
     const hiddenFileInput = document.getElementById('hiddenFileInput');
     const filterTabs = document.querySelectorAll('#filterTabs button');
@@ -15,163 +20,136 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let currentMediaData = [];
     let allChildrenData = [];
-    let selectedChildId = localStorage.getItem('selectedChildId');
-
-    const apiAuth = '/WEB_project/backend/api/check_session.php';
-    const apiChildren = '/WEB_project/backend/api/children.php';
-    const apiGallery = '/WEB_project/backend/api/gallery.php'; 
-
-    if (uploadBtn && hiddenFileInput) {
-        uploadBtn.addEventListener('click', () => hiddenFileInput.click());
-
-        hiddenFileInput.addEventListener('change', async (e) => {
-            const files = e.target.files;
-            if (files.length === 0) return;
-
-            if (!selectedChildId) {
-                alert("Te rugam sa selectezi un copil mai intai.");
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('child_id', selectedChildId);
-            for (let i = 0; i < files.length; i++) {
-                formData.append('files[]', files[i]);
-            }
-
-            try {
-                uploadBtn.textContent = "Se încarcă...";
-                uploadBtn.disabled = true;
-
-                const response = await fetch(apiGallery, { method: 'POST', body: formData });
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    loadGalleryData(selectedChildId); 
-                } else {
-                    alert("Eroare la incarcare: " + result.message);
-                }
-            } catch (error) {
-                console.error("Eroare retea la upload:", error);
-                alert("Nu s-a putut conecta la server pentru upload.");
-            } finally {
-                uploadBtn.textContent = "↑ Încarcă fișier";
-                uploadBtn.disabled = false;
-                hiddenFileInput.value = ''; 
-            }
-        });
-    }
-
-    const favFilterBtn = document.getElementById('favFilterBtn');
     let showingFavorites = false;
 
-    function applyFilters() {
-        const activeTab = document.querySelector('#filterTabs button.active');
-        const type = activeTab ? activeTab.getAttribute('data-type') : 'all';
+    const API_CHILDREN = '/WEB_project/backend/api/children.php';
+    const API_GALLERY = '/WEB_project/backend/api/gallery.php';
+
+    function getAuthToken() {
+        return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
+    }
+
+    function redirectToLogin() {
+        sessionStorage.removeItem(AUTH_TOKEN_KEY);
+        localStorage.removeItem('selectedChildId');
+        window.location.href = '../auth/login.html';
+    }
+
+    function getAuthHeaders(extraHeaders = {}) {
+        return {
+            ...extraHeaders,
+            Authorization: `Bearer ${getAuthToken()}`
+        };
+    }
+
+    async function requestJson(url, options = {}) {
+        if (!getAuthToken()) {
+            redirectToLogin();
+            return { status: 'error', message: 'Token lipsa.' };
+        }
+
+        const response = await fetch(url, {
+            ...options,
+            headers: getAuthHeaders(options.headers || {})
+        });
+
+        const text = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error(text);
+            return { status: 'error', message: 'Raspuns invalid de la server.' };
+        }
+
+        if (response.status === 401) {
+            redirectToLogin();
+            return result;
+        }
+
+        return result;
+    }
+
+    async function apiRequest(url, method = 'GET', data = null) {
+        const options = {
+            method: method
+        };
+
+        if (data) {
+            options.headers = {
+                'Content-Type': 'application/json'
+            };
+            options.body = JSON.stringify(data);
+        }
+
+        return await requestJson(url, options);
+    }
+    async function loadUserData() {
+    const result = await apiRequest('/WEB_project/backend/api/account.php?action=get');
+    
+    if (result.status === 'success' && result.user) {
+        const user = result.user;
+        const profile = result.profile || {};
         
-        let filteredData = currentMediaData;
-
-        if (type !== 'all') {
-            filteredData = filteredData.filter(item => item.type === type);
+        // Setează numele
+        if (topUserName) topUserName.textContent = user.name || 'User';
+        
+        const initialSpan = document.getElementById('topUserInitialText');
+        if (initialSpan) initialSpan.textContent = (user.name || 'U').charAt(0).toUpperCase();
+        
+        const photoUrl = profile.photo || null;
+        const avatarDiv = document.getElementById('topUserInitial');
+        
+        if (avatarDiv && photoUrl) {
+            avatarDiv.classList.add('has-photo');
+            avatarDiv.style.backgroundImage = `url("${photoUrl}")`;
+            avatarDiv.style.backgroundSize = 'cover';
+            avatarDiv.style.backgroundPosition = 'center';
+            const initialSpan = document.getElementById('topUserInitialText');
+    if (initialSpan) initialSpan.style.display = 'none';
         }
-
-        if (showingFavorites) {
-            filteredData = filteredData.filter(item => {
-                return localStorage.getItem(`fav_${item.id}`) === 'true';
-            });
-        }
-
-        renderMediaGrid(filteredData);
     }
+}
 
-    if (filterTabs.length > 0) {
-        filterTabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                filterTabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                applyFilters();
-            });
+    async function loadChildren() {
+        const result = await apiRequest(`${API_CHILDREN}?action=list`);
+
+        if (result.status !== 'success' || !result.children?.length) {
+            galleryChildSelect.innerHTML = '<option>Niciun copil adăugat</option>';
+            galleryChildAge.textContent = 'Adaugă un copil';
+            mediaGrid.innerHTML = '<p class="loading-text">Nu ai copii adăugați.</p>';
+            return;
+        }
+
+        allChildrenData = result.children;
+        galleryChildSelect.innerHTML = '';
+
+        const savedId = localStorage.getItem('selectedChildId');
+        let selectedChild = result.children.find(c => String(c.id) === String(savedId)) || result.children[0];
+
+        result.children.forEach(child => {
+            const option = document.createElement('option');
+            option.value = child.id;
+            option.textContent = child.name;
+            galleryChildSelect.appendChild(option);
         });
-    }
 
-    if (favFilterBtn) {
-        favFilterBtn.addEventListener('click', () => {
-            showingFavorites = !showingFavorites;
-            if (showingFavorites) {
-                favFilterBtn.classList.add('active');
-                favFilterBtn.innerHTML = '<i class="fas fa-heart"></i> Favorite';
-                favFilterBtn.style.color = '#ff6b6b';
-            } else {
-                favFilterBtn.classList.remove('active');
-                favFilterBtn.innerHTML = '<i class="far fa-heart"></i> Favorite';
-                favFilterBtn.style.color = '';
+        galleryChildSelect.value = selectedChild.id;
+        localStorage.setItem('selectedChildId', selectedChild.id);
+
+        updateAgeDisplay(selectedChild.id);
+        await loadGalleryData(selectedChild.id);
+
+        galleryChildSelect.addEventListener('change', (e) => {
+            const childId = e.target.value;
+            const child = result.children.find(c => String(c.id) === String(childId));
+            if (child) {
+                localStorage.setItem('selectedChildId', childId);
+                updateAgeDisplay(childId);
+                loadGalleryData(childId);
             }
-            applyFilters();
         });
-    }
-    async function checkSession() {
-        try {
-            const response = await fetch(apiAuth, { method: 'GET', credentials: 'same-origin' });
-            const result = await response.json();
-            if (result.status !== 'success') {
-                window.location.href = '../auth/login.html';
-                return false;
-            }
-            topUserName.textContent = result.user.name || 'User';
-            topUserInitial.textContent = (result.user.name || 'U').charAt(0).toUpperCase();
-            return true;
-        } catch (error) {
-            window.location.href = '../auth/login.html';
-            return false;
-        }
-    }
-
-    async function loadGalleryChildren() {
-        try {
-            const response = await fetch(`${apiChildren}?action=list`, { method: 'GET', credentials: 'same-origin' });
-            const result = await response.json();
-            
-            if (result.status === 'success' && result.children.length > 0) {
-                allChildrenData = result.children;
-                galleryChildSelect.innerHTML = '';
-                let hasSelected = false;
-
-                result.children.forEach(child => {
-                    const option = document.createElement('option');
-                    option.value = child.id;
-                    option.textContent = child.name; 
-                    galleryChildSelect.appendChild(option);
-
-                    if (String(child.id) === String(selectedChildId)) {
-                        option.selected = true;
-                        hasSelected = true;
-                    }
-                });
-
-                if (!hasSelected) {
-                    selectedChildId = result.children[0].id;
-                    galleryChildSelect.value = selectedChildId;
-                    localStorage.setItem('selectedChildId', selectedChildId);
-                }
-
-                updateAgeDisplay(selectedChildId);
-                loadGalleryData(selectedChildId);
-
-                galleryChildSelect.addEventListener('change', (e) => {
-                    selectedChildId = e.target.value;
-                    localStorage.setItem('selectedChildId', selectedChildId);
-                    updateAgeDisplay(selectedChildId); 
-                    loadGalleryData(selectedChildId);  
-                });
-
-            } else {
-                galleryChildSelect.innerHTML = '<option>Niciun copil adăugat</option>';
-                galleryChildAge.textContent = 'Adaugă un copil';
-                mediaGrid.innerHTML = '<p class="loading-text">Nu ai copii adăugați.</p>';
-            }
-        } catch (error) {
-            console.error("Eroare incarcare copii:", error);
-        }
     }
 
     function updateAgeDisplay(childId) {
@@ -179,7 +157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (child && child.birth_date) {
             galleryChildAge.textContent = calculateAgeString(child.birth_date);
         } else {
-            galleryChildAge.textContent = "Vârstă necunoscută";
+            galleryChildAge.textContent = 'Vârstă necunoscută';
         }
     }
 
@@ -190,42 +168,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         const today = new Date();
         let years = today.getFullYear() - birthDate.getFullYear();
         let months = today.getMonth() - birthDate.getMonth();
-        if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) { years--; months += 12; }
-        if (today.getDate() < birthDate.getDate()) { months--; if (months < 0) months = 11; }
+
+        if (months < 0 || (months === 0 && today.getDate() < birthDate.getDate())) {
+            years--;
+            months += 12;
+        }
+        if (today.getDate() < birthDate.getDate()) {
+            months--;
+            if (months < 0) months = 11;
+        }
 
         let result = [];
         if (years > 0) result.push(`${years} ${years === 1 ? 'an' : 'ani'}`);
         if (months > 0) result.push(`${months} ${months === 1 ? 'lună' : 'luni'}`);
+        
         return result.length === 0 ? 'Nou-născut' : result.join(', ');
     }
 
     async function loadGalleryData(childId) {
         mediaGrid.innerHTML = '<p class="loading-text">Se încarcă...</p>';
+        
+        const result = await apiRequest(`${API_GALLERY}?action=get_all&child_id=${childId}`);
 
-        try {
-            const response = await fetch(`${apiGallery}?action=get_all&child_id=${childId}`, { method: 'GET', credentials: 'same-origin' });
-            
-            const contentType = response.headers.get("content-type");
-            if (contentType && contentType.indexOf("application/json") !== -1) {
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    currentMediaData = result.media || [];
-                    applyFilters(); 
-                } else {
-                    mediaGrid.innerHTML = `<p>${result.message || 'Fara elemente media.'}</p>`;
-                }
-            } else {
-                const textError = await response.text();
-                mediaGrid.innerHTML = `<p style="color:red; font-size:12px; overflow-wrap: break-word;">${textError}</p>`;
-            }
-        } catch (error) {
-            mediaGrid.innerHTML = '<p style="color:red">Eroare de retea.</p>';
+        if (result.status === 'success') {
+            currentMediaData = result.media || [];
+            applyFilters();
+        } else {
+            mediaGrid.innerHTML = `<p>${result.message || 'Fără elemente media.'}</p>`;
         }
     }
 
     function renderMediaGrid(mediaArray) {
         mediaGrid.innerHTML = '';
+        
         if (mediaArray.length === 0) {
             mediaGrid.innerHTML = '<p class="loading-text">Niciun fișier găsit în această categorie.</p>';
             return;
@@ -241,7 +216,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (item.type === 'video') {
                 mediaHtml = `<video src="${escapeHtml(item.file_url)}" controls style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;"></video>`;
             } else {
-                mediaHtml = `<img src="${escapeHtml(item.file_url)}" alt="media" onerror="this.src='https://via.placeholder.com/200?text=Eroare+Poza'">`;
+                const imgUrl = escapeHtml(item.file_url);
+                mediaHtml = `<img src="${imgUrl}" alt="media" class="media-img" onerror="this.style.display='none'">`;
             }
 
             card.innerHTML = `
@@ -256,7 +232,103 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <i class="${isFavorite ? 'fas' : 'far'} fa-heart" style="color: #ff6b6b; font-size: 0.95rem;"></i>
                 </button>
             `;
+            
             mediaGrid.appendChild(card);
+        });
+    }
+
+    function applyFilters() {
+        const activeTab = document.querySelector('#filterTabs button.active');
+        const type = activeTab ? activeTab.getAttribute('data-type') : 'all';
+        
+        let filteredData = currentMediaData;
+
+        if (type !== 'all') {
+            filteredData = filteredData.filter(item => item.type === type);
+        }
+
+        if (showingFavorites) {
+            filteredData = filteredData.filter(item => 
+                localStorage.getItem(`fav_${item.id}`) === 'true'
+            );
+        }
+
+        renderMediaGrid(filteredData);
+    }
+
+    if (uploadBtn && hiddenFileInput) {
+        uploadBtn.addEventListener('click', () => hiddenFileInput.click());
+
+        hiddenFileInput.addEventListener('change', async (e) => {
+            const files = e.target.files;
+            if (files.length === 0) return;
+
+            const selectedChildId = localStorage.getItem('selectedChildId');
+            if (!selectedChildId) {
+                alert('Te rugam sa selectezi un copil mai intai.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('child_id', selectedChildId);
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files[]', files[i]);
+            }
+
+            try {
+                uploadBtn.textContent = 'Se încarcă...';
+                uploadBtn.disabled = true;
+
+                const response = await fetch(API_GALLERY, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${getAuthToken()}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    await loadGalleryData(selectedChildId);
+                } else {
+                    alert('Eroare la incarcare: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Upload error:', error);
+                alert('Nu s-a putut conecta la server pentru upload.');
+            } finally {
+                uploadBtn.textContent = '↑ Încarcă fișier';
+                uploadBtn.disabled = false;
+                hiddenFileInput.value = '';
+            }
+        });
+    }
+
+    if (filterTabs.length > 0) {
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                applyFilters();
+            });
+        });
+    }
+
+    const favFilterBtn = document.getElementById('favFilterBtn');
+    if (favFilterBtn) {
+        favFilterBtn.addEventListener('click', () => {
+            showingFavorites = !showingFavorites;
+            if (showingFavorites) {
+                favFilterBtn.classList.add('active');
+                favFilterBtn.innerHTML = '<i class="fas fa-heart"></i> Favorite';
+                favFilterBtn.style.color = '#ff6b6b';
+            } else {
+                favFilterBtn.classList.remove('active');
+                favFilterBtn.innerHTML = '<i class="far fa-heart"></i> Favorite';
+                favFilterBtn.style.color = '';
+            }
+            applyFilters();
         });
     }
 
@@ -267,23 +339,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (confirm("Ești sigur că vrei să ștergi acest fișier? Acțiunea este ireversibilă.")) {
+                if (confirm('Ești sigur că vrei să ștergi acest fișier? Acțiunea este ireversibilă.')) {
                     const mediaId = deleteButton.getAttribute('data-id');
                     
-                    const formData = new FormData();
-                    formData.append('action', 'delete_media');
-                    formData.append('media_id', mediaId);
-
                     try {
-                        deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; 
-                        const response = await fetch(apiGallery, { method: 'POST', body: formData });
+                        deleteButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        
+                        const response = await fetch(API_GALLERY, {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${getAuthToken()}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'delete_media',
+                                media_id: mediaId
+                            })
+                        });
+                        
                         const result = await response.json();
                         
                         if (result.status === 'success') {
-                            loadGalleryData(selectedChildId); 
+                            await loadGalleryData(localStorage.getItem('selectedChildId'));
+                        } else {
+                            alert('Eroare ștergere: ' + (result.message || 'Necunoscut'));
+                            deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
                         }
                     } catch (error) {
-                        alert("Eroare de conexiune la ștergere.");
+                        console.error('Delete error:', error);
+                        alert('Eroare de conexiune: ' + error.message);
                         deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
                     }
                 }
@@ -293,14 +377,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const favButton = e.target.closest('.media-fav');
             if (favButton) {
                 e.preventDefault();
-                e.stopPropagation(); 
+                e.stopPropagation();
                 
                 const mediaId = favButton.getAttribute('data-id');
                 const favKey = `fav_${mediaId}`;
-                
                 const isCurrentlyFav = localStorage.getItem(favKey) === 'true';
-                localStorage.setItem(favKey, !isCurrentlyFav);
                 
+                localStorage.setItem(favKey, !isCurrentlyFav);
                 applyFilters();
             }
         });
@@ -313,20 +396,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function escapeHtml(value) {
-        if(!value) return '';
-        return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+        if (!value) return '';
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
     }
-
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            await fetch('/WEB_project/backend/api/logout.php', { method: 'POST', credentials: 'same-origin' });
-            localStorage.removeItem('selectedChildId');
-            window.location.href = '../auth/login.html';
+    logoutBtn.addEventListener('click', async () => {
+        await requestJson('/WEB_project/backend/api/logout.php', {
+            method: 'POST'
         });
-    }
-
-    const isLoggedIn = await checkSession();
-    if (isLoggedIn) {
-        await loadGalleryChildren(); 
-    }
-});
+        redirectToLogin();
+    });
+     await loadUserData()
+    await loadChildren();
+}

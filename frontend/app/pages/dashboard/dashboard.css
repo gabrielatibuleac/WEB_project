@@ -12,6 +12,15 @@ body {
     color: var(--text-dark);
     overflow-x: hidden;
 }
+body.dark-mode {
+    --white: #1f1f23;
+    --soft-bg: #121214;
+    --border: #33333a;
+    --text-dark: #f7f7f7;
+    --text-gray: #c9c9c9;
+    background: var(--soft-bg);
+    color: var(--text-dark);
+}
 
 .dashboard-layout {
     display: grid;
@@ -511,6 +520,7 @@ body {
 .bottom-banner span {
     font-size: 3.4rem;
 }
+
 
 @media (max-width: 1200px) {
     .dashboard-layout {
