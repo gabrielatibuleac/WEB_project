@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_SLEEP = '/WEB_project/backend/api/sleep.php';
+    
+    let editingSleepId = null;
 
     function getAuthToken() {
         return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';
@@ -197,6 +199,18 @@ async function loadUserPhoto() {
     function openModal(type) {
         formSleepType.value = type;
         sleepModal.classList.add('open');
+        editingSleepId = null;
+        modalTitle.textContent = 'Adaugă notiță de somn';
+        
+        // Reset form
+        sleepForm.reset();
+        document.getElementById('sleepQuality').value = '';
+        
+        // Update submit button text
+        const submitBtn = sleepForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.textContent = 'Salvează în jurnal';
+        }
 
         if (type === 'noapte') {
             modalTitle.textContent = 'Înregistrează Somn de Noapte ☾';
@@ -217,9 +231,33 @@ async function loadUserPhoto() {
         }
     }
 
+    function openEditModal(sleepLog) {
+        editingSleepId = sleepLog.id;
+        formSleepType.value = sleepLog.sleep_type;
+        modalTitle.textContent = 'Editează înregistrarea';
+        
+        document.getElementById('startTime').value = sleepLog.start_time || '';
+        document.getElementById('endTime').value = sleepLog.end_time || '';
+        document.getElementById('sleepNotes').value = sleepLog.notes || '';
+        document.getElementById('sleepQuality').value = sleepLog.quality || '';
+        
+        // Update submit button text
+        const submitBtn = sleepForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.textContent = 'Actualizează înregistrarea';
+        }
+        
+        // Show/hide fields based on sleep type
+        endTimeGroup.style.display = 'block';
+        qualityGroup.style.display = 'block';
+        
+        sleepModal.classList.add('open');
+    }
+
     function closeModal() {
         sleepModal.classList.remove('open');
         sleepForm.reset();
+        editingSleepId = null;
     }
 
     showAddSleepFormBtn.addEventListener('click', () => openModal('noapte'));
@@ -233,14 +271,22 @@ async function loadUserPhoto() {
     sleepForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const result = await apiRequest(`${API_SLEEP}?action=add`, 'POST', {
+        const formData = {
             child_id: sleepChildSelect.value,
             type: formSleepType.value,
             start_time: document.getElementById('startTime').value,
             end_time: document.getElementById('endTime').value,
             notes: document.getElementById('sleepNotes').value,
             quality: document.getElementById('sleepQuality').value
-        });
+        };
+
+        let result;
+        if (editingSleepId) {
+            formData.id = editingSleepId;
+            result = await apiRequest(`${API_SLEEP}?action=update`, 'PUT', formData);
+        } else {
+            result = await apiRequest(`${API_SLEEP}?action=add`, 'POST', formData);
+        }
 
         if (result.status === 'success') {
             closeModal();
@@ -281,8 +327,45 @@ async function loadUserPhoto() {
                             <span class="note-date">${dataFormatata}</span>
                         </div>
                         <p class="note-text">"${notaText}"</p>
+                        <div class="note-box-actions">
+                            <button class="btn-edit-sleep" data-sleep-id="${log.id}" type="button">✏️ Edit</button>
+                            <button class="btn-delete-sleep" data-sleep-id="${log.id}" type="button">🗑️ Șterge</button>
+                        </div>
                     </div>
                 `;
+            });
+
+            // Attach event listeners for edit and delete buttons
+            document.querySelectorAll('.btn-edit-sleep').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const sleepId = btn.getAttribute('data-sleep-id');
+                    const logToEdit = sleepLogs.find(l => String(l.id) === String(sleepId));
+                    if (logToEdit) {
+                        openEditModal(logToEdit);
+                    }
+                });
+            });
+
+            document.querySelectorAll('.btn-delete-sleep').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const sleepId = btn.getAttribute('data-sleep-id');
+                    if (confirm('Ești sigur că vrei să ștergi această înregistrare?')) {
+                        const deleteResult = await apiRequest(`${API_SLEEP}?action=delete`, 'DELETE', {
+                            id: sleepId,
+                            child_id: childId
+                        });
+                        
+                        if (deleteResult.status === 'success') {
+                            await loadSleepDataForChild(childId);
+                        } else {
+                            alert('Eroare: ' + deleteResult.message);
+                        }
+                    }
+                });
             });
         }
 

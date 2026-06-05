@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let myChildren = [];
     let myRelationships = [];
     let currentSelectedChildId = localStorage.getItem('selectedChildId');
+    let editingRelationId = null;
 
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_RELATIONS = '/WEB_project/backend/api/relations.php';
@@ -204,19 +205,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
+    function openEditModal(relation) {
+        editingRelationId = relation.id;
+        document.getElementById('childSelect').value = relation.child_id;
+        document.getElementById('relatedPersonName').value = relation.related_name;
+        document.getElementById('relationType').value = relation.relation_type;
+        document.getElementById('relationNotes').value = relation.notes || '';
+        
+        // Update modal title and button text
+        const modalHeader = modal.querySelector('.modal-header h3');
+        if (modalHeader) {
+            modalHeader.textContent = 'Editează relația';
+        }
+        
+        const submitBtn = addRelationForm.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.textContent = 'Actualizează relația';
+        }
+        
+        modal.classList.add('active');
+    }
+
     async function handleAddRelation(e) {
         e.preventDefault();
 
-        const result = await apiRequest(`${API_RELATIONS}?action=add`, 'POST', {
+        const formData = {
             child_id: document.getElementById('childSelect').value,
             related_name: document.getElementById('relatedPersonName').value,
             relation_type: document.getElementById('relationType').value,
             notes: document.getElementById('relationNotes').value
-        });
+        };
+
+        let result;
+        if (editingRelationId) {
+            formData.id = editingRelationId;
+            result = await apiRequest(`${API_RELATIONS}?action=update`, 'PUT', formData);
+        } else {
+            result = await apiRequest(`${API_RELATIONS}?action=add`, 'POST', formData);
+        }
 
         if (result.status === 'success') {
             addRelationForm.reset();
             modal.classList.remove('active');
+            editingRelationId = null;
             await fetchRelationships();
         } else {
             alert('Eroare: ' + result.message);
@@ -274,12 +305,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             const typeInfo = getRelationLabelAndClass(rel.relation_type);
             const initial = rel.related_name.charAt(0).toUpperCase();
             html += `
-                <div class="relation-item">
-                    <div class="relation-avatar">${initial}</div>
-                    <div class="relation-info">
-                        <h4>${escapeHtml(rel.related_name)}</h4>
-                        <span class="badge ${typeInfo.class}">${typeInfo.label}</span>
-                        ${rel.notes ? `<p class="relation-notes">${escapeHtml(rel.notes)}</p>` : ''}
+                <div class="relation-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; gap: 12px; align-items: center; flex: 1;">
+                        <div class="relation-avatar" style="width: 50px; height: 50px; background: #dbeafe; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">${initial}</div>
+                        <div class="relation-info">
+                            <h4 style="margin: 0; font-size: 1rem;">${escapeHtml(rel.related_name)}</h4>
+                            <span class="badge ${typeInfo.class}" style="display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; background: #f0f9ff; color: #0369a1;">${typeInfo.label}</span>
+                            ${rel.notes ? `<p class="relation-notes" style="margin: 6px 0 0 0; font-size: 0.9rem; color: #666;">${escapeHtml(rel.notes)}</p>` : ''}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px; flex-shrink: 0;">
+                        <button class="btn-edit-relation" data-relation-id="${rel.id}" style="background: #f6f6f6; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 1rem;">✏️</button>
+                        <button class="btn-delete-relation" data-relation-id="${rel.id}" style="background: #f6f6f6; color: white; border: none; padding: 8px 10px; border-radius: 4px; cursor: pointer; font-size: 1rem;">🗑️</button>
                     </div>
                 </div>
             `;
@@ -287,6 +324,36 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         html += `</div></article>`;
         container.innerHTML = html;
+
+        // Attach event listeners for edit and delete buttons
+        document.querySelectorAll('.btn-edit-relation').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const relationId = btn.getAttribute('data-relation-id');
+                const relationToEdit = myRelationships.find(r => r.id == relationId);
+                if (relationToEdit) {
+                    openEditModal(relationToEdit);
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-delete-relation').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                const relationId = btn.getAttribute('data-relation-id');
+                if (confirm('Ești sigur că vrei să ștergi această relație?')) {
+                    const result = await apiRequest(`${API_RELATIONS}?action=delete`, 'DELETE', {
+                        relation_id: relationId
+                    });
+                    
+                    if (result.status === 'success') {
+                        await fetchRelationships();
+                    } else {
+                        alert('Eroare: ' + result.message);
+                    }
+                }
+            });
+        });
     }
 
 
@@ -334,7 +401,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         modal.classList.add('active');
     });
 
-    closeModalBtn.addEventListener('click', () => modal.classList.remove('active'));
+    closeModalBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        editingRelationId = null;
+        addRelationForm.reset();
+    });
     addRelationForm.addEventListener('submit', handleAddRelation);
 
     if (logoutBtn) logoutBtn.addEventListener('click', logoutUser);

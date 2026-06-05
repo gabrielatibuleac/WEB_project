@@ -550,11 +550,20 @@ body.dark-mode {
         padding: 18px;
     }
 
-    .sidebar {
-        padding: 22px;
+    .topbar {
+        height: auto;
+        padding: 16px;
+        flex-direction: row; 
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
     }
 
-    .side-nav,
+    .top-actions {
+        width: auto; 
+        justify-content: flex-end;
+    }
+
     .mini-cards,
     .children-list,
     .preferences-grid,
@@ -562,23 +571,8 @@ body.dark-mode {
         grid-template-columns: 1fr;
     }
 
-    .topbar {
-        height: auto;
-        padding: 16px;
-        flex-direction: column;
-        align-items: stretch;
-        gap: 14px;
-    }
-
-    .top-actions {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
-    }
-
     .user-menu {
-        width: 100%;
-        justify-content: space-between;
+        width: auto;
     }
 
     .profile-panel,

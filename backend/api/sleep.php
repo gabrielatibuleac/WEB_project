@@ -1,6 +1,6 @@
 <?php
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 $headers = getallheaders();
@@ -68,6 +68,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         }
         
         $answer = $controller->getMetrics($userId, $child_id);
+        echo json_encode($answer);
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    if (isset($_GET['action']) && $_GET['action'] === 'update') {
+        $rawData = file_get_contents("php://input");
+        $data = json_decode($rawData);
+        
+        $answer = $controller->updateSleep($userId, $data);
+        echo json_encode($answer);
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    if (isset($_GET['action']) && $_GET['action'] === 'delete') {
+        $rawData = file_get_contents("php://input");
+        $data = json_decode($rawData);
+        
+        $answer = $controller->deleteSleep($userId, $data);
         echo json_encode($answer);
     }
 }

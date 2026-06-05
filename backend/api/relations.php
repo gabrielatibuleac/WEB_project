@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-header('Access-Control-Allow-Methods: GET, POST, DELETE');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 $headers = getallheaders();
 $token = '';
@@ -63,7 +63,16 @@ elseif ($method === 'POST') {
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Acțiune invalidă']);
     }
-} 
+}
+elseif ($method === 'PUT') {
+    $putData = json_decode(file_get_contents('php://input'), true);
+    
+    if ($action === 'update') {
+        $controller->updateRelation($userId, $putData);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Acțiune invalidă']);
+    }
+}
 elseif ($method === 'DELETE') {
     $postData = json_decode(file_get_contents('php://input'), true);
     $controller->deleteRelation($userId, $postData['relation_id'] ?? null);

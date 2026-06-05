@@ -37,5 +37,23 @@ class RelationsController {
         $success = $this->model->deleteRelation($userId, $relationId);
         echo json_encode(['status' => $success ? 'success' : 'error']);
     }
+
+    public function updateRelation($userId, $data) {
+        if (empty($data['id']) || empty($data['child_id']) || empty($data['related_name']) || empty($data['relation_type'])) {
+            echo json_encode(['status' => 'error', 'message' => 'Date incomplete']);
+            return;
+        }
+
+        $success = $this->model->updateRelation(
+            $userId,
+            $data['id'],
+            $data['child_id'],
+            $data['related_name'],
+            $data['relation_type'],
+            $data['notes'] ?? ''
+        );
+
+        echo json_encode(['status' => $success ? 'success' : 'error']);
+    }
 }
 ?>

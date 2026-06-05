@@ -29,5 +29,13 @@ class RelationsModel {
         $stmt->bind_param("ii", $relationId, $userId);
         return $stmt->execute();
     }
+
+    public function updateRelation($userId, $relationId, $childId, $relatedName, $relationType, $notes = '') {
+        $query = "UPDATE relationships SET child_id = ?, related_name = ?, relation_type = ?, notes = ? 
+                  WHERE id = ? AND user_id = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("isssii", $childId, $relatedName, $relationType, $notes, $relationId, $userId);
+        return $stmt->execute();
+    }
 }
 ?>
