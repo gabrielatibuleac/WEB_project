@@ -127,10 +127,14 @@ body.dark-mode {
     border-radius: 24px;
     padding: 0 24px;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end; 
     align-items: center;
     box-shadow: var(--card-shadow);
     margin-bottom: 36px;
+}
+
+#menuToggle {
+    display: none; 
 }
 
 .top-actions {
@@ -513,6 +517,8 @@ body.dark-mode {
     line-height: 1.5;
 }
 
+
+
 @media (width <= 1200px) {
     .page-layout {
         grid-template-columns: 1fr;
@@ -546,17 +552,72 @@ body.dark-mode {
 }
 
 @media (width <= 768px) {
+   #menuToggle {
+        display: block !important;
+    }
+
     .main-content {
         padding: 18px;
     }
 
     .topbar {
-        height: auto;
-        padding: 16px;
-        flex-direction: row; 
-        justify-content: space-between;
+    height: 72px;
+    background: var(--white);
+    border-radius: 24px;
+    padding: 0 24px;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 36px;
+}
+
+    .top-actions {
+        display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 16px;
+        margin-left: auto; 
+}
+
+    #topUserName, #logout-btn {
+        display: none; 
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 260px;
+        height: 100vh;
+        z-index: 4000;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 10px 0 30px rgb(0 0 0 / 15%);
+        padding: 32px 28px;
+        background: var(--white);
+    }
+
+    .sidebar.active {
+        left: 0; 
+    }
+
+    .side-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none; 
+        gap: 12px;
+        margin-top: 20px;
+        overflow-y: auto; 
+    }
+
+    .side-nav a {
+        white-space: normal;
+    }
+
+    .mini-cards,
+    .children-list,
+    .preferences-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
     }
 
     .top-actions {

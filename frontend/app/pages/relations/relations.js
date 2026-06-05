@@ -30,6 +30,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const closeModalBtn = document.getElementById('closeModalBtn');
     const addRelationForm = document.getElementById('addRelationForm');
 
+    
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove("active");
+            }
+        });
+    }
 
     function getAuthToken() {
         return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';

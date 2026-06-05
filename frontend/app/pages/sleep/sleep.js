@@ -19,6 +19,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     const API_CHILDREN = '/WEB_project/backend/api/children.php';
     const API_SLEEP = '/WEB_project/backend/api/sleep.php';
     
+    const menuToggle = document.getElementById("menuToggle");
+    const sidebar = document.querySelector(".sidebar");
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
+            sidebar.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (sidebar.classList.contains("active") && !sidebar.contains(e.target) && e.target !== menuToggle) {
+                sidebar.classList.remove("active");
+            }
+        });
+    }
+
+
     let editingSleepId = null;
 
     function getAuthToken() {
@@ -202,11 +219,10 @@ async function loadUserPhoto() {
         editingSleepId = null;
         modalTitle.textContent = 'Adaugă notiță de somn';
         
-        // Reset form
+        
         sleepForm.reset();
         document.getElementById('sleepQuality').value = '';
         
-        // Update submit button text
         const submitBtn = sleepForm.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.textContent = 'Salvează în jurnal';
@@ -241,13 +257,11 @@ async function loadUserPhoto() {
         document.getElementById('sleepNotes').value = sleepLog.notes || '';
         document.getElementById('sleepQuality').value = sleepLog.quality || '';
         
-        // Update submit button text
         const submitBtn = sleepForm.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.textContent = 'Actualizează înregistrarea';
         }
         
-        // Show/hide fields based on sleep type
         endTimeGroup.style.display = 'block';
         qualityGroup.style.display = 'block';
         
@@ -313,7 +327,7 @@ async function loadUserPhoto() {
         if (sleepLogs.length === 0) {
             notesFeed.innerHTML = '<p style="color: #888; font-size: 0.9rem;">Nu există înregistrări.</p>';
         } else {
-            sleepLogs.slice(0, 5).forEach(log => {
+            sleepLogs.slice(0, 3).forEach(log => {
                 const notaText = log.notes || 'Înregistrare adăugată.';
                 const cardClass = log.sleep_type === 'zi' ? 'card-day' : (log.sleep_type === 'rutina' ? '' : 'card-night');
                 const dataFormatata = new Date(log.created_at).toLocaleDateString('ro-RO', {
@@ -335,7 +349,6 @@ async function loadUserPhoto() {
                 `;
             });
 
-            // Attach event listeners for edit and delete buttons
             document.querySelectorAll('.btn-edit-sleep').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     e.preventDefault();
