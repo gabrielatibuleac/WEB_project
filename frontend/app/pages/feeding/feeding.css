@@ -8,7 +8,7 @@
 
 .page-header h2 { 
     font-size: 2rem; 
-    margin: 0 0 8px 0; 
+    margin: 0 0 8px;
 }
 
 .page-header p { 
@@ -45,18 +45,6 @@
     color: var(--text-gray); 
 }
 
-.cal-day.active .day-circle { 
-    background: var(--color-1); 
-    color: var(--white); 
-    box-shadow: 0 4px 12px rgba(240, 128, 128, 0.3); 
-}
-
-.cal-day span { 
-    font-size: 0.8rem; 
-    font-weight: 600; 
-    text-transform: uppercase; 
-}
-
 .day-circle { 
     width: 40px; 
     height: 40px; 
@@ -68,10 +56,22 @@
     transition: 0.2s ease; 
 }
 
+.cal-day.active .day-circle { 
+    background: var(--color-1); 
+    color: var(--white); 
+    box-shadow: 0 4px 12px rgb(240 128 128 / 30%);  
+}
+
+.cal-day span { 
+    font-size: 0.8rem; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+}
+
 .date-badge { 
     background: #fff0ea; 
     color: var(--color-1); 
-    border: 1px solid rgba(240, 128, 128, 0.2); 
+    border: 1px solid rgb(240 128 128 / 20%);  
     padding: 6px 12px; 
     border-radius: 8px; 
     font-weight: 700; 
@@ -179,6 +179,7 @@
 .last-meal-info small { 
     color: var(--text-gray); 
 }
+
 .bottom-widgets-grid { 
     display: grid; 
     grid-template-columns: 1fr 1fr; 
@@ -250,7 +251,7 @@
     top: 0; 
     width: 100%; 
     height: 100%; 
-    background-color: rgba(0, 0, 0, 0.4); 
+    background-color: rgb(0 0 0 / 40%); 
     backdrop-filter: blur(4px); 
     align-items: center; 
     justify-content: center; 
@@ -266,8 +267,8 @@
     border-radius: 24px; 
     width: 100%; 
     max-width: 450px; 
-    box-shadow: 0 20px 40px rgba(0,0,0,0.1); 
-    animation: slideUp 0.3s ease; 
+    box-shadow: 0 20px 40px rgb(0 0 0 / 10%);  
+    animation: slide-up 0.3s ease; 
 }
 
 .modal-header { 
@@ -319,6 +320,11 @@
     background: #fafafa; 
 }
 
+.form-group textarea { 
+    resize: none; 
+    height: 80px; 
+}
+
 .form-group input:focus, 
 .form-group select:focus, 
 .form-group textarea:focus { 
@@ -326,29 +332,25 @@
     background: var(--white); 
 }
 
-.form-group textarea { 
-    resize: none; 
-    height: 80px; 
-}
-
-@keyframes slideUp { 
+@keyframes slide-up { 
     from { 
         transform: translateY(20px); 
         opacity: 0; 
     } 
+
     to { 
         transform: translateY(0); 
         opacity: 1; 
     } 
 }
 
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
     .feeding-layout { 
         grid-template-columns: 1fr; 
     }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .page-header { 
         flex-direction: column; 
         align-items: flex-start; 
@@ -379,7 +381,7 @@
     }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
     .page-header h2 { 
         font-size: 1.7rem; 
     }

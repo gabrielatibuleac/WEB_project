@@ -75,41 +75,41 @@
             </section>
 
 
-            <section class="stats-grid custom-stats-grid">
-                <article class="stat-card">
+            <div class="stats-grid custom-stats-grid">
+                <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon" style="background: #e6f2ff;">👥</span>
                     </div>
                     <strong id="statTotal">0</strong>
                     <p>Total relatii</p>
-                </article>
+                </div>
 
-                <article class="stat-card">
+                <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon green">👶</span>
                     </div>
                     <strong id="statSiblings">0</strong>
                     <p>Frati / Surori</p>
-                </article>
+                </div>
 
-                <article class="stat-card">
+                <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon purple">❤️</span>
                     </div>
                     <strong id="statCousins">0</strong>
                     <p>Verisori</p>
-                </article>
+                </div>
 
-                <article class="stat-card">
+                <div class="stat-card">
                     <div class="stat-header">
                         <span class="stat-icon yellow">🤝</span>
                     </div>
                     <strong id="statFriends">0</strong>
                     <p>Prieteni / Colegi</p>
-                </article>
-            </section>
+                </div>
+            </div>
 
-            <section class="panel filter-panel">
+            <div class="panel filter-panel">
                 <div class="filter-controls">
                     <div class="search-box">
                         <span>🔍</span>
@@ -123,10 +123,10 @@
                         <option value="classmate">Colegi</option>
                     </select>
                 </div>
-            </section>
+            </div>
 
-            <section id="relationshipsContainer" class="relations-container">
-            </section>
+            <div id="relationshipsContainer" class="relations-container">
+            </div>
 
         </main>
     </div>
@@ -140,7 +140,9 @@
             <form id="addRelationForm" class="form-layout">
                 <div class="form-group">
                     <label>Copilul tau</label>
-                    <select id="childSelect" required></select>
+                    <select id="childSelect" required>
+                    <option value="" disabled selected>Selectează...</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Nume persoana (Prieten, ruda etc.)</label>

@@ -69,7 +69,7 @@
                 </div>
             </section>
 
-            <section class="feeding-layout">
+            <div class="feeding-layout">
                 <div class="main-column">
                     
                     <article class="panel">
@@ -162,7 +162,7 @@
                     </article>
 
                 </div>
-            </section>
+            </div>
         </main>
     </div>
 
@@ -179,7 +179,9 @@
                 </div>
                 <div class="form-group">
                     <label for="mealType">Tip masă</label>
+                 
                     <select id="mealType" required>
+                        <option value="" disabled selected>Alege o masă...</option>
                         <option value="Mic dejun">🍳 Mic dejun</option>
                         <option value="Gustare">🍎 Gustare</option>
                         <option value="Prânz">🥣 Prânz</option>
@@ -235,6 +237,7 @@
                 <div class="form-group">
                     <label for="preferenceType">Tip reacție</label>
                     <select id="preferenceType" required>
+                        <option value="" disabled selected>Alege o masă...</option>
                         <option value="check">✓ Pozitivă (Acceptă bine)</option>
                         <option value="warn">⚠️ Negativă / Sensibilitate</option>
                     </select>
