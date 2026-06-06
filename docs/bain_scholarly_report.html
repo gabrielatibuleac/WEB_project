@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ro" prefix="schema: http://schema.org/ sa: https://ns.science.ai/">
+<head>
+    <meta charset="utf-8">
+    <title>BaIn (Baby Info on Web) - Raport Scholarly HTML</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Raport Scholarly HTML pentru proiectul BaIn (Baby Info on Web), disciplina Tehnologii Web.">
+    <style>
+        :root { --accent:#f08080; --accent-dark:#b64e4e; --bg:#fff8f4; --paper:#fff; --text:#202020; --muted:#555; --border:#ddd; --soft:#fff0ea; --code:#f6f6f6; }
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, Helvetica, sans-serif; line-height:1.68; }
+article { max-width:1120px; margin:0 auto; padding:36px 22px 80px; background:var(--paper); min-height:100vh; }
+        header[role="banner"] { border-bottom:3px solid var(--accent); margin-bottom:30px; padding-bottom:22px; }
+        h1 { font-size:2.25rem; line-height:1.15; margin:0 0 12px; color:var(--accent-dark); }
+        h2 { margin-top:44px; padding-bottom:8px; border-bottom:1px solid var(--border); color:#2a2a2a; }
+        h3 { margin-top:26px; color:#333; }
+        p { margin:10px 0; }
+        a { color:var(--accent-dark); }
+        code { background:var(--code); padding:2px 6px; border-radius:5px; font-family:Consolas, Monaco, monospace; font-size:.95em; }
+        pre { background:var(--code); border:1px solid var(--border); border-radius:10px; padding:16px; overflow-x:auto; white-space:pre; font-family:Consolas, Monaco, monospace; font-size:.92rem; }
+        table { width:100%; border-collapse:collapse; margin:16px 0 24px; font-size:.96rem; }
+        th, td { border:1px solid var(--border); padding:10px 12px; vertical-align:top; }
+        th { background:var(--soft); text-align:left; }
+        figure { margin:24px 0; }
+        figcaption { color:var(--muted); font-size:.92rem; margin-top:8px; text-align:center; }
+        figure img { max-width:100%; border:1px solid var(--border); border-radius:12px; display:block; margin:0 auto; background:#fff; }
+        .metadata { background:var(--soft); border:1px solid #f2c9c0; border-radius:14px; padding:16px 18px; margin-top:18px; }
+        .metadata dl { display:grid; grid-template-columns:180px 1fr; gap:8px 14px; margin:0; }
+        .metadata dt { font-weight:700; }
+        .metadata dd { margin:0; }
+        .toc { background:#fafafa; border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin:24px 0; }
+        .toc ol { columns:2; margin-bottom:0; }
+        .module-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin:18px 0; }
+        .module-card { border:1px solid var(--border); border-radius:14px; padding:16px; background:#fffdfb; }
+        .module-card h3 { margin-top:0; }
+        footer { border-top:1px solid var(--border); margin-top:46px; padding-top:18px; color:var(--muted); font-size:.95rem; }
+        @media (max-width:760px) { article { padding:24px 14px 60px; } h1 { font-size:1.7rem; } .metadata dl { grid-template-columns:1fr; } .toc ol { columns:1; } .module-grid { grid-template-columns:1fr; } table { display:block; overflow-x:auto; } }
+    </style>
+</head>
+<body>
+<article typeof="schema:ScholarlyArticle">
+    <header role="banner">
+        <h1 property="schema:name">BaIn (Baby Info on Web)</h1>
+        <div role="contentinfo" class="metadata">
+            <dl>
+                <dt>Autori</dt><dd><span typeof="schema:Person" property="schema:author"><span property="schema:name">Vultur Stefana Gheorghita</span></span> si <span typeof="schema:Person" property="schema:author"><span property="schema:name">Tibuleac Gabriela</span></span></dd>
+                <dt>Disciplina</dt><dd>Tehnologii Web</dd>
+                <dt>Titular laborator</dt><dd>Panu Andrei</dd>
+                <dt>Grupa</dt><dd>E1, E3</dd>
+                <dt>Repository</dt><dd><a href="https://github.com/gabrielatibuleac/WEB_project.git">https://github.com/gabrielatibuleac/WEB_project.git</a></dd>
+                <dt>Management cod</dt><dd>GitHub</dd>
+                <dt>Licenta</dt><dd>Cod sursa sub licenta libera; continutul documentatiei respecta termenii Creative Commons.</dd>
+                <dt>Data</dt><dd>06.06.2026</dd>
+            </dl>
+        </div>
+    </header>
+
+    <section id="abstract" role="doc-abstract" typeof="sa:Abstract">
+        <h2>1. Rezumat</h2>
+        <p>BaIn (Baby Info on Web) este o aplicatie Web construita pentru parinti si ingrijitori, cu scopul de a strange intr-un singur loc informatiile importante despre copil. In loc ca datele despre hranire, somn, sanatate, fotografii sau momente importante sa fie imprastiate in aplicatii diferite, BaIn le organizeaza in module clare si usor de accesat.</p>
+        <p>Aplicatia a fost dezvoltata fara framework-uri Web, folosind HTML, CSS, JavaScript vanilla, PHP si MySQL. Am ales aceasta varianta pentru a avea control direct asupra felului in care clientul comunica cu serverul. Partea de backend este organizata in API-uri, controllere si modele, iar fiecare pagina comunica asincron cu serverul prin Fetch API si raspunsuri JSON.</p>
+        <p>Proiectul include autentificare cu tokenuri, modul de administrare, import si export de date in CSV si JSON, design responsive, tema light/dark si schimbarea limbii intre romana si engleza. In plus, aplicatia acopera modulele principale ale temei: profil copil, hranire, somn, timeline, galerie, medical, relatii si partajare.</p>
+    </section>
+
+    <nav class="toc" role="doc-toc">
+        <h2>Cuprins</h2>
+        <ol><li><a href="#abstract">Rezumat</a></li><li><a href="#introducere">Introducere</a></li><li><a href="#cerinte">Cerinte si restrictii</a></li><li><a href="#functionalitati">Functionalitati</a></li><li><a href="#arhitectura">Arhitectura aplicatiei</a></li><li><a href="#c4">Modelul C4</a></li><li><a href="#date">Modelarea datelor</a></li><li><a href="#api">Servicii Web si Ajax</a></li><li><a href="#securitate">Securitate</a></li><li><a href="#interfata">Interfata si design</a></li><li><a href="#admin">Modul administrare</a></li><li><a href="#import-export">Import si export</a></li><li><a href="#testare">Testare si validare</a></li><li><a href="#echipa">Lucrul in echipa</a></li><li><a href="#livrabile">Livrabile</a></li><li><a href="#concluzii">Concluzii</a></li><li><a href="#bibliografie">Bibliografie</a></li></ol>
+    </nav>
+
+    <section id="introducere" role="doc-introduction">
+        <h2>2. Introducere</h2>
+        <p>Ideea proiectului a pornit de la o problema practica: informatiile despre copil sunt de obicei pastrate in mai multe locuri. Parintele poate avea fotografii in galeria telefonului, notite despre mese intr-o aplicatie separata, programari medicale in calendar si conversatii despre copil in aplicatii de mesagerie. In timp, aceasta organizare devine greu de urmarit, mai ales cand exista mai multe persoane implicate in ingrijirea copilului.</p>
+        <p>BaIn incearca sa rezolve aceasta problema printr-o aplicatie Web modulara. Fiecare parte importanta din viata copilului are propriul modul: hranire, somn, medical, galerie, timeline, relatii si partajare. Utilizatorul poate selecta copilul si poate vedea informatiile relevante fara sa schimbe aplicatii sau sa caute date in locuri diferite.</p>
+        <p>Am pus accent pe partea de server, pe servicii Web, pe comunicare asincrona, pe baza de date relationala si pe separarea codului in module usor de inteles. Interfata a fost gandita sa fie simpla, calda vizual si potrivita pentru o aplicatie de familie.</p>
+    </section>
+
+    <section id="cerinte">
+        <h2>3. Cerinte si restrictii</h2>
+        <p>Nu am folosit framework-uri de frontend sau backend, iar comunicarea dintre pagini si server se face prin servicii Web proprii. Am folosit PHP pentru server, MySQL pentru baza de date si JavaScript vanilla pentru cererile asincrone si actualizarea interfetei.</p>
+        <table><thead><tr><th>Aspect urmarit</th><th>Cum apare in proiect</th></tr></thead><tbody>
+            <tr><td>Aplicatie Web axata pe server</td><td>Am implementat backendul in PHP, cu fisiere API separate, controllere pentru logica si modele pentru accesul la baza de date. Pagina nu lucreaza direct cu baza de date, ci doar prin serviciile PHP.</td></tr>
+            <tr><td>Fara framework-uri</td><td>Am folosit HTML, CSS, JavaScript vanilla si PHP simplu. Nu am folosit React, Vue, Angular, Laravel, Symfony sau alte framework-uri Web.</td></tr>
+            <tr><td>Servicii Web si Ajax</td><td>Fiecare modul important are endpointuri PHP care returneaza JSON. Frontendul apeleaza aceste endpointuri cu Fetch API, deci operatiile se fac fara reincarcarea completa a paginii.</td></tr>
+            <tr><td>Baza de date relationala</td><td>Am folosit MySQL/MariaDB. Datele sunt organizate in tabele pentru utilizatori, copii, tokenuri, mese, somn, timeline, galerie, medical, relatii, partajare si notificari.</td></tr>
+            <tr><td>Responsive design</td><td>Am construit interfetele cu griduri, carduri si media queries. Pe ecrane mici, meniurile si panourile se rearanjeaza pentru a ramane utilizabile.</td></tr>
+            <tr><td>Prevenire SQL Injection</td><td>Am folosit prepared statements in modelele PHP, astfel incat valorile introduse de utilizator sa nu fie concatenate direct in interogarile SQL.</td></tr>
+            <tr><td>Prevenire XSS</td><td>Datele sunt transmise ca JSON, iar continutul afisat dinamic este controlat in JavaScript. In zonele unde se insereaza text venit din baza de date, am folosit escapare pentru a evita interpretarea lui ca HTML.</td></tr>
+            <tr><td>Import/export CSV si JSON</td><td>In modulul Admin am implementat import si export pentru JSON si CSV. JSON poate fi folosit si pentru toate tabelele, iar CSV pentru tabela selectata.</td></tr>
+            <tr><td>Modul propriu de administrare</td><td>Am construit o pagina Admin separata, disponibila doar pentru utilizatorii cu rol de administrator. De acolo se pot vedea statistici, utilizatori, copii si se pot importa/exporta date.</td></tr>
+            <tr><td>Management online al codului</td><td>Am lucrat cu GitHub, repository-ul proiectului fiind disponibil la adresa mentionata in metadatele raportului.</td></tr>
+        </tbody></table>
+    </section>
+
+    <section id="functionalitati">
+        <h2>4. Functionalitati</h2>
+        <p>Aplicatia este impartita in module pentru ca utilizatorul sa poata gasi rapid zona de care are nevoie. Am incercat ca fiecare modul sa rezolve o nevoie concreta, nu doar sa existe ca pagina separata.</p>
+        <div class="module-grid">
+            <section class="module-card"><h3>4.1 Autentificare</h3><p>Modulul de autentificare permite crearea unui cont, autentificarea, logout-ul si resetarea parolei. Pentru conturile de administrator exista un cod optional. Dupa login, serverul genereaza un token, iar frontendul il trimite apoi la fiecare cerere protejata.</p></section>
+            <section class="module-card"><h3>4.2 Account</h3><p>Pagina My Account este locul in care utilizatorul isi gestioneaza profilul. De aici poate schimba numele, poza de profil, limba si tema aplicatiei. Aceste preferinte sunt globale, deci dupa salvare sunt aplicate si in restul paginilor.</p></section>
+            <section class="module-card"><h3>4.3 Dashboard</h3><p>Dashboardul functioneaza ca o pagina de start dupa autentificare. El strange informatii scurte despre copilul selectat: hranire, somn, amintiri, medical, relatii, program pentru ziua curenta si actiuni rapide catre module.</p></section>
+            <section class="module-card"><h3>4.4 Profil copil</h3><p>In profilul copilului se salveaza informatiile principale: nume, data nasterii, gen, grupa sanguina, alergii, educatie, inaltime, greutate, IMC, activitati preferate si descriere. Tot aici pot fi adaugate repere si ingrijitori.</p></section>
+            <section class="module-card"><h3>4.5 Hranire</h3><p>Modulul de hranire permite adaugarea meselor si afisarea lor intr-un jurnal. Utilizatorul poate salva alimente preferate, reactii si notite nutritionale. Pagina calculeaza si un sumar zilnic pentru mese, lichide si estimari.</p></section>
+            <section class="module-card"><h3>4.6 Somn</h3><p>Modulul de somn gestioneaza somnul de zi, somnul de noapte, rutina si notitele. Utilizatorul poate adauga, edita si sterge inregistrari. Pagina afiseaza statistici precum durata totala, ora de culcare, ora de trezire si calitatea somnului.</p></section>
+            <section class="module-card"><h3>4.7 Timeline</h3><p>Timeline-ul pastreaza momentele importante din viata copilului. Momentele pot fi filtrate pe categorii precum hranire, somn, progres, medical sau social. Un moment poate fi deschis pentru detalii sau trimis catre pagina de partajare.</p></section>
+            <section class="module-card"><h3>4.8 Galerie</h3><p>Galeria permite incarcarea fisierelor multimedia pentru copilul selectat. Am inclus suport pentru imagini, video si audio, iar afisarea este facuta intr-un grid responsive. Exista filtre pentru tipurile de fisiere.</p></section>
+            <section class="module-card"><h3>4.9 Medical</h3><p>Pagina Medical centralizeaza vaccinari, programari, tratamente, alergii, notite medicale si contacte de urgenta. Este gandita ca o fisa medicala simplificata, utila pentru urmarirea informatiilor de baza.</p></section>
+            <section class="module-card"><h3>4.10 Relatii</h3><p>Modulul Relatii pastreaza conexiunile copilului cu alte persoane: frati, surori, veri, prieteni sau colegi. Exista statistici, cautare dupa nume si filtrare dupa tipul relatiei.</p></section>
+            <section class="module-card"><h3>4.11 Partajare</h3><p>Modulul Sharing permite selectarea unui moment si salvarea unei actiuni de partajare. Am inclus variante pentru familie, link local, simulare sociala si RSS. Utilizatorul poate alege si nivelul de confidentialitate.</p></section>
+            <section class="module-card"><h3>4.12 Administrare</h3><p>Adminul este partea prin care administratorul vede statistici si gestioneaza datele aplicatiei. De aici se pot modifica roluri, sterge utilizatori sau copii si importa/exporta date in formate deschise.</p></section>
+        </div>
+    </section>
+
+    <section id="arhitectura"><h2>5. Arhitectura aplicatiei</h2><p>Am organizat proiectul astfel incat fiecare zona sa aiba un rol clar. Partea de interfata ramane separata de logica de server, iar serverul ramane separat de accesul direct la baza de date. Aceasta impartire ne-a ajutat sa lucram in echipa mai usor, pentru ca un modul putea fi dezvoltat sau corectat fara sa afecteze toate celelalte pagini.</p>
+        <table><thead><tr><th>Strat</th><th>Rol in proiect</th><th>Exemple</th></tr></thead><tbody>
+        <tr><td>HTML/CSS</td><td>Defineste structura si aspectul paginilor. Fiecare modul are propria pagina si propriul fisier CSS, iar elementele comune sunt definite in <code>global.css</code>.</td><td><code>dashboard.html</code>, <code>feeding.css</code>, <code>sharing.html</code></td></tr>
+        <tr><td>JavaScript</td><td>Gestioneaza interactiunea cu utilizatorul, trimite cereri asincrone, citeste raspunsurile JSON si actualizeaza interfata.</td><td><code>dashboard.js</code>, <code>sleep.js</code>, <code>timeline.js</code></td></tr>
+        <tr><td>API PHP</td><td>Primeste requesturile de la client, verifica metoda si actiunea ceruta, apoi apeleaza controllerul potrivit.</td><td><code>children.php</code>, <code>admin.php</code>, <code>medical.php</code></td></tr>
+        <tr><td>Controllers</td><td>Contin logica principala a aplicatiei: verificari, pregatirea datelor, decizia asupra actiunii si raspunsul catre client.</td><td><code>AdminController.php</code>, <code>FeedingController.php</code>, <code>SharingController.php</code></td></tr>
+        <tr><td>Models</td><td>Izoleaza accesul la baza de date. Aici sunt interogarile SQL si operatiile de citire, inserare, actualizare sau stergere.</td><td><code>ChildModel.php</code>, <code>SleepModel.php</code>, <code>GalleryModel.php</code></td></tr>
+        <tr><td>Config si Utils</td><td>Contin conectarea la baza de date si functii comune, in special verificarea tokenului pentru paginile protejate.</td><td><code>db.php</code>, <code>token_auth.php</code></td></tr></tbody></table>
+        <p>Fluxul obisnuit este simplu: utilizatorul apasa un buton, JavaScript trimite un request catre backend, backendul verifica tokenul, controllerul proceseaza actiunea, modelul lucreaza cu baza de date, iar raspunsul se intoarce in JSON. Interfata este apoi actualizata fara refresh complet.</p>
+    </section>
+
+    <section id="c4"><h2>6. Modelul C4</h2><p>Pentru a descrie arhitectura am folosit Modelul C4. In raport sunt incluse patru niveluri: context, containere, componente backend si fluxul unui serviciu protejat.</p>
+        <h3>6.1 System Context</h3><p>La nivel de context, BaIn este sistemul central. Parintele sau ingrijitorul foloseste aplicatia pentru a introduce si consulta date despre copil. Administratorul foloseste acelasi sistem, dar cu drepturi suplimentare pentru managementul datelor.</p><figure><img src="c4_context.png" alt="Diagrama C4 Context pentru BaIn"><figcaption>Figura 1. C4 - System Context.</figcaption></figure>
+        <h3>6.2 Containers</h3><p>La nivel de containere, aplicatia este impartita in browser client, aplicatie PHP, baza de date si zona de fisiere incarcate. Browserul nu comunica direct cu baza de date, ci doar cu API-ul PHP.</p><figure><img src="c4_containers.png" alt="Diagrama C4 Containers pentru BaIn"><figcaption>Figura 2. C4 - Container diagram.</figcaption></figure>
+        <h3>6.3 Backend Components</h3><p>Backendul este impartit in endpointuri API, utilitarul de autentificare, controllere si modele. Aceasta structura este folosita in toate modulele principale, ceea ce face codul mai usor de urmarit.</p><figure><img src="c4_components_backend.png" alt="Diagrama C4 Components pentru backend"><figcaption>Figura 3. C4 - Component diagram pentru backend.</figcaption></figure>
+        <h3>6.4 Flux pentru un serviciu protejat</h3><p>Diagrama de flux arata ce se intampla cand utilizatorul apeleaza un endpoint protejat: tokenul este verificat, controllerul executa actiunea, modelul lucreaza cu baza de date si rezultatul se intoarce in frontend.</p><figure><img src="c4_service_flow.png" alt="Diagrama de flux pentru serviciu protejat"><figcaption>Figura 4. Flux pentru un endpoint protejat.</figcaption></figure>
+    </section>
+
+    <section id="date"><h2>7. Modelarea datelor</h2><p>Baza de date este construita in jurul utilizatorului si al copiilor asociati acestuia. Aceasta structura permite ca acelasi cont sa poata gestiona mai multi copii, iar fiecare copil sa aiba propriile date pentru hranire, somn, timeline, galerie, medical, relatii si partajare.</p>
+        <table><thead><tr><th>Tabela</th><th>Rol</th></tr></thead><tbody>
+        <tr><td><code>users</code></td><td>Conturile utilizatorilor si rolurile lor.</td></tr><tr><td><code>auth_tokens</code></td><td>Tokenurile de autentificare, salvate hash-uit si cu data expirarii.</td></tr><tr><td><code>account_profiles</code></td><td>Date suplimentare despre profil, inclusiv poza.</td></tr><tr><td><code>account_settings</code></td><td>Preferinte precum limba, tema si timezone.</td></tr><tr><td><code>children</code></td><td>Profilurile copiilor asociate unui utilizator.</td></tr><tr><td><code>child_caregivers</code></td><td>Ingrijitori si persoane cu acces la profilul copilului.</td></tr><tr><td><code>child_milestones</code></td><td>Repere importante din dezvoltarea copilului.</td></tr><tr><td><code>feeding_meals</code></td><td>Mesele copilului.</td></tr><tr><td><code>feeding_notes</code></td><td>Notite nutritionale.</td></tr><tr><td><code>feeding_favorites</code></td><td>Alimente preferate.</td></tr><tr><td><code>feeding_preferences</code></td><td>Reactii si preferinte alimentare.</td></tr><tr><td><code>sleep_logs</code></td><td>Inregistrari de somn, rutina si notite.</td></tr><tr><td><code>timeline_moments</code></td><td>Momente importante din viata copilului.</td></tr><tr><td><code>gallery_media</code></td><td>Fisiere multimedia incarcate si asociate copilului.</td></tr><tr><td><code>gallery_albums</code></td><td>Organizare pentru galerie.</td></tr><tr><td><code>medical_records</code></td><td>Vaccinari, vizite, medicatie, alergii si note medicale.</td></tr><tr><td><code>emergency_contacts</code></td><td>Contacte de urgenta.</td></tr><tr><td><code>relations</code></td><td>Relatii sociale ale copilului.</td></tr><tr><td><code>relation_notes</code></td><td>Note asociate relatiilor.</td></tr><tr><td><code>share_records</code></td><td>Istoric pentru actiunile de partajare si RSS.</td></tr><tr><td><code>notifications</code></td><td>Notificari afisate in aplicatie.</td></tr>
+        </tbody></table><p>Datele provin in principal din formularele completate de utilizator. Am preferat sa nu depindem de API-uri externe pentru datele copilului, deoarece acestea sunt informatii private. Pentru fisierele multimedia, serverul salveaza fisierul in folderul de upload, iar in baza de date pastreaza calea si metadatele necesare.</p>
+    </section>
+
+    <section id="api"><h2>8. Servicii Web si Ajax</h2><p>Comunicarea dintre interfata si server se face prin servicii Web REST-like. Am folosit denumirea REST-like pentru ca endpointurile sunt organizate pe fisiere PHP si pe actiuni transmise prin parametri, nu pe rute REST pure. Totusi, folosim metode HTTP precum GET, POST, PUT si DELETE si raspunsuri JSON.</p>
+    <table><thead><tr><th>Endpoint</th><th>Ce face</th></tr></thead><tbody><tr><td><code>login.php</code></td><td>Autentifica utilizatorul si creeaza tokenul.</td></tr><tr><td><code>register.php</code></td><td>Creeaza cont nou si poate seta rol admin pe baza codului.</td></tr><tr><td><code>check_auth.php</code></td><td>Verifica tokenul si intoarce utilizatorul curent.</td></tr><tr><td><code>account.php</code></td><td>Gestioneaza profilul si preferintele contului.</td></tr><tr><td><code>children.php</code></td><td>Listeaza, adauga, editeaza si sterge copii.</td></tr><tr><td><code>feeding.php</code></td><td>Gestioneaza mesele, notitele, favoritele si preferintele alimentare.</td></tr><tr><td><code>sleep.php</code></td><td>Gestioneaza somnul, rutina, notitele si statisticile.</td></tr><tr><td><code>timeline.php</code></td><td>Gestioneaza momentele importante.</td></tr><tr><td><code>gallery.php</code></td><td>Gestioneaza uploadul si listarea fisierelor media.</td></tr><tr><td><code>medical.php</code></td><td>Gestioneaza datele medicale si contactele urgente.</td></tr><tr><td><code>relations.php</code></td><td>Gestioneaza relatiile copilului.</td></tr><tr><td><code>sharing.php</code></td><td>Gestioneaza partajarile, istoricul si RSS-ul local.</td></tr><tr><td><code>admin.php</code></td><td>Gestioneaza partea de administrare si import/export.</td></tr></tbody></table>
+    <p>In frontend, fiecare pagina are propriul fisier JavaScript. Acesta citeste tokenul din <code>sessionStorage</code>, il trimite in headerul <code>Authorization</code> si apoi actualizeaza interfata pe baza raspunsului primit.</p></section>
+
+    <section id="securitate"><h2>9. Securitate</h2><p>Pentru proiect am implementat masurile de securitate de baza cerute: protectie impotriva SQL Injection, reducerea riscului de XSS si controlul accesului la paginile protejate. Nu am tratat securitatea ca pe un element separat de aplicatie, ci ca pe o parte a fluxului normal de lucru al backendului.</p><h3>9.1 Autentificare cu tokenuri</h3><p>Am ales autentificarea cu tokenuri pentru ca se potriveste mai bine cu arhitectura pe servicii Web. Dupa login, tokenul este trimis de client la fiecare cerere. Serverul nu presupune ca utilizatorul este autentificat doar pentru ca a accesat o pagina, ci verifica tokenul de fiecare data.</p><pre><code>Authorization: Bearer &lt;token&gt;</code></pre><p>Tokenul este salvat in baza de date hash-uit. Astfel, daca cineva ar vedea continutul tabelei de tokenuri, nu ar primi direct tokenurile reale. Tokenul are si data de expirare, iar cererile cu token expirat sunt respinse.</p><h3>9.2 Autorizare admin</h3><p>Modulul Admin nu este protejat doar prin ascunderea linkului in meniu. Linkul este ascuns pentru utilizatorii normali ca sa nu incarce interfata inutil, dar verificarea reala este facuta pe server. Daca rolul nu este <code>admin</code>, serverul returneaza eroare 403.</p><h3>9.3 SQL Injection</h3><p>In modelele PHP folosim prepared statements. Datele venite din formulare sunt transmise ca parametri, nu lipite direct in query. Aceasta abordare reduce riscul ca un utilizator sa modifice query-ul SQL prin valori introduse in campuri.</p><h3>9.4 XSS</h3><p>Datele sunt transmise intre server si client in format JSON. In paginile unde construim continut HTML din date dinamice, folosim control asupra valorilor si escapare pentru textele care pot veni de la utilizator. Scopul este ca un text introdus intr-un formular sa fie afisat ca text, nu interpretat ca HTML sau JavaScript.</p></section>
+
+    <section id="interfata"><h2>10. Interfata si design</h2><p>Interfata a fost gandita pentru o aplicatie folosita de parinti, deci am ales o directie vizuala calda si prietenoasa. Culorile principale sunt nuante de roz, piersica si crem. Am folosit carduri, colturi rotunjite si iconuri simple pentru ca paginile sa para mai usor de parcurs.</p><p>Meniul lateral apare pe paginile principale si ofera acces direct catre module. Pe mobil, unde un meniu lateral fix ar ocupa prea mult spatiu, acesta se transforma intr-un meniu care poate fi deschis cu butonul hamburger. Astfel, aceeasi aplicatie ramane folosibila si pe ecrane mici.</p><h3>10.1 Preferinte globale</h3><p>Din pagina Account, utilizatorul poate schimba limba si tema. Tema dark este aplicata prin clasa <code>dark-mode</code>, iar culorile se schimba prin variabile CSS. Pentru limba, am folosit un fisier comun <code>translate.js</code>, cu traduceri directe si reguli regex pentru texte dinamice.</p><h3>10.2 Validarea interfetei</h3><p>Validarea HTML/CSS a fost inclusa in procesul de finalizare al proiectului. Aceasta a fost facuta pentru a corecta problemele de structura HTML, de stil CSS si de responsive design in paginile proiectului.</p></section>
+
+    <section id="admin"><h2>11. Modul administrare</h2><p>Modulul Admin este una dintre partile importante ale proiectului, deoarece arata ca aplicatia nu este doar o colectie de pagini pentru utilizator, ci are si o zona de control. Administratorul poate vedea statistici, utilizatori si copii, poate schimba roluri si poate sterge entitati.</p><p>In plus, in Admin am pus importul si exportul de date, pentru ca este locul natural in care un utilizator cu drepturi ridicate ar gestiona datele aplicatiei. Interfata are selector pentru tabela si butoane separate pentru JSON si CSV.</p></section>
+
+    <section id="import-export"><h2>12. Import si export</h2><p>Am implementat import/export in formate deschise pentru a permite mutarea, salvarea sau restaurarea datelor. JSON este potrivit pentru structuri mai complexe si pentru exportul tuturor tabelelor, iar CSV este potrivit pentru date tabelare simple.</p><ul><li>export JSON pentru o tabela selectata;</li><li>export JSON pentru toate tabelele;</li><li>export CSV pentru tabela selectata;</li><li>import JSON din fisier;</li><li>import CSV pentru tabela selectata.</li></ul><p>Pentru CSV am pastrat regula ca trebuie selectata o tabela concreta, deoarece un fisier CSV nu poate reprezenta natural mai multe tabele relationale in acelasi timp. Pentru JSON, aplicatia poate lucra cu o structura mai bogata.</p></section>
+
+    <section id="testare"><h2>13. Testare si validare</h2><p>Testarea a fost facuta manual, prin parcurgerea fluxurilor reale ale aplicatiei. Am verificat atat scenarii normale, cat si cazuri in care lipseste tokenul sau utilizatorul nu are dreptul de acces.</p><h3>13.1 Scenarii testate</h3><ul><li>inregistrare cont si login;</li><li>logout si acces fara token;</li><li>resetare parola;</li><li>adaugare, editare si stergere copil;</li><li>schimbare poza profil;</li><li>schimbare tema si limba;</li><li>adaugare masa, aliment preferat si notita nutritionala;</li><li>adaugare, editare si stergere somn;</li><li>adaugare moment in timeline si filtrare pe categorii;</li><li>upload media in galerie;</li><li>adaugare vaccin, programare, medicatie, alergie sau contact urgent;</li><li>adaugare relatie si filtrare dupa tip;</li><li>partajare moment si actualizare RSS;</li><li>folosirea modulului Admin;</li><li>import/export CSV si JSON;</li><li>verificarea paginilor pe dimensiuni diferite de ecran.</li></ul></section>
+
+    <section id="livrabile"><h2>15. Livrabile</h2><p>Toate livrabilele sunt incluse in proiect sau sunt atasate impreuna cu acesta. Codul sursa se afla in repository-ul GitHub mentionat in raport, iar documentatia este livrata in format Scholarly HTML.</p><ul><li>codul sursa complet al aplicatiei;</li><li>scriptul SQL pentru baza de date;</li><li>README cu informatii despre proiect, instalare si rulare;</li><li>raportul Scholarly HTML;</li><li>diagramele C4 generate din PlantUML;</li><li>interfata responsive HTML/CSS;</li><li>validarea HTML/CSS realizata inainte de predare;</li><li>film demonstrativ de 3-5 minute;</li><li>repository GitHub cu istoricul dezvoltarii.</li></ul></section>
+
+    <section id="concluzii" role="doc-conclusion"><h2>16. Concluzii</h2><p>BaIn (Baby Info on Web) este o aplicatie Web completa, construita modular si orientata catre o nevoie reala: organizarea informatiilor despre copil. Prin modulele sale, aplicatia acopera hranirea, somnul, sanatatea, momentele importante, galeria multimedia, relatiile si partajarea.</p><p>Din punct de vedere tehnic, proiectul foloseste PHP pe partea de server, servicii Web, JavaScript vanilla pe partea de client si MySQL pentru date. Am inclus autentificare cu tokenuri, modul de administrare, import/export CSV si JSON, responsive design, tema dark/light si schimbarea limbii. Consideram ca proiectul respecta cerintele principale si ofera o baza clara pentru extinderi viitoare.</p></section>
+
+    <section id="bibliografie" role="doc-bibliography"><h2>17. Bibliografie</h2><ol><li role="doc-biblioentry">W3C Community Group, <cite>Scholarly HTML</cite>, <a href="https://w3c.github.io/scholarly-html/">https://w3c.github.io/scholarly-html/</a>.</li><li role="doc-biblioentry">WHATWG, <cite>HTML Living Standard</cite>, <a href="https://html.spec.whatwg.org/">https://html.spec.whatwg.org/</a>.</li><li role="doc-biblioentry">W3C, <cite>CSS Specifications</cite>, <a href="https://www.w3.org/Style/CSS/">https://www.w3.org/Style/CSS/</a>.</li><li role="doc-biblioentry">MDN Web Docs, <cite>Fetch API</cite>, <a href="https://developer.mozilla.org/">https://developer.mozilla.org/</a>.</li><li role="doc-biblioentry">PHP Documentation, <cite>PHP Manual</cite>, <a href="https://www.php.net/manual/en/">https://www.php.net/manual/en/</a>.</li><li role="doc-biblioentry">MySQL Documentation, <a href="https://dev.mysql.com/doc/">https://dev.mysql.com/doc/</a>.</li><li role="doc-biblioentry">Simon Brown, <cite>The C4 model for visualising software architecture</cite>, <a href="https://c4model.com/">https://c4model.com/</a>.</li><li role="doc-biblioentry">W3C, <cite>Web Content Accessibility Guidelines and ARIA roles</cite>, <a href="https://www.w3.org/WAI/">https://www.w3.org/WAI/</a>.</li></ol></section>
+
+    <footer><p>BaIn (Baby Info on Web) - raport Scholarly HTML pentru disciplina Tehnologii Web.</p></footer>
+</article>
+</body>
+</html>
