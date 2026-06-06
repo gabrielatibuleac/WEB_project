@@ -9,6 +9,17 @@ $user = requireAuth($mysql);
 $controller = new AdminController($mysql);
 
 $action = $_GET["action"] ?? "";
+
+if ($action === "export_json") {
+    $controller->exportJson($user);
+    exit;
+}
+
+if ($action === "export_csv") {
+    $controller->exportCsv($user);
+    exit;
+}
+
 $input = getJsonInput();
 
 switch ($action) {
@@ -26,6 +37,14 @@ switch ($action) {
 
     case "delete_child":
         $response = $controller->deleteChild($user, $input);
+        break;
+
+    case "import_json":
+        $response = $controller->importJson($user);
+        break;
+
+    case "import_csv":
+        $response = $controller->importCsv($user);
         break;
 
     default:

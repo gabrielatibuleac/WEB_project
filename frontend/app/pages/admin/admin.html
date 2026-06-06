@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - BaIn</title>
     <link rel="stylesheet" href="../../../global.css?v=4">
-    <link rel="stylesheet" href="admin.css?v=1">
+    <link rel="stylesheet" href="admin.css?v=5">
 </head>
 <body>
     <div class="page-layout">
@@ -20,21 +20,21 @@
 
             <nav class="side-nav">
                 <a href="../dashboard/index.html">⌂ <span data-translate="navHome">Acasa</span></a>
-            <a href="../childProfile/childProfile.html">♙ <span data-translate="navChildProfile">Profil copil</span></a>
-            <a href="../feeding/feeding.html">🍼 <span data-translate="navFeeding">Hranire</span></a>
-            <a href="../sleep/sleep.html">☾ <span data-translate="navSleep">Somn</span></a>
-            <a href="../timeline/timeline.html">◷ <span data-translate="navTimeline">Timeline</span></a>
-            <a href="../gallery/gallery.html">▧ <span data-translate="navGallery">Galerie</span></a>
-            <a href="../medical/medical.html">✚ <span data-translate="navMedical">Medical</span></a>
-            <a href="../relations/relations.html">♧ <span data-translate="navRelations">Relatii</span></a>
-            <a href="../sharing/sharing.html">⌯ <span data-translate="navSharing">Partajare</span></a>
-            <a href="../account/account.html" class="account-link">👤 <span data-translate="navAccount">Contul meu</span></a>
-            <a href="../admin/admin.html" id="adminNavLink" class="admin-link" hidden>⚙ <span data-translate="navAdmin">Admin</span></a>
+                <a href="../childProfile/childProfile.html">♙ <span data-translate="navChildProfile">Profil copil</span></a>
+                <a href="../feeding/feeding.html">🍼 <span data-translate="navFeeding">Hranire</span></a>
+                <a href="../sleep/sleep.html">☾ <span data-translate="navSleep">Somn</span></a>
+                <a href="../timeline/timeline.html">◷ <span data-translate="navTimeline">Timeline</span></a>
+                <a href="../gallery/gallery.html">▧ <span data-translate="navGallery">Galerie</span></a>
+                <a href="../medical/medical.html">✚ <span data-translate="navMedical">Medical</span></a>
+                <a href="../relations/relations.html">♧ <span data-translate="navRelations">Relatii</span></a>
+                <a href="../sharing/sharing.html">⌯ <span data-translate="navSharing">Partajare</span></a>
+                <a href="../account/account.html" class="account-link">👤 <span data-translate="navAccount">Contul meu</span></a>
+                <a href="../admin/admin.html" id="adminNavLink" class="active admin-link">⚙ <span data-translate="navAdmin">Admin</span></a>
             </nav>
 
             <div class="sidebar-illustration">
                 <span>🧸</span>
-                <p>Fiecare zi conteaza.</p>
+                <p data-translate="sideMessage">Fiecare zi conteaza.</p>
             </div>
         </aside>
 
@@ -43,34 +43,32 @@
                 <div></div>
 
                 <div class="top-actions">
-                    <button class="icon-btn">🔔</button>
-                    <button class="icon-btn">?</button>
-
+                    <button class="icon-btn" type="button">🔔</button>
                     <div class="user-menu">
                         <div class="avatar" id="topUserInitial">A</div>
                         <span id="topUserName">Admin</span>
-                        <button id="logoutBtn">Logout</button>
+                        <button id="logoutBtn" type="button" data-translate="logout">Logout</button>
                     </div>
                 </div>
             </header>
 
             <section class="page-header">
                 <div>
-                    <h2>Modul administrare</h2>
-                    <p>Gestioneaza utilizatorii, copiii si datele principale ale aplicatiei.</p>
+                    <h2 data-translate="adminTitle">Modul administrare</h2>
+                    <p data-translate="adminSubtitle">Gestioneaza utilizatorii, copiii si datele principale ale aplicatiei.</p>
                 </div>
             </section>
 
             <section class="stats-grid">
                 <article class="stat-card">
                     <span>👤</span>
-                    <h3>Utilizatori</h3>
+                    <h3 data-translate="users">Utilizatori</h3>
                     <strong id="usersCount">0</strong>
                 </article>
 
                 <article class="stat-card">
                     <span>👶</span>
-                    <h3>Copii</h3>
+                    <h3 data-translate="children">Copii</h3>
                     <strong id="childrenCount">0</strong>
                 </article>
 
@@ -88,15 +86,85 @@
 
                 <article class="stat-card">
                     <span>⌯</span>
-                    <h3>Partajari</h3>
+                    <h3 data-translate="shares">Partajari</h3>
                     <strong id="sharesCount">0</strong>
                 </article>
             </section>
 
             <section class="admin-grid">
+                <article class="panel import-export-panel">
+                    <div class="panel-header import-export-header">
+                        <div>
+                            <h3>Import / Export date</h3>
+                            <p class="muted">Exporta sau importa datele aplicatiei in format JSON si CSV.</p>
+                        </div>
+                    </div>
+
+                    <div class="import-export-box">
+                        <label class="table-picker">
+                            <span>Selecteaza tabela</span>
+                            <select id="dataTableSelect">
+                            <option value="all">Toate tabelele JSON</option>
+                            <option value="users">users</option>
+                            <option value="account_profiles">account_profiles</option>
+                            <option value="account_settings">account_settings</option>
+                            <option value="children">children</option>
+                            <option value="child_caregivers">child_caregivers</option>
+                            <option value="child_milestones">child_milestones</option>
+                            <option value="emergency_contacts">emergency_contacts</option>
+                            <option value="feeding_favorites">feeding_favorites</option>
+                            <option value="feeding_meals">feeding_meals</option>
+                            <option value="feeding_notes">feeding_notes</option>
+                            <option value="feeding_preferences">feeding_preferences</option>
+                            <option value="gallery_albums">gallery_albums</option>
+                            <option value="gallery_media">gallery_media</option>
+                            <option value="medical_records">medical_records</option>
+                            <option value="notifications">notifications</option>
+                            <option value="relations">relations</option>
+                            <option value="relation_notes">relation_notes</option>
+                            <option value="share_records">share_records</option>
+                            <option value="sleep_logs">sleep_logs</option>
+                            <option value="timeline_moments">timeline_moments</option>
+                        </select>
+                        </label>
+
+                        <div class="admin-actions-grid">
+                            <button id="exportJsonBtn" class="admin-action-card" type="button">
+                                <span class="action-icon">⬇</span>
+                                <strong>Export JSON</strong>
+                                <small>Descarca toate datele sau tabela selectata in format JSON.</small>
+                            </button>
+
+                            <button id="exportCsvBtn" class="admin-action-card" type="button">
+                                <span class="action-icon">☷</span>
+                                <strong>Export CSV</strong>
+                                <small>Exporta tabela selectata intr-un fisier CSV.</small>
+                            </button>
+
+                            <label class="admin-action-card upload-action">
+                                <span class="action-icon">⬆</span>
+                                <strong>Import JSON</strong>
+                                <small>Incarca un fisier JSON exportat anterior.</small>
+                                <input type="file" id="importJsonInput" accept=".json,application/json" hidden>
+                            </label>
+
+                            <label class="admin-action-card upload-action">
+                                <span class="action-icon">⇪</span>
+                                <strong>Import CSV</strong>
+                                <small>Incarca un CSV pentru tabela selectata.</small>
+                                <input type="file" id="importCsvInput" accept=".csv,text/csv" hidden>
+                            </label>
+                        </div>
+
+                        <p class="import-hint">
+                            Pentru CSV trebuie selectata o singura tabela. Pentru JSON poti exporta toate tabelele.
+                        </p>
+                    </div>
+                </article>
+
                 <article class="panel">
                     <div class="panel-header">
-                        <h3>Utilizatori</h3>
+                        <h3 data-translate="users">Utilizatori</h3>
                     </div>
 
                     <div class="table-wrapper">
@@ -140,8 +208,9 @@
             </section>
         </main>
     </div>
-    <script src="../../common/translate.js?v=2"></script>
-    <script src="../../common/appPreferences.js?v=2"></script>
-    <script src="admin.js?v=3"></script>
+
+    <script src="../../common/translate.js?v=5"></script>
+<script src="../../common/appPreferences.js?v=3"></script>
+    <script src="admin.js?v=5"></script>
 </body>
 </html>
