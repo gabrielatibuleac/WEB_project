@@ -570,12 +570,12 @@
     cursor: pointer;
 }
 
-@media (width <= 1100px) {
+@media (max-width: 1100px) {
     .stats-cards-grid { grid-template-columns: repeat(2, 1fr); }
     .sleep-dashboard-layout { grid-template-columns: 1fr; }
 }
 
-@media (width <= 768px) {
+@media (max-width: 768px) {
     #menuToggle {
         display: block !important;
     }

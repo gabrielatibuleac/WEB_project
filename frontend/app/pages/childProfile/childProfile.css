@@ -740,7 +740,7 @@ body {
     }
 }
 
-@media (width <= 768px) {
+@media (max-width: 768px) {
     #menuToggle {
         display: block !important;
     }

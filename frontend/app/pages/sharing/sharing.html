@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Partajare - BaIn</title>
     <link rel="stylesheet" href="../../../global.css?v=4">
-    <link rel="stylesheet" href="sharing.css?v=3">
+    <link rel="stylesheet" href="sharing.css?v=21">
 </head>
 <body>
     <div class="page-layout">
@@ -67,7 +67,7 @@
                     </div>
                 </div>
 
-                <button class="primary-btn" id="refreshSharingBtn">Actualizeaza</button>
+                <button type="button" class="primary-btn" id="refreshSharingBtn">Actualizeaza</button>
             </section>
 
             <section class="sharing-grid">
@@ -88,41 +88,41 @@
                     </div>
 
                     <div class="share-actions">
-                        <button data-share-action="family">
-                            <span>♧</span>
-                            <div>
-                                <strong>Distribuie familiei</strong>
-                                <p>Trimite momentul membrilor familiei.</p>
-                            </div>
-                            <b>Salveaza</b>
-                        </button>
+                        <button type="button" data-share-action="family">
+    <span class="share-action-icon">♧</span>
+    <span class="share-action-content">
+        <strong>Distribuie familiei</strong>
+        <small>Trimite momentul membrilor familiei.</small>
+    </span>
+    <b>Salveaza</b>
+</button>
 
-                        <button data-share-action="link">
-                            <span>🔗</span>
-                            <div>
-                                <strong>Genereaza link</strong>
-                                <p>Creeaza un link local pentru moment.</p>
-                            </div>
-                            <b>Salveaza</b>
-                        </button>
+                        <button type="button" data-share-action="link">
+    <span class="share-action-icon">🔗</span>
+    <span class="share-action-content">
+        <strong>Genereaza link</strong>
+        <small>Creeaza un link local pentru moment.</small>
+    </span>
+    <b>Salveaza</b>
+</button>
 
-                        <button data-share-action="social">
-                            <span>📷</span>
-                            <div>
-                                <strong>Publica in aplicatia sociala</strong>
-                                <p>Simuleaza publicarea momentului.</p>
-                            </div>
-                            <b>Salveaza</b>
-                        </button>
+                        <button type="button" data-share-action="social">
+    <span class="share-action-icon">📷</span>
+    <span class="share-action-content">
+        <strong>Publica in aplicatia sociala</strong>
+        <small>Simuleaza publicarea momentului.</small>
+    </span>
+    <b>Salveaza</b>
+</button>
 
-                        <button data-share-action="rss">
-                            <span>🟧</span>
-                            <div>
-                                <strong>Adauga in fluxul RSS</strong>
-                                <p>Include momentul in fluxul RSS local.</p>
-                            </div>
-                            <b>Salveaza</b>
-                        </button>
+                        <button type="button" data-share-action="rss">
+    <span class="share-action-icon">🟧</span>
+    <span class="share-action-content">
+        <strong>Adauga in fluxul RSS</strong>
+        <small>Include momentul in fluxul RSS local.</small>
+    </span>
+    <b>Salveaza</b>
+</button>
                     </div>
                 </article>
 
@@ -157,7 +157,7 @@
                 <article class="panel">
                     <div class="panel-header">
                         <h3>Distribuiri recente</h3>
-                        <button class="small-danger" id="clearSharesBtn">Sterge istoricul</button>
+                        <button type="button" class="small-danger" id="clearSharesBtn">Sterge istoricul</button>
                     </div>
 
                     <div class="recent-shares" id="recentSharesList"></div>
@@ -206,7 +206,7 @@
         <div class="modal-card small">
             <div class="modal-header">
                 <h3>Notificari</h3>
-                <button class="close-modal" data-close="notificationsModal">×</button>
+                <button type="button" class="close-modal" data-close="notificationsModal">×</button>
             </div>
             <div class="notifications-list" id="notificationsList"></div>
         </div>

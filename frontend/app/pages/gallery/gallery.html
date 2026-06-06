@@ -11,7 +11,7 @@
 </head>
 <body>
     <div class="dashboard-layout">
-        
+
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-icon">👶</div>
@@ -42,15 +42,15 @@
 
         <main class="main-content">
             <header class="topbar">
-                 <button class="icon-btn" id="menuToggle">☰</button> 
+                 <button type="button" class="icon-btn" id="menuToggle">☰</button>
                 <div class="top-actions">
-                    <button class="icon-btn">🔔</button>
+                    <button type="button" class="icon-btn">🔔</button>
                     <div class="user-menu">
                         <div class="avatar" id="topUserInitial">
     <span id="topUserInitialText">A</span>
 </div>
                         <span id="topUserName">User</span>
-                        <button id="logoutBtn">Logout</button>
+                        <button type="button" id="logoutBtn">Logout</button>
                     </div>
                 </div>
             </header>
@@ -60,7 +60,7 @@
                     <h2 class="page-title">Galerie</h2>
                     <p class="page-subtitle">Toate amintirile voastre prețioase, într-un singur loc.</p>
                 </div>
-                
+
                 <div class="header-controls">
                     <div class="child-selector gallery-specific-selector">
                         <div class="child-avatar">👶</div>
@@ -71,7 +71,7 @@
                     </div>
 
                     <div class="header-actions">
-                        <button class="btn-primary" id="uploadBtn">↑ Încarcă fișier</button>
+                        <button type="button" class="btn-primary" id="uploadBtn">↑ Încarcă fișier</button>
                         <input type="file" id="hidden-file-input" style="display: none;" multiple accept="image/*,video/*,audio/*">
                     </div>
                 </div>
@@ -79,12 +79,12 @@
 
             <div class="gallery-filters">
                 <div class="filter-tabs" id="filterTabs">
-                    <button class="active" data-type="all"><i class="fas fa-th"></i> Toate</button>
-                    <button data-type="image"><i class="fas fa-image"></i> Fotografii</button>
-                    <button data-type="video"><i class="fas fa-video"></i> Videoclipuri</button>
+                    <button type="button" class="active" data-type="all"><i class="fas fa-th"></i> Toate</button>
+                    <button type="button" data-type="image"><i class="fas fa-image"></i> Fotografii</button>
+                    <button type="button" data-type="video"><i class="fas fa-video"></i> Videoclipuri</button>
                 </div>
                 <div class="filter-dropdowns">
-                    <button class="filter-btn" id="favFilterBtn"><i class="far fa-heart"></i> Favorite</button>
+                    <button type="button" class="filter-btn" id="favFilterBtn"><i class="far fa-heart"></i> Favorite</button>
                 </div>
             </div>
 
