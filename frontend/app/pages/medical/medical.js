@@ -42,6 +42,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentChild = null;
     let currentProfile = null;
     let currentMedicalData = normalizeMedicalData({});
+    const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.querySelector('.sidebar');
+
+    if (menuToggle && sidebar) {
+            menuToggle.addEventListener('click', (event) => {
+                event.stopPropagation();
+                sidebar.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (
+                    sidebar.classList.contains('active') &&
+                    !sidebar.contains(event.target) &&
+                    event.target !== menuToggle
+                ) {
+                    sidebar.classList.remove('active');
+                }
+            });
+     }
 
     const recordTypeMap = {
         vaccines: 'vaccine',

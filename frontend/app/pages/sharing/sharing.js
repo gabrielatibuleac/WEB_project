@@ -28,6 +28,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     let currentMoments = [];
     let currentShares = [];
     let initialMomentId = null;
+    const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.querySelector('.sidebar');
+
+if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        sidebar.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (
+            sidebar.classList.contains('active') &&
+            !sidebar.contains(event.target) &&
+            event.target !== menuToggle
+        ) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
 
     function getAuthToken() {
         return sessionStorage.getItem(AUTH_TOKEN_KEY) || '';

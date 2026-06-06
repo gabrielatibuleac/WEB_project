@@ -20,6 +20,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const topUserInitial = document.getElementById('topUserInitial');
     const openAddMomentBtn = document.getElementById('openAddMomentBtn');
     const openNotificationsBtn = document.getElementById('openNotificationsBtn');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            sidebar.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (
+                sidebar.classList.contains('active') &&
+                !sidebar.contains(event.target) &&
+                event.target !== menuToggle
+            ) {
+                sidebar.classList.remove('active');
+            }
+        });
+    }
 
     let children = [];
     let currentChild = null;
