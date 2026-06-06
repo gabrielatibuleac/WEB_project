@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const AUTH_TOKEN_KEY = 'bain_auth_token';
 
     const topUserName = document.getElementById('topUserName');
-    const userInitial = document.getElementById('userInitial');
+    const userInitial = document.getElementById('userInitial') || document.getElementById('topUserInitial');
     const logoutBtn = document.getElementById('logoutBtn');
     const childSelect = document.getElementById('childSelect');
     const emptyState = document.getElementById('emptyState');
@@ -24,6 +24,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const openCaregiverBtn = document.getElementById('openCaregiverBtn');
 
     const apiBase = '/WEB_project/backend/api/children.php';
+
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.querySelector('.sidebar');
+
+    if (menuToggle && sidebar) {
+        menuToggle.addEventListener('click', (event) => {
+            event.stopPropagation();
+            sidebar.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (event) => {
+            if (
+                sidebar.classList.contains('active') &&
+                !sidebar.contains(event.target) &&
+                event.target !== menuToggle
+            ) {
+                sidebar.classList.remove('active');
+            }
+        });
+    }
 
     let children = [];
     let currentChild = null;
@@ -61,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return { status: 'error', message: 'Token lipsa.' };
         }
 
-       const response = await fetch(url, {
+        const response = await fetch(url, {
             ...options,
             headers: getAuthHeaders(options.headers || {})
         });
@@ -112,8 +132,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const fullName = result.user.name || result.user.full_name || 'User';
 
-        topUserName.textContent = fullName;
-        userInitial.textContent = fullName.charAt(0).toUpperCase();
+        if (topUserName) {
+            topUserName.textContent = fullName;
+        }
+
+        if (userInitial) {
+            userInitial.textContent = fullName.charAt(0).toUpperCase();
+        }
 
         showAdminLinkIfNeeded(result.user);
 
@@ -139,24 +164,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         children = result.children || [];
-        childSelect.innerHTML = '';
+
+        if (childSelect) {
+            childSelect.innerHTML = '';
+        }
 
         if (children.length === 0) {
-            emptyState.style.display = 'block';
-            profileContent.style.display = 'none';
+            if (emptyState) {
+                emptyState.style.display = 'block';
+            }
+
+            if (profileContent) {
+                profileContent.style.display = 'none';
+            }
+
             currentChild = null;
             localStorage.removeItem('selectedChildId');
             return;
         }
 
-        emptyState.style.display = 'none';
-        profileContent.style.display = 'block';
+        if (emptyState) {
+            emptyState.style.display = 'none';
+        }
+
+        if (profileContent) {
+            profileContent.style.display = 'block';
+        }
 
         children.forEach((child) => {
             const option = document.createElement('option');
             option.value = child.id;
             option.textContent = `${child.name}, ${getAge(child.birth_date)} ani`;
-            childSelect.appendChild(option);
+
+            if (childSelect) {
+                childSelect.appendChild(option);
+            }
         });
 
         const savedChildId = selectedId || localStorage.getItem('selectedChildId');
@@ -174,7 +216,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         currentChild = result.child;
-        childSelect.value = currentChild.id;
+
+        if (childSelect) {
+            childSelect.value = currentChild.id;
+        }
+
         localStorage.setItem('selectedChildId', currentChild.id);
 
         renderChild(currentChild);
@@ -182,26 +228,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderCaregivers(result.caregivers || []);
     }
 
+    function setText(id, value) {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.textContent = value;
+        }
+    }
+
     function renderChild(child) {
-        document.getElementById('childName').textContent = child.name || '-';
-        document.getElementById('childAge').textContent = `${getAge(child.birth_date)} ani`;
-        document.getElementById('childBirthDate').textContent = formatDate(child.birth_date);
-        document.getElementById('childExactAge').textContent = getExactAge(child.birth_date);
-        document.getElementById('childGender').textContent = child.gender || '-';
-        document.getElementById('childBloodType').textContent = child.blood_type || '-';
-        document.getElementById('childAllergies').textContent = child.allergies || 'Nu are alergii cunoscute';
+        setText('childName', child.name || '-');
+        setText('childAge', `${getAge(child.birth_date)} ani`);
+        setText('childBirthDate', formatDate(child.birth_date));
+        setText('childExactAge', getExactAge(child.birth_date));
+        setText('childGender', child.gender || '-');
+        setText('childBloodType', child.blood_type || '-');
+        setText('childAllergies', child.allergies || 'Nu are alergii cunoscute');
 
-        document.getElementById('educationLevel').textContent = child.education_level || '-';
-        document.getElementById('institutionName').textContent = child.institution_name || '-';
-        document.getElementById('groupOrClass').textContent = child.group_or_class || '-';
-        document.getElementById('responsiblePerson').textContent = child.responsible_person || '-';
+        setText('educationLevel', child.education_level || '-');
+        setText('institutionName', child.institution_name || '-');
+        setText('groupOrClass', child.group_or_class || '-');
+        setText('responsiblePerson', child.responsible_person || '-');
 
-        document.getElementById('childDescription').textContent = child.description || 'Nu exista descriere.';
-        document.getElementById('heightValue').textContent = child.height_cm || '0';
-        document.getElementById('weightValue').textContent = child.weight_kg || '0';
-        document.getElementById('bmiValue').textContent = child.bmi || '0';
+        setText('childDescription', child.description || 'Nu exista descriere.');
+        setText('heightValue', child.height_cm || '0');
+        setText('weightValue', child.weight_kg || '0');
+        setText('bmiValue', child.bmi || '0');
 
         const favoriteActivities = document.getElementById('favoriteActivities');
+
+        if (!favoriteActivities) {
+            return;
+        }
+
         favoriteActivities.innerHTML = '';
 
         const activities = (child.favorite_activities || '')
@@ -225,6 +284,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderMilestones(milestones) {
         const milestoneList = document.getElementById('milestoneList');
+
+        if (!milestoneList) {
+            return;
+        }
+
         milestoneList.innerHTML = '';
 
         if (milestones.length === 0) {
@@ -251,6 +315,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function renderCaregivers(caregivers) {
         const caregiversGrid = document.getElementById('caregiversGrid');
+
+        if (!caregiversGrid) {
+            return;
+        }
+
         caregiversGrid.innerHTML = '';
 
         if (caregivers.length === 0) {
@@ -276,17 +345,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function openModal(modal) {
-        modal.classList.add('active');
+        if (modal) {
+            modal.classList.add('active');
+        }
     }
 
     function closeModal(modal) {
-        modal.classList.remove('active');
+        if (modal) {
+            modal.classList.remove('active');
+        }
     }
 
     function openAddChildModal() {
-        document.getElementById('childModalTitle').textContent = 'Adauga copil';
-        childForm.reset();
-        document.getElementById('childId').value = '';
+        setText('childModalTitle', 'Adauga copil');
+
+        if (childForm) {
+            childForm.reset();
+        }
+
+        const childIdInput = document.getElementById('childId');
+
+        if (childIdInput) {
+            childIdInput.value = '';
+        }
+
         openModal(childModal);
     }
 
@@ -295,55 +377,85 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        document.getElementById('childModalTitle').textContent = 'Editeaza copil';
-        document.getElementById('childId').value = currentChild.id;
-        document.getElementById('name').value = currentChild.name || '';
-        document.getElementById('birth_date').value = currentChild.birth_date || '';
-        document.getElementById('gender').value = currentChild.gender || '';
-        document.getElementById('blood_type').value = currentChild.blood_type || '';
-        document.getElementById('allergies').value = currentChild.allergies || '';
-        document.getElementById('education_level').value = currentChild.education_level || '';
-        document.getElementById('institution_name').value = currentChild.institution_name || '';
-        document.getElementById('group_or_class').value = currentChild.group_or_class || '';
-        document.getElementById('responsible_person').value = currentChild.responsible_person || '';
-        document.getElementById('height_cm').value = currentChild.height_cm || '';
-        document.getElementById('weight_kg').value = currentChild.weight_kg || '';
-        document.getElementById('bmi').value = currentChild.bmi || '';
-        document.getElementById('favorite_activities_input').value = currentChild.favorite_activities || '';
-        document.getElementById('description').value = currentChild.description || '';
+        setText('childModalTitle', 'Editeaza copil');
+
+        setInputValue('childId', currentChild.id);
+        setInputValue('name', currentChild.name || '');
+        setInputValue('birth_date', currentChild.birth_date || '');
+        setInputValue('gender', currentChild.gender || '');
+        setInputValue('blood_type', currentChild.blood_type || '');
+        setInputValue('allergies', currentChild.allergies || '');
+        setInputValue('education_level', currentChild.education_level || '');
+        setInputValue('institution_name', currentChild.institution_name || '');
+        setInputValue('group_or_class', currentChild.group_or_class || '');
+        setInputValue('responsible_person', currentChild.responsible_person || '');
+        setInputValue('height_cm', currentChild.height_cm || '');
+        setInputValue('weight_kg', currentChild.weight_kg || '');
+        setInputValue('bmi', currentChild.bmi || '');
+        setInputValue('favorite_activities_input', currentChild.favorite_activities || '');
+        setInputValue('description', currentChild.description || '');
 
         openModal(childModal);
     }
 
+    function setInputValue(id, value) {
+        const element = document.getElementById(id);
+
+        if (element) {
+            element.value = value;
+        }
+    }
+
+    function getInputValue(id) {
+        const element = document.getElementById(id);
+        return element ? element.value : '';
+    }
+
     function collectChildForm() {
         return {
-            id: document.getElementById('childId').value,
-            name: document.getElementById('name').value,
-            birth_date: document.getElementById('birth_date').value,
-            gender: document.getElementById('gender').value,
-            blood_type: document.getElementById('blood_type').value,
-            allergies: document.getElementById('allergies').value,
-            education_level: document.getElementById('education_level').value,
-            institution_name: document.getElementById('institution_name').value,
-            group_or_class: document.getElementById('group_or_class').value,
-            responsible_person: document.getElementById('responsible_person').value,
-            height_cm: document.getElementById('height_cm').value,
-            weight_kg: document.getElementById('weight_kg').value,
-            bmi: document.getElementById('bmi').value,
-            favorite_activities: document.getElementById('favorite_activities_input').value,
-            description: document.getElementById('description').value
+            id: getInputValue('childId'),
+            name: getInputValue('name'),
+            birth_date: getInputValue('birth_date'),
+            gender: getInputValue('gender'),
+            blood_type: getInputValue('blood_type'),
+            allergies: getInputValue('allergies'),
+            education_level: getInputValue('education_level'),
+            institution_name: getInputValue('institution_name'),
+            group_or_class: getInputValue('group_or_class'),
+            responsible_person: getInputValue('responsible_person'),
+            height_cm: getInputValue('height_cm'),
+            weight_kg: getInputValue('weight_kg'),
+            bmi: getInputValue('bmi'),
+            favorite_activities: getInputValue('favorite_activities_input'),
+            description: getInputValue('description')
         };
     }
 
-    openAddChildBtn.addEventListener('click', openAddChildModal);
-    emptyAddChildBtn.addEventListener('click', openAddChildModal);
-    editChildBtn.addEventListener('click', openEditChildModal);
-    openMilestoneBtn.addEventListener('click', () => openModal(milestoneModal));
-    openCaregiverBtn.addEventListener('click', () => openModal(caregiverModal));
+    if (openAddChildBtn) {
+        openAddChildBtn.addEventListener('click', openAddChildModal);
+    }
 
-    childSelect.addEventListener('change', async () => {
-        await loadProfile(childSelect.value);
-    });
+    if (emptyAddChildBtn) {
+        emptyAddChildBtn.addEventListener('click', openAddChildModal);
+    }
+
+    if (editChildBtn) {
+        editChildBtn.addEventListener('click', openEditChildModal);
+    }
+
+    if (openMilestoneBtn) {
+        openMilestoneBtn.addEventListener('click', () => openModal(milestoneModal));
+    }
+
+    if (openCaregiverBtn) {
+        openCaregiverBtn.addEventListener('click', () => openModal(caregiverModal));
+    }
+
+    if (childSelect) {
+        childSelect.addEventListener('change', async () => {
+            await loadProfile(childSelect.value);
+        });
+    }
 
     document.querySelectorAll('.close-modal').forEach((button) => {
         button.addEventListener('click', () => {
@@ -351,88 +463,98 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     });
 
-    childForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+    if (childForm) {
+        childForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-        const data = collectChildForm();
-        const action = data.id ? 'update' : 'create';
-        const result = await apiRequest(`${apiBase}?action=${action}`, 'POST', data);
+            const data = collectChildForm();
+            const action = data.id ? 'update' : 'create';
+            const result = await apiRequest(`${apiBase}?action=${action}`, 'POST', data);
 
-        alert(result.message);
+            alert(result.message);
 
-        if (result.status === 'success') {
-            closeModal(childModal);
-            await loadChildren(data.id || null);
-        }
-    });
-
-    deleteChildBtn.addEventListener('click', async () => {
-        if (!currentChild) {
-            return;
-        }
-
-        if (!confirm('Sigur vrei sa stergi acest copil?')) {
-            return;
-        }
-
-        const result = await apiRequest(`${apiBase}?action=delete`, 'POST', {
-            id: currentChild.id
+            if (result.status === 'success') {
+                closeModal(childModal);
+                await loadChildren(data.id || null);
+            }
         });
+    }
 
-        alert(result.message);
+    if (deleteChildBtn) {
+        deleteChildBtn.addEventListener('click', async () => {
+            if (!currentChild) {
+                return;
+            }
 
-        if (result.status === 'success') {
-            currentChild = null;
-            await loadChildren();
-        }
-    });
+            if (!confirm('Sigur vrei sa stergi acest copil?')) {
+                return;
+            }
 
-    milestoneForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+            const result = await apiRequest(`${apiBase}?action=delete`, 'POST', {
+                id: currentChild.id
+            });
 
-        if (!currentChild) {
-            return;
-        }
+            alert(result.message);
 
-        const result = await apiRequest(`${apiBase}?action=add_milestone`, 'POST', {
-            child_id: currentChild.id,
-            title: document.getElementById('milestoneTitle').value,
-            milestone_date: document.getElementById('milestoneDate').value
+            if (result.status === 'success') {
+                currentChild = null;
+                await loadChildren();
+            }
         });
+    }
 
-        alert(result.message);
+    if (milestoneForm) {
+        milestoneForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-        if (result.status === 'success') {
-            milestoneForm.reset();
-            closeModal(milestoneModal);
-            await loadProfile(currentChild.id);
-        }
-    });
+            if (!currentChild) {
+                return;
+            }
 
-    caregiverForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+            const result = await apiRequest(`${apiBase}?action=add_milestone`, 'POST', {
+                child_id: currentChild.id,
+                title: getInputValue('milestoneTitle'),
+                milestone_date: getInputValue('milestoneDate')
+            });
 
-        if (!currentChild) {
-            return;
-        }
+            alert(result.message);
 
-        const result = await apiRequest(`${apiBase}?action=add_caregiver`, 'POST', {
-            child_id: currentChild.id,
-            name: document.getElementById('caregiverName').value,
-            role: document.getElementById('caregiverRole').value,
-            access_level: document.getElementById('accessLevel').value
+            if (result.status === 'success') {
+                milestoneForm.reset();
+                closeModal(milestoneModal);
+                await loadProfile(currentChild.id);
+            }
         });
+    }
 
-        alert(result.message);
+    if (caregiverForm) {
+        caregiverForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
 
-        if (result.status === 'success') {
-            caregiverForm.reset();
-            closeModal(caregiverModal);
-            await loadProfile(currentChild.id);
-        }
-    });
+            if (!currentChild) {
+                return;
+            }
 
-    logoutBtn.addEventListener('click', logoutUser);
+            const result = await apiRequest(`${apiBase}?action=add_caregiver`, 'POST', {
+                child_id: currentChild.id,
+                name: getInputValue('caregiverName'),
+                role: getInputValue('caregiverRole'),
+                access_level: getInputValue('accessLevel')
+            });
+
+            alert(result.message);
+
+            if (result.status === 'success') {
+                caregiverForm.reset();
+                closeModal(caregiverModal);
+                await loadProfile(currentChild.id);
+            }
+        });
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logoutUser);
+    }
 
     function parseDate(dateString) {
         if (!dateString) {

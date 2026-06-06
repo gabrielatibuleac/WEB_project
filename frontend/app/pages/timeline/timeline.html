@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Timeline - BaIn</title>
     <link rel="stylesheet" href="../../../global.css?v=4">
-    <link rel="stylesheet" href="timeline.css?v=1">
+    <link rel="stylesheet" href="timeline.css?v=2">
 </head>
 <body>
     <div class="page-layout">
@@ -40,16 +40,18 @@
 
         <main class="main-content">
             <header class="topbar">
-                <div></div>
-                <div class="top-actions">
-                    <button class="icon-btn" id="openNotificationsBtn">🔔</button>
-                    <div class="user-menu">
-                        <div class="avatar" id="topUserInitial">A</div>
-                        <span id="topUserName">User</span>
-                        <button id="logoutBtn">Logout</button>
-                    </div>
+            <button class="icon-btn" id="menuToggle" type="button">☰</button>
+
+            <div class="top-actions">
+                <button class="icon-btn" id="openNotificationsBtn" type="button">🔔</button>
+
+                <div class="user-menu">
+                    <div class="avatar" id="topUserInitial">A</div>
+                    <span id="topUserName">User</span>
+                    <button id="logoutBtn" type="button">Logout</button>
                 </div>
-            </header>
+            </div>
+     </header>
 
             <section class="page-header">
                 <div>
@@ -154,8 +156,8 @@
             <div class="notifications-list" id="notificationsList"></div>
         </div>
     </div>
-  <script src="../../common/translate.js?v=10"></script>
+  <script src="../../common/translate.js?v=11"></script>
 <script src="../../common/appPreferences.js?v=3"></script>
-   <script src="timeline.js?v=15"></script>
+   <script src="timeline.js?v=16"></script>
 </body>
 </html>

@@ -127,6 +127,10 @@ body {
     margin-bottom: 36px;
 }
 
+#menuToggle {
+    display: none;
+}
+
 .top-actions {
     display: flex;
     align-items: center;
@@ -173,7 +177,7 @@ body {
 
 .page-header {
     display: grid;
-    grid-template-columns: 1fr 430px auto;
+    grid-template-columns: minmax(0, 1fr) 430px auto;
     align-items: center;
     gap: 24px;
     margin-bottom: 28px;
@@ -233,6 +237,7 @@ body {
     border-radius: 999px;
     font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .empty-state {
@@ -278,11 +283,12 @@ body {
     border-radius: 24px;
     padding: 24px;
     box-shadow: 0 10px 28px rgba(0, 0, 0, 0.04);
+    min-width: 0;
 }
 
 .main-profile-card {
     display: grid;
-    grid-template-columns: 180px 1.3fr 1fr 1.2fr;
+    grid-template-columns: 180px minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1.2fr);
     gap: 24px;
     align-items: center;
     margin-bottom: 24px;
@@ -381,7 +387,7 @@ body {
 
 .details-grid {
     display: grid;
-    grid-template-columns: 1.35fr 1fr;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     gap: 24px;
     margin-bottom: 24px;
 }
@@ -400,7 +406,7 @@ body {
 
 .growth-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
 }
 
@@ -408,6 +414,7 @@ body {
     border: 1px solid var(--border);
     border-radius: 20px;
     padding: 20px;
+    min-width: 0;
 }
 
 .growth-card span {
@@ -453,7 +460,7 @@ body {
 
 .milestone-item {
     display: grid;
-    grid-template-columns: 36px 1fr auto;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
     align-items: center;
     gap: 12px;
     border-bottom: 1px solid var(--border);
@@ -503,7 +510,7 @@ body {
 
 .caregivers-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
 }
 
@@ -515,6 +522,7 @@ body {
     gap: 14px;
     align-items: center;
     border: 1px solid var(--border);
+    min-width: 0;
 }
 
 .caregiver-avatar {
@@ -568,6 +576,7 @@ body {
     border-radius: 14px;
     font-weight: 800;
     cursor: pointer;
+    white-space: nowrap;
 }
 
 .muted {
@@ -631,7 +640,7 @@ body {
 
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
 }
 
@@ -696,7 +705,7 @@ body {
 
     .side-nav {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .sidebar-illustration {
@@ -710,7 +719,7 @@ body {
     }
 
     .caregivers-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .education-info {
@@ -723,49 +732,152 @@ body {
     .child-big-avatar {
         margin: 0 auto;
     }
+
+    .child-selector,
+    .add-child-btn {
+        width: 100%;
+        box-sizing: border-box;
+    }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
+    #menuToggle {
+        display: block !important;
+    }
+
+    .dashboard-layout {
+        display: block;
+        min-height: 100vh;
+    }
+
     .main-content {
         padding: 18px;
-    }
-
-    .sidebar {
-        padding: 22px;
-    }
-
-    .side-nav,
-    .growth-grid,
-    .caregivers-grid,
-    .form-grid {
-        grid-template-columns: 1fr;
+        width: 100%;
+        min-width: 0;
     }
 
     .topbar {
         height: auto;
         padding: 16px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        border-radius: 20px;
+        margin-bottom: 24px;
     }
 
     .top-actions {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        width: auto;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+
+    #topUserName {
+        display: none;
     }
 
     .user-menu {
-        width: 100%;
-        justify-content: space-between;
+        width: auto;
+        gap: 8px;
+    }
+
+    #logoutBtn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 260px;
+        max-width: 82vw;
+        height: 100vh;
+        z-index: 4000;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 10px 0 30px rgb(0 0 0 / 15%);
+        padding: 32px 28px;
+        background: var(--white);
+        overflow-y: auto;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    .side-nav {
+        display: flex !important;
+        flex-direction: column !important;
+        grid-template-columns: none !important;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .side-nav a {
+        white-space: normal;
     }
 
     .page-header {
+        grid-template-columns: 1fr;
         gap: 16px;
+        margin-bottom: 22px;
     }
 
-    .child-selector,
+    .page-header h2 {
+        font-size: 1.6rem;
+        line-height: 1.25;
+    }
+
+    .page-header p {
+        font-size: 0.95rem;
+        line-height: 1.45;
+    }
+
+    .child-selector {
+        padding: 14px 16px;
+        border-radius: 18px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .child-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 1.6rem;
+    }
+
     .add-child-btn,
     .section-title button,
     .panel-header button {
         width: 100%;
+        box-sizing: border-box;
+        text-align: center;
+        white-space: normal;
+    }
+
+    .empty-state {
+        padding: 44px 20px;
+        border-radius: 22px;
+    }
+
+    .empty-state span {
+        font-size: 3rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.45rem;
+    }
+
+    .profile-card,
+    .panel,
+    .privacy-banner {
+        padding: 18px;
+        border-radius: 20px;
+    }
+
+    .main-profile-card {
+        gap: 18px;
     }
 
     .child-big-avatar {
@@ -777,6 +889,47 @@ body {
     .name-row {
         flex-direction: column;
         align-items: flex-start;
+        gap: 10px;
+    }
+
+    .name-row h3 {
+        font-size: 1.6rem;
+        line-height: 1.25;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+    }
+
+    .profile-actions button {
+        width: 100%;
+    }
+
+    .growth-grid,
+    .caregivers-grid,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .growth-card {
+        padding: 18px;
+    }
+
+    .growth-card strong {
+        font-size: 1.6rem;
+    }
+
+    .milestone-item {
+        grid-template-columns: 36px minmax(0, 1fr);
+        align-items: flex-start;
+    }
+
+    .milestone-item > small {
+        grid-column: 2;
+    }
+
+    .caregiver-card {
+        align-items: flex-start;
     }
 
     .privacy-banner,
@@ -787,9 +940,15 @@ body {
         gap: 14px;
     }
 
+    .privacy-banner button {
+        width: 100%;
+        white-space: normal;
+    }
+
     .modal-card {
         padding: 20px;
         border-radius: 22px;
+        max-width: 95vw;
     }
 }
 
@@ -798,43 +957,56 @@ body {
         padding: 12px;
     }
 
-    .sidebar {
-        padding: 18px;
+    .topbar {
+        padding: 12px;
+        border-radius: 18px;
     }
 
-    .side-nav {
-        grid-template-columns: 1fr;
+    .icon-btn {
+        width: 38px;
+        height: 38px;
+    }
+
+    .avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    #logoutBtn {
+        padding: 7px 10px;
+        font-size: 0.8rem;
     }
 
     .page-header h2,
     .name-row h3 {
-        font-size: 1.55rem;
+        font-size: 1.4rem;
+    }
+
+    .child-selector {
+        padding: 12px;
+    }
+
+    .child-big-avatar {
+        width: 115px;
+        height: 115px;
+        font-size: 3.4rem;
     }
 
     .profile-card,
     .panel,
     .privacy-banner {
-        padding: 18px;
+        padding: 16px;
     }
 
     .growth-card strong {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
     }
 
-    .profile-actions {
+    .caregiver-card {
         flex-direction: column;
     }
 
-    .profile-actions button,
-    .privacy-banner button {
-        width: 100%;
-    }
-
-    .milestone-item {
-        grid-template-columns: 36px 1fr;
-    }
-
-    .milestone-item > small {
-        grid-column: 2;
+    .modal-card {
+        padding: 18px;
     }
 }

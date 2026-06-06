@@ -27,6 +27,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const childrenApiBase = '/WEB_project/backend/api/children.php';
     const dashboardApiBase = '/WEB_project/backend/api/dashboard.php';
+    const menuToggle = document.getElementById('menuToggle');
+const sidebar = document.querySelector('.sidebar');
+
+if (menuToggle && sidebar) {
+    menuToggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        sidebar.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (event) => {
+        if (
+            sidebar.classList.contains('active') &&
+            !sidebar.contains(event.target) &&
+            event.target !== menuToggle
+        ) {
+            sidebar.classList.remove('active');
+        }
+    });
+}
 
     let dashboardNotifications = [];
 
