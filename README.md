@@ -23,3 +23,6 @@ Clone the repository to your local machine:
 * **CRITICAL RULE:** Do NOT click Merge immediately! Both teammates must look over the code together (or the designated reviewer must thoroughly check it) to ensure nothing is broken.
 * If everything is okay, the reviewer clicks **Approve** and then **Merge**.
 * After the Merge, the `feature` branch can be deleted.
+
+  # VIDEO PROIECT
+  https://drive.google.com/file/d/1325MqzUHdxQwYKYaoJWfTe5OiFUfqeYb/view?usp=sharing
