@@ -7,7 +7,7 @@ if (document.readyState === 'loading') {
 async function initGallery() {
     const AUTH_TOKEN_KEY = 'bain_auth_token';
     const uploadBtn = document.getElementById('uploadBtn');
-    const hiddenFileInput = document.getElementById('hiddenFileInput');
+    const hiddenFileInput = document.getElementById('hidden-file-input');
     const filterTabs = document.querySelectorAll('#filterTabs button');
     
     const topUserName = document.getElementById('topUserName');
