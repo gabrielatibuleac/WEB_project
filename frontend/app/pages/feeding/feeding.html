@@ -40,15 +40,15 @@
 
         <main class="main-content">
             <header class="topbar">
-                 <button class="icon-btn" id="menuToggle">☰</button> 
+                 <button type="button" class="icon-btn" id="menuToggle">☰</button>
                 <div class="top-actions">
-                    <button class="icon-btn">🔔</button>
+                    <button type="button" class="icon-btn">🔔</button>
                     <div class="user-menu">
                          <div class="avatar" id="topUserInitial">
     <span id="topUserInitialText">A</span>
 </div>
                         <span id="topUserName">User</span>
-                        <button id="logoutBtn">Logout</button>
+                        <button type="button" id="logoutBtn">Logout</button>
                     </div>
                 </div>
             </header>
@@ -70,11 +70,11 @@
 
             <div class="feeding-layout">
                 <div class="main-column">
-                    
+
                     <article class="panel">
                         <div class="panel-header">
                             <h3>Calendar hrănire</h3>
-                            <button id="btnToday" class="date-badge">📅 Azi</button>
+                            <button type="button" id="btnToday" class="date-badge">📅 Azi</button>
                         </div>
                         <div class="calendar-strip" id="calendarStrip"></div>
                     </article>
@@ -82,7 +82,7 @@
                     <article class="panel">
                         <div class="panel-header">
                             <h3 id="journalDateTitle">Jurnal alimentație</h3>
-                            <button class="btn-primary" id="btnAddMeal">+ Adaugă masă</button>
+                            <button type="button" class="btn-primary" id="btnAddMeal">+ Adaugă masă</button>
                         </div>
                         <div class="table-responsive">
                             <table class="journal-table">
@@ -103,7 +103,7 @@
                         <article class="panel">
                             <div class="panel-header">
                                 <h3>Alimente preferate</h3>
-                                <button class="btn-primary btn-small" id="btnAddFavorite">+</button>
+                                <button type="button" class="btn-primary btn-small" id="btnAddFavorite">+</button>
                             </div>
                             <div class="food-chips" id="favoriteFoods"></div>
                         </article>
@@ -111,7 +111,7 @@
                         <article class="panel">
                             <div class="panel-header">
                                 <h3>Preferințe / Reacții</h3>
-                                <button class="btn-primary btn-small" id="btnAddPreference">+</button>
+                                <button type="button" class="btn-primary btn-small" id="btnAddPreference">+</button>
                             </div>
                             <ul class="preferences-list" id="preferencesList"></ul>
                         </article>
@@ -119,7 +119,7 @@
 
                 </div>
                 <div class="side-column">
-                    
+
                     <article class="panel">
                         <div class="panel-header">
                             <h3>Astăzi pe scurt</h3>
@@ -153,7 +153,7 @@
                     <article class="panel">
                         <div class="panel-header">
                             <h3>Notițe nutriționale</h3>
-                            <button class="btn-primary btn-small" id="btnEditNote">+</button>
+                            <button type="button" class="btn-primary btn-small" id="btnEditNote">+</button>
                         </div>
                         <div id="nutritionalNotes">
                             <p style="color: var(--text-gray); font-size: 0.9rem; margin:0;">Se încarcă notițele...</p>
@@ -178,7 +178,7 @@
                 </div>
                 <div class="form-group">
                     <label for="mealType">Tip masă</label>
-                 
+
                     <select id="mealType" required>
                         <option value="" disabled selected>Alege o masă...</option>
                         <option value="Mic dejun">🍳 Mic dejun</option>
@@ -210,7 +210,7 @@
             <form id="addFavoriteForm">
                 <div class="form-group">
                     <label for="favoriteFoodName">Nume aliment</label>
-                   <input list="foodOptions" id="favoriteFoodName" placeholder="Alege din listă sau scrie..." required>
+                   <input type="text" list="foodOptions" id="favoriteFoodName" placeholder="Alege din listă sau scrie..." required>
                     <datalist id="foodOptions">
                         <option value="Iaurt cu afine"></option>
                         <option value="Piure de mere"></option>

@@ -519,7 +519,7 @@ body.dark-mode {
 
 
 
-@media (width <= 1200px) {
+@media (max-width: 1200px) {
     .page-layout {
         grid-template-columns: 1fr;
     }
@@ -551,7 +551,7 @@ body.dark-mode {
     }
 }
 
-@media (width <= 768px) {
+@media (max-width: 768px) {
    #menuToggle {
         display: block !important;
     }
@@ -662,7 +662,7 @@ body.dark-mode {
     }
 }
 
-@media (width <= 480px) {
+@media (max-width: 480px) {
     .main-content {
         padding: 12px;
     }

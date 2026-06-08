@@ -360,7 +360,7 @@ body {
     background: #fff8f5;
 }
 
-.share-actions span {
+.share-actions .share-action-icon {
     width: 42px;
     height: 42px;
     border-radius: 14px;
@@ -615,7 +615,7 @@ body.dark-mode .sidebar {
 body.dark-mode .brand-icon,
 body.dark-mode .child-avatar,
 body.dark-mode .preview-icon,
-body.dark-mode .share-actions span,
+body.dark-mode .share-actions .share-action-icon,
 body.dark-mode .share-row span,
 body.dark-mode .rss-row span,
 body.dark-mode .notification-item span {
@@ -903,7 +903,7 @@ body.dark-mode .modal {
         align-items: flex-start;
     }
 
-    .share-actions span,
+    .share-actions .share-action-icon,
     .share-row span,
     .rss-row span,
     .notification-item span {
@@ -997,3 +997,38 @@ body.dark-mode .modal {
         font-size: 2.4rem;
     }
 }
+.share-actions .share-action-content {
+    display: block;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    background: transparent;
+    border-radius: 0;
+}
+
+.share-actions .share-action-content strong {
+    display: block;
+    width: auto;
+    height: auto;
+    overflow-wrap: anywhere;
+}
+
+.share-actions .share-action-content small {
+    display: block;
+    width: auto;
+    height: auto;
+    margin-top: 4px;
+    color: var(--text-gray);
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+body.dark-mode .share-actions .share-action-content {
+    background: transparent;
+    color: var(--text-dark);
+}
+
+body.dark-mode .share-actions .share-action-content small {
+    color: var(--text-gray);
+}
+

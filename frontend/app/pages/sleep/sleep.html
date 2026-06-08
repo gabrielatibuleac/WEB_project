@@ -38,13 +38,13 @@
 
         <main class="main-content">
             <header class="topbar">
-                <button class="icon-btn" id="menuToggle">☰</button>
+                <button type="button" class="icon-btn" id="menuToggle">☰</button>
                 <div class="top-actions">
-                    <button class="icon-btn">🔔</button>
+                    <button type="button" class="icon-btn">🔔</button>
                     <div class="user-menu">
                         <div class="avatar" id="topUserInitial">G</div>
                         <span id="topUserName">User</span>
-                        <button id="logoutBtn">Logout</button>
+                        <button type="button" id="logoutBtn">Logout</button>
                     </div>
                 </div>
             </header>
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <button class="btn-add-sleep-dashed" id="showAddSleepFormBtn">
+                <button type="button" class="btn-add-sleep-dashed" id="showAddSleepFormBtn">
                     <span class="plus-circle">+</span> Adaugă somn
                 </button>
             </section>
@@ -154,19 +154,19 @@
                     <div class="dashboard-panel">
                         <h3>Adaugă rapid</h3>
                         <div class="quick-actions-tiles">
-                            <button class="tile-btn tile-lavender" data-type="noapte">
+                            <button type="button" class="tile-btn tile-lavender" data-type="noapte">
                                 <span class="tile-icon">☾</span>
                                 <span class="tile-label">Somn de noapte</span>
                             </button>
-                            <button class="tile-btn tile-orange" data-type="zi">
+                            <button type="button" class="tile-btn tile-orange" data-type="zi">
                                 <span class="tile-icon">☀️</span>
                                 <span class="tile-label">Somn de zi</span>
                             </button>
-                            <button class="tile-btn tile-peach" data-type="rutina">
+                            <button type="button" class="tile-btn tile-peach" data-type="rutina">
                                 <span class="tile-icon">⭐</span>
                                 <span class="tile-label">Rutina de seară</span>
                             </button>
-                            <button class="tile-btn tile-blue" data-type="nota">
+                            <button type="button" class="tile-btn tile-blue" data-type="nota">
                                 <span class="tile-icon">📄</span>
                                 <span class="tile-label">Notiță somn</span>
                             </button>
@@ -181,16 +181,16 @@
         <div class="modal-card">
             <div class="modal-header">
                 <h3 id="modalTitle">Înregistrează somn</h3>
-                <button class="close-modal-btn" id="closeModalBtn">✕</button>
+                <button type="button" class="close-modal-btn" id="closeModalBtn">✕</button>
             </div>
             <form id="sleepForm">
                 <input type="hidden" id="formSleepType" value="noapte">
-                
+
                 <div class="form-group">
                     <label for="startTime">Ora culcare (sau realizare rutină)</label>
                     <input type="time" id="startTime" required>
                 </div>
-                
+
                 <div class="form-group" id="endTimeGroup">
                     <label for="endTime">Ora trezire</label>
                     <input type="time" id="endTime">
@@ -225,7 +225,7 @@
         <div class="modal-card">
             <div class="modal-header">
                 <h3>Toate Notițele</h3>
-                <button class="close-modal-btn" onclick="document.getElementById('allNotesModal').classList.remove('open')">✕</button>
+                <button type="button" class="close-modal-btn" onclick="document.getElementById('allNotesModal').classList.remove('open')">✕</button>
             </div>
             <div class="notes-feed" id="allNotesContainer">
             </div>
@@ -236,7 +236,7 @@
         <div class="modal-card">
             <div class="modal-header">
                 <h3>Istoric Rutine</h3>
-                <button class="close-modal-btn" onclick="document.getElementById('allRoutinesModal').classList.remove('open')">✕</button>
+                <button type="button" class="close-modal-btn" onclick="document.getElementById('allRoutinesModal').classList.remove('open')">✕</button>
             </div>
             <div class="routine-timeline" id="allRoutinesContainer">
             </div>
